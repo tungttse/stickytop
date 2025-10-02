@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StickyTop - Rich Sticky Notes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .title-bar {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 10px;
+            -webkit-app-region: drag;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .title-bar .title {
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .title-bar .controls {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 8px;
+            -webkit-app-region: no-drag;
+        }
+
+        .title-bar button {
+            width: 12px;
+            height: 12px;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .title-bar .close {
+            background: #ff5f57;
+        }
+
+        .title-bar .minimize {
+            background: #ffbd2e;
+        }
+
+        .title-bar .maximize {
+            background: #28ca42;
+        }
+
+        .title-bar button:hover {
+            transform: scale(1.1);
+        }
+
+        .sticky-container {
+            height: calc(100vh - 30px);
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar button {
+            background: none;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            color: #333;
+        }
+
+        .toolbar button:hover {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .toolbar button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .editor-container {
+            flex: 1;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .ProseMirror {
+            height: 100%;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            background: transparent;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .ProseMirror:focus {
+            outline: none;
+        }
+
+        .ProseMirror p {
+            margin: 0.5em 0;
+        }
+
+        .ProseMirror p:first-child {
+            margin-top: 0;
+        }
+
+        .ProseMirror p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Task list styles */
+        .ProseMirror ul[data-type="taskList"] {
+            list-style: none;
+            padding: 0;
+        }
+
+        .ProseMirror ul[data-type="taskList"] li {
+            display: flex;
+            align-items: flex-start;
+            margin: 4px 0;
+        }
+
+        .ProseMirror ul[data-type="taskList"] li > label {
+            flex: 0 0 auto;
+            margin-right: 8px;
+            user-select: none;
+        }
+
+        .ProseMirror ul[data-type="taskList"] li > div {
+            flex: 1 1 auto;
+        }
+
+        .ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        /* List styles */
+        .ProseMirror ul, .ProseMirror ol {
+            padding-left: 1.5em;
+        }
+
+        .ProseMirror li {
+            margin: 0.25em 0;
+        }
+
+        /* Bold, italic, underline styles */
+        .ProseMirror strong {
+            font-weight: bold;
+        }
+
+        .ProseMirror em {
+            font-style: italic;
+        }
+
+        .ProseMirror u {
+            text-decoration: underline;
+        }
+
+        .ProseMirror s {
+            text-decoration: line-through;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 4px 12px;
+            font-size: 11px;
+            color: #666;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-info {
+            display: flex;
+            gap: 16px;
+        }
+
+        .floating-actions {
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .floating-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .floating-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animation for new notes */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sticky-container {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="title-bar">
+        <div class="title">StickyTop</div>
+    </div>
+
+    <div class="sticky-container">
+        <!-- <div class="toolbar">
+            <button id="boldBtn" onclick="toggleBold()" title="Bold (Ctrl+B)">
+                <strong>B</strong>
+            </button>
+            <button id="italicBtn" onclick="toggleItalic()" title="Italic (Ctrl+I)">
+                <em>I</em>
+            </button>
+            <button id="underlineBtn" onclick="toggleUnderline()" title="Underline (Ctrl+U)">
+                <u>U</u>
+            </button>
+            <button onclick="toggleStrike()" title="Strikethrough">
+                <s>S</s>
+            </button>
+            <div style="width: 1px; height: 20px; background: rgba(0,0,0,0.2); margin: 0 4px;"></div>
+            <button onclick="toggleBulletList()" title="Bullet List">•</button>
+            <button onclick="toggleOrderedList()" title="Numbered List">1.</button>
+            <button onclick="toggleTaskList()" title="Task List (Ctrl+Shift+C)">☐</button>
+            <div style="width: 1px; height: 20px; background: rgba(0,0,0,0.2); margin: 0 4px;"></div>
+            <button onclick="clearFormat()" title="Clear Formatting">Clear</button>
+        </div> -->
+
+        <div class="editor-container">
+            <div id="editor"></div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-info">
+                <span id="wordCount">0 words</span>
+                <span id="charCount">0 characters</span>
+                <span id="todoCount">0 todos</span>
+            </div>
+            <div>
+                <span id="status">Ready</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="floating-actions">
+        <button class="floating-btn" id="pinBtn" onclick="togglePin()" title="Toggle Always On Top">
+            📌
+        </button>
+        <button class="floating-btn" onclick="newNote()" title="New Note (Ctrl+N)">
+            ➕
+        </button>
+        <button class="floating-btn" onclick="saveNote()" title="Save Note (Ctrl+S)">
+            💾
+        </button>
+        <button class="floating-btn" onclick="loadNote()" title="Load Note (Ctrl+O)">
+        </button>
+        <button class="floating-btn" onclick="toggleDevTools()" title="Toggle Dev Tools (F12)">
+            🔧
+            📁
+        </button>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
