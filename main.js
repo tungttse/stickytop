@@ -5,17 +5,18 @@ const fs = require('fs');
 let mainWindow;
 
 function createWindow() {
+  // console.log('Creating window', path.join(__dirname, 'preload.mjs'));
   // Create the browser window
   mainWindow = new BrowserWindow({
-    width: 400,
-    height: 500,
+    width: 300,
+    height: 600,
     minWidth: 300,
     minHeight: 200,
     webPreferences: {
+      // preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
-    },
+      enableRemoteModule: true    },
     frame: false,
     alwaysOnTop: true,
     resizable: true,
@@ -31,7 +32,7 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     // Open developer tools automatically for debugging
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   });
 
   // Handle window closed
@@ -80,6 +81,14 @@ function createMenu() {
         },
         { type: 'separator' },
         {
+          label: 'Settings',
+          accelerator: 'CmdOrCtrl+,',
+          click: () => {
+            mainWindow.webContents.send('open-settings');
+          }
+        },
+        { type: 'separator' },
+        {
           role: 'quit'
         }
       ]
@@ -96,10 +105,10 @@ function createMenu() {
         { role: 'selectall' },
         { type: 'separator' },
         {
-          label: 'Insert Task List',
+          label: 'Insert Todo',
           accelerator: 'CmdOrCtrl+Shift+C',
           click: () => {
-            mainWindow.webContents.executeJavaScript('toggleTaskList()');
+            mainWindow.webContents.executeJavaScript('insertTodo()');
           }
         }
       ]
@@ -201,6 +210,27 @@ ipcMain.handle('load-file', async () => {
     }
   }
   return { success: false, error: 'Load cancelled' };
+});
+
+// Handle transparency settings
+ipcMain.handle('set-transparency', async (event, opacity) => {
+  try {
+    mainWindow.setOpacity(opacity);
+    return { success: true };
+  } catch (error) {
+    console.error('Transparency error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('get-transparency', async (event) => {
+  try {
+    const opacity = mainWindow.getOpacity();
+    return { success: true, opacity: opacity };
+  } catch (error) {
+    console.error('Get transparency error:', error);
+    return { success: false, error: error.message };
+  }
 });
 
 // App event handlers

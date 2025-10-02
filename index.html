@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StickyTop - Rich Sticky Notes</title>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+
     <style>
         * {
             margin: 0;
@@ -82,45 +86,13 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
-        .toolbar {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px 12px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .toolbar button {
-            background: none;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-            color: #333;
-        }
-
-        .toolbar button:hover {
-            background: rgba(0, 0, 0, 0.05);
-            border-color: rgba(0, 0, 0, 0.2);
-        }
-
-        .toolbar button.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
         .editor-container {
             flex: 1;
             padding: 12px;
             overflow: hidden;
         }
 
-        .ProseMirror {
+        #editor {
             height: 100%;
             border: none;
             outline: none;
@@ -128,82 +100,121 @@
             line-height: 1.5;
             color: #333;
             background: transparent;
-            padding: 0;
-            font-family: inherit;
         }
 
-        .ProseMirror:focus {
-            outline: none;
-        }
-
-        .ProseMirror p {
-            margin: 0.5em 0;
-        }
-
-        .ProseMirror p:first-child {
-            margin-top: 0;
-        }
-
-        .ProseMirror p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Task list styles */
-        .ProseMirror ul[data-type="taskList"] {
-            list-style: none;
-            padding: 0;
-        }
-
-        .ProseMirror ul[data-type="taskList"] li {
+        /* Todo list styles */
+        /* Checklist styles */
+        .checklist-item {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             margin: 4px 0;
+            padding: 2px 0;
         }
 
-        .ProseMirror ul[data-type="taskList"] li > label {
-            flex: 0 0 auto;
+        .checklist-checkbox {
+            width: 16px;
+            height: 16px;
             margin-right: 8px;
-            user-select: none;
-        }
-
-        .ProseMirror ul[data-type="taskList"] li > div {
-            flex: 1 1 auto;
-        }
-
-        .ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
             cursor: pointer;
             accent-color: #667eea;
         }
 
-        .ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
-            opacity: 0.6;
-            text-decoration: line-through;
+        .checklist-text {
+            flex: 1;
+            line-height: 1.4;
+            outline: none;
         }
 
-        /* List styles */
-        .ProseMirror ul, .ProseMirror ol {
-            padding-left: 1.5em;
+        .checklist-text.completed {
+
+    /* Simple checkbox styles (like Mac Notes) */
+    .simple-checkbox-container {
+        display: inline-flex;
+        align-items: center;
+        margin: 2px 0;
+    }
+    
+    .simple-checkbox {
+        width: 16px;
+        height: 16px;
+        margin-right: 6px;
+        cursor: pointer;
+        accent-color: #007AFF;
+    }
+    
+    .checkbox-text {
+        outline: none;
+        min-width: 20px;
+        transition: all 0.2s ease;
+    }
+    
+    .checkbox-text.completed {
+        text-decoration: line-through;
+        color: #8e8e93;
+        opacity: 0.7;
+    }            text-decoration: line-through;
+            color: #666;
+            opacity: 0.7;
         }
 
-        .ProseMirror li {
-            margin: 0.25em 0;
+        .checklist-text:focus {
+            background-color: rgba(102, 126, 234, 0.1);
+            border-radius: 2px;
         }
 
-        /* Bold, italic, underline styles */
-        .ProseMirror strong {
-            font-weight: bold;
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 4px 0;
+            padding: 2px 0;
+            width: 100%;
+            clear: both;
         }
 
-        .ProseMirror em {
-            font-style: italic;
+        .todo-checkbox {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            margin-top: 2px;
+            cursor: pointer;
+            accent-color: #667eea;
         }
 
-        .ProseMirror u {
-            text-decoration: underline;
+        .todo-text {
+            flex: 1;
+            line-height: 1.4;
         }
 
-        .ProseMirror s {
-            text-decoration: line-through;
+        .todo-text.completed {
+
+    /* Simple checkbox styles (like Mac Notes) */
+    .simple-checkbox-container {
+        display: inline-flex;
+        align-items: center;
+        margin: 2px 0;
+    }
+    
+    .simple-checkbox {
+        width: 16px;
+        height: 16px;
+        margin-right: 6px;
+        cursor: pointer;
+        accent-color: #007AFF;
+    }
+    
+    .checkbox-text {
+        outline: none;
+        min-width: 20px;
+        transition: all 0.2s ease;
+    }
+    
+    .checkbox-text.completed {
+        text-decoration: line-through;
+        color: #8e8e93;
+        opacity: 0.7;
+    }            text-decoration: line-through;
+            color: #666;
+            opacity: 0.7;
         }
 
         .status-bar {
@@ -259,6 +270,167 @@
             color: white;
         }
 
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 1 !important;
+        }
+
+        .modal-content {
+            background: #ffffff !important;
+            border-radius: 12px;
+            padding: 0;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            opacity: 1 !important;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-container input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        #transparencyValue {
+            min-width: 40px;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .setting-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #667eea;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px 24px;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
@@ -284,6 +456,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -293,40 +466,64 @@
         .sticky-container {
             animation: slideIn 0.3s ease-out;
         }
+
+        /* Xóa style mặc định */
+        .ql-editor input[type="checkbox"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            /* bo tròn góc giống mac note */
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            vertical-align: middle;
+            background: #fff;
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Khi hover */
+        .ql-editor input[type="checkbox"]:hover {
+            border-color: #999;
+        }
+
+        /* Khi tick */
+        .ql-editor input[type="checkbox"]:checked {
+            background-color: #007aff;
+            /* xanh iOS/macOS */
+            border-color: #007aff;
+        }
+
+        /* Icon check */
+        .ql-editor input[type="checkbox"]:checked::after {
+            content: "✔";
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: 0;
+            left: 3px;
+        }
     </style>
 </head>
+
 <body>
     <div class="title-bar">
         <div class="title">StickyTop</div>
+        <!-- <div class="controls">
+            <button class="minimize" onclick="minimizeWindow()"></button>
+            <button class="maximize" onclick="maximizeWindow()"></button>
+            <button class="close" onclick="closeWindow()"></button>
+        </div> -->
     </div>
 
     <div class="sticky-container">
-        <!-- <div class="toolbar">
-            <button id="boldBtn" onclick="toggleBold()" title="Bold (Ctrl+B)">
-                <strong>B</strong>
-            </button>
-            <button id="italicBtn" onclick="toggleItalic()" title="Italic (Ctrl+I)">
-                <em>I</em>
-            </button>
-            <button id="underlineBtn" onclick="toggleUnderline()" title="Underline (Ctrl+U)">
-                <u>U</u>
-            </button>
-            <button onclick="toggleStrike()" title="Strikethrough">
-                <s>S</s>
-            </button>
-            <div style="width: 1px; height: 20px; background: rgba(0,0,0,0.2); margin: 0 4px;"></div>
-            <button onclick="toggleBulletList()" title="Bullet List">•</button>
-            <button onclick="toggleOrderedList()" title="Numbered List">1.</button>
-            <button onclick="toggleTaskList()" title="Task List (Ctrl+Shift+C)">☐</button>
-            <div style="width: 1px; height: 20px; background: rgba(0,0,0,0.2); margin: 0 4px;"></div>
-            <button onclick="clearFormat()" title="Clear Formatting">Clear</button>
-        </div> -->
-
         <div class="editor-container">
             <div id="editor"></div>
         </div>
 
-        <div class="status-bar">
+        <!-- <div class="status-bar">
             <div class="status-info">
                 <span id="wordCount">0 words</span>
                 <span id="charCount">0 characters</span>
@@ -335,10 +532,10 @@
             <div>
                 <span id="status">Ready</span>
             </div>
-        </div>
+        </div> -->
     </div>
 
-    <div class="floating-actions">
+    <!-- <div class="floating-actions">
         <button class="floating-btn" id="pinBtn" onclick="togglePin()" title="Toggle Always On Top">
             📌
         </button>
@@ -349,13 +546,41 @@
             💾
         </button>
         <button class="floating-btn" onclick="loadNote()" title="Load Note (Ctrl+O)">
+            📁
         </button>
         <button class="floating-btn" onclick="toggleDevTools()" title="Toggle Dev Tools (F12)">
             🔧
-            📁
         </button>
+    </div> -->
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="close-btn" onclick="closeSettings()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="transparencySlider">Window Transparency:</label>
+                    <div class="slider-container">
+                        <input type="range" id="transparencySlider" min="0.3" max="1.0" step="0.1" value="1.0">
+                        <span id="transparencyValue">100%</span>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <label for="alwaysOnTopToggle">Always On Top:</label>
+                    <input type="checkbox" id="alwaysOnTopToggle" checked>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+                <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <script src="renderer.js"></script>
 </body>
+
 </html>
