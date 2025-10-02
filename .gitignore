@@ -1,0 +1,11 @@
+.node_modules
+.dist
+.build
+.out
+.release
+.src
+.test
+.tmp
+.log
+.env
+.idea
