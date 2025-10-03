@@ -9,30 +9,32 @@ function createWindow() {
   // Create the browser window
   mainWindow = new BrowserWindow({
     width: 300,
-    height: 600,
-    minWidth: 300,
+    height: 300,
+    minWidth: 200,
     minHeight: 200,
     webPreferences: {
-      // preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true    },
+      enableRemoteModule: true
+    },
     frame: false,
     alwaysOnTop: true,
     resizable: true,
+    minimizable: false,
+    maximizable: false,
     titleBarStyle: 'hidden',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#ffff99',
     show: false
   });
 
   // Load the index.html file
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile('dist/index.html');
 
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     // Open developer tools automatically for debugging
-    // mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
   });
 
   // Handle window closed

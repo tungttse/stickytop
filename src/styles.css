@@ -1,0 +1,192 @@
+/* App Layout */
+.app {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Drag Area */
+.drag-area {
+    height: 20px;
+    width: 100%;
+    background: #ffff99;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    -webkit-app-region: drag;
+    cursor: move;
+    flex-shrink: 0;
+}
+
+/* Tiptap Editor with Line Numbers */
+.tiptap-container {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #ffff99;
+    display: flex;
+}
+
+.line-numbers {
+    background: #ffff99;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 20px 8px 20px 12px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.4);
+    user-select: none;
+    min-width: 40px;
+    text-align: right;
+    line-height: 1.6;
+    flex-shrink: 0;
+}
+
+.line-number {
+    height: 1.6em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.editor-wrapper {
+    flex: 1;
+    overflow: hidden;
+}
+
+.tiptap-editor {
+    width: 100%;
+    height: 100%;
+    background: #ffff99;
+    border: none;
+    outline: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-y: auto;
+    padding: 20px;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.tiptap-editor:focus {
+    outline: none;
+}
+
+/* Tiptap List Styles */
+.tiptap-editor ul.tiptap-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tiptap-editor ul.tiptap-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin: 0.25rem 0;
+}
+
+.tiptap-editor ul.tiptap-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* Tiptap Task List Styles */
+.tiptap-editor ul[data-type="taskList"] {
+    margin: 0;
+    /* Loại bỏ margin 0.5rem */
+}
+
+.tiptap-editor ul[data-type="taskList"] li {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    min-height: 1.6em;
+}
+
+.tiptap-editor ul[data-type="taskList"] li>label {
+    flex: 0 0 auto;
+    margin-right: 0.5rem;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    height: 1.6em;
+}
+
+.tiptap-editor ul[data-type="taskList"] li>div {
+    flex: 1 1 auto;
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+    min-height: 1.6em;
+}
+
+.tiptap-editor ul[data-type="taskList"] input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #007AFF;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.tiptap-editor ul[data-type="taskList"] li[data-checked="true"]>div {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+/* Scrollbar Styling */
+.tiptap-editor::-webkit-scrollbar {
+    width: 8px;
+}
+
+.tiptap-editor::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.tiptap-editor::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.tiptap-editor::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .tiptap-container {
+        padding: 10px;
+    }
+}
+
+/* Ensure consistent line height for all elements */
+.tiptap-editor p,
+.tiptap-editor div,
+.tiptap-editor span,
+.tiptap-editor li {
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+/* Task list specific adjustments */
+.tiptap-editor ul[data-type="taskList"] li {
+    min-height: 1.6em;
+    /* Cùng với line-height của editor */
+    line-height: 1.6;
+}
+
+.tiptap-editor ul[data-type="taskList"] li>label {
+    height: 1.6em;
+    line-height: 1.6;
+}
+
+.tiptap-editor ul[data-type="taskList"] li>div {
+    line-height: 1.6;
+    min-height: 1.6em;
+}

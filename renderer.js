@@ -2,70 +2,59 @@ const { ipcRenderer } = require('electron');
 
 let isPinned = true;
 
-// Initialize simple editor
+
 function initEditor() {
-    console.log('Initializing simple editor...');
-    
-    const editorElement = document.querySelector('#editor');
-    if (!editorElement) {
-        console.error('Editor element not found');
-        return;
-    }
-
-    // Create a simple contenteditable div
-    editorElement.innerHTML = '<div contenteditable="true" id="simple-editor" style="width: 100%; height: 100%; border: none; outline: none; font-family: inherit; font-size: 14px; padding: 0; overflow-y: auto; line-height: 1.5;">Start writing your sticky note...</div>';
-    
-    const editor = document.getElementById('simple-editor');
-    editor.focus();
-    
-    // Add event listeners
-    editor.addEventListener('focus', handleEditorFocus);
-    editor.addEventListener('blur', handleEditorBlur);
-    editor.addEventListener('click', handleEditorClick);
+    const editor = new EditorJS({
+        autofocus: true,
+        placeholder: 'Let`s write an awesome story!',
+        holder: 'editor',
+        defaultBlock: 'paragraph',
+        tools: {
+            header: Header,
+            // inlineCode: {
+            //     class: InlineCode,
+            //     shortcut: 'CMD+SHIFT+M',
+            //   },
+            // checklist: {
+            //   class: Checklist,
+            //   inlineToolbar: true,
+            // },
+            // ColorPicker: {
+            //     class: ColorPicker.default,  // or ColorPicker.ColorPickerWithoutSanitize
+            //   },
+            // embed: Embed,
+            // Marker: {
+            //     class: Marker,
+            //     shortcut: 'CMD+SHIFT+M',
+            //   },
+            // quote: {
+            //     class: Quote,
+            //     inlineToolbar: true,
+            //     shortcut: 'CMD+SHIFT+O',
+            //     config: {
+            //       quotePlaceholder: 'Enter a quote',
+            //       captionPlaceholder: 'Quote\'s author',
+            //     },
+            //   },
+            paragraph: {
+                class: Paragraph,
+                toolbox: {
+                  show: false   // trick: không hiện trong menu
+                }
+              },
+            List: {
+                class: EditorjsList,
+                inlineToolbar: true,
+                config: {
+                  defaultStyle: 'unordered'
+                },
+              },
+          }
+    });
+    // editor.focus();
+    return;
 }
 
-// Handle clicks in the editor
-function handleEditorClick(event) {
-    const target = event.target;
-    
-    // Handle checkbox clicks
-    if (target.classList.contains('todo-checkbox')) {
-        const todoText = target.nextElementSibling;
-        if (target.checked) {
-            todoText.classList.add('completed');
-        } else {
-            todoText.classList.remove('completed');
-        }
-        updateCounts();
-    }
-    
-    // Handle simple checkbox clicks
-    if (target.classList.contains('simple-checkbox')) {
-        const checkboxText = target.nextElementSibling;
-        if (target.checked) {
-            checkboxText.classList.add('completed');
-        } else {
-            checkboxText.classList.remove('completed');
-        }
-        updateCounts();
-    }
-}
-
-// Handle editor focus
-function handleEditorFocus(event) {
-    const editor = document.getElementById('simple-editor');
-    if (editor && editor.textContent.trim() === 'Start writing your sticky note...') {
-        editor.textContent = '';
-    }
-}
-
-// Handle editor blur
-function handleEditorBlur(event) {
-    const editor = document.getElementById('simple-editor');
-    if (editor && editor.textContent.trim() === '') {
-        editor.textContent = 'Start writing your sticky note...';
-    }
-}
 
 // Update word, character, and todo counts
 function updateCounts() {
@@ -113,148 +102,6 @@ function updateStatus(message) {
     }
 }
 
-// Insert todo checkbox
-function insertTodo() {
-    const editor = document.getElementById('simple-editor');
-    if (!editor) return;
-    
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        
-        // Create todo HTML
-        const todoHtml = `
-            <div class="todo-item">
-                <input type="checkbox" class="todo-checkbox">
-                <span class="todo-text">New todo item</span>
-            </div>
-        `;
-        
-        // Insert the todo
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = todoHtml;
-        const todoElement = tempDiv.firstElementChild;
-        
-        range.deleteContents();
-        range.insertNode(todoElement);
-        
-        // Move cursor to the end of the todo text
-        const todoText = todoElement.querySelector('.todo-text');
-        const newRange = document.createRange();
-        newRange.selectNodeContents(todoText);
-        newRange.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-        
-        // Select the placeholder text for easy editing
-        const textNode = todoText.firstChild;
-        if (textNode) {
-            const selectRange = document.createRange();
-            selectRange.selectNodeContents(textNode);
-            selection.removeAllRanges();
-            selection.addRange(selectRange);
-        }
-        
-    }
-}
-
-// Helper function to find parent todo item
-function findParentTodoItem(node) {
-    while (node && node !== document) {
-        if (node.nodeType === Node.ELEMENT_NODE && node.classList && node.classList.contains('todo-item')) {
-            return node;
-        }
-        node = node.parentNode;
-    }
-    return null;
-}
-
-// Create a new todo item after the current one
-function createNewTodoAfter(currentTodoItem) {
-    const todoHtml = `
-        <div class="todo-item">
-            <input type="checkbox" class="todo-checkbox">
-            <span class="todo-text">New todo item</span>
-        </div>
-    `;
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = todoHtml;
-    const newTodoItem = tempDiv.firstElementChild;
-    
-    // Insert after current todo item with proper line break
-    // Create a line break element first
-    const lineBreak = document.createElement('br');
-    
-    // Insert line break after current todo item
-    currentTodoItem.parentNode.insertBefore(lineBreak, currentTodoItem.nextSibling);
-    
-    // Insert new todo item after the line break
-    currentTodoItem.parentNode.insertBefore(newTodoItem, lineBreak.nextSibling);
- 
-    
-    // Focus on the new todo text and select placeholder
-    const newTodoText = newTodoItem.querySelector('.todo-text');
-    const newRange = document.createRange();
-    newRange.selectNodeContents(newTodoText);
-    newRange.collapse(false);
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(newRange);
-    
-    // Select the placeholder text
-    const textNode = newTodoText.firstChild;
-    if (textNode) {
-        const selectRange = document.createRange();
-        selectRange.selectNodeContents(textNode);
-        selection.removeAllRanges();
-        selection.addRange(selectRange);
-    }
-}
-
-// Create a new simple checkbox after the current one
-function createNewSimpleCheckboxAfter(currentCheckboxContainer, currentText) {
-    // Create simple checkbox HTML (like Mac Notes)
-    const checkboxHtml = `
-        <span class="simple-checkbox-container" style="display: inline-flex; align-items: center; margin: 2px 0;">
-            <input type="checkbox" class="simple-checkbox" style="width: 16px; height: 16px; margin-right: 6px; cursor: pointer; accent-color: #007AFF;">
-            <span class="checkbox-text" contenteditable="true" style="outline: none; min-width: 20px;">New checkbox item</span>
-        </span>
-    `;
-    
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = checkboxHtml;
-    const newCheckboxContainer = tempDiv.firstElementChild;
-
-
-    // Insert after current checkbox container with proper line break
-    // Create a line break element first
-    const lineBreak = document.createElement('br');
-    
-    // Insert line break after current checkbox
-    currentCheckboxContainer.parentNode.insertBefore(lineBreak, currentCheckboxContainer.nextSibling);
-    
-    // Insert new checkbox after the line break
-    currentCheckboxContainer.parentNode.insertBefore(newCheckboxContainer, lineBreak.nextSibling);
- 
-    // Focus on the new checkbox text and select placeholder
-    const newCheckboxText = newCheckboxContainer.querySelector('.checkbox-text');
-    const newRange = document.createRange();
-    newRange.selectNodeContents(newCheckboxText);
-    newRange.collapse(false);
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(newRange);
-    
-    // Select the placeholder text
-    const textNode = newCheckboxText.firstChild;
-    if (textNode) {
-        const selectRange = document.createRange();
-        selectRange.selectNodeContents(textNode);
-        selection.removeAllRanges();
-        selection.addRange(selectRange);
-    }
-}
 
 // Window controls
 function minimizeWindow() {
@@ -356,162 +203,6 @@ async function loadNote() {
     }
 }
 
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    // Handle Ctrl/Cmd combinations
-    if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-            case 'n':
-                e.preventDefault();
-                newNote();
-                break;
-            case 's':
-                e.preventDefault();
-                saveNote();
-                break;
-            case 'o':
-                e.preventDefault();
-                loadNote();
-                break;
-            case 't':
-                e.preventDefault();
-                togglePin();
-                break;
-            case 'F12':
-                e.preventDefault();
-                toggleDevTools();
-                break;
-            case ',':
-                e.preventDefault();
-                openSettings();
-                break;
-        }
-    }
-    
-    // Handle Tab key for checkbox creation
-    if (e.key === 'Tab' || e.key === ' ') {
-        const editor = document.getElementById('simple-editor');
-        if (editor && editor.contains(document.activeElement)) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const textBeforeCursor = getTextBeforeCursor(range);
-                
-                // Check if user just typed '[]' and pressed Tab
-                if (textBeforeCursor.endsWith('[]')) {
-                    e.preventDefault();
-                    convertToSimpleCheckbox(range, textBeforeCursor);
-                    updateCounts();
-                    return;
-                }
-            }
-        }
-    }
-    
-    // Handle Enter key
-    if (e.key === 'Enter') {
-        const editor = document.getElementById('simple-editor');
-        if (editor && editor.contains(document.activeElement)) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
-                
-                // Check if we're inside a simple checkbox text
-                const simpleCheckboxContainer = findParentSimpleCheckbox(container);
-                if (simpleCheckboxContainer) {
-                    e.preventDefault();
-                    
-                    // Get the current checkbox text
-                    const checkboxText = simpleCheckboxContainer.querySelector('.checkbox-text');
-                    const currentText = checkboxText.textContent.trim();
-                    
-                    // Create new simple checkbox after current one
-                    createNewSimpleCheckboxAfter(simpleCheckboxContainer, currentText);
-                    updateCounts();
-                    return;
-                }
-                
-                // Check if we're inside a todo item
-                const todoItem = findParentTodoItem(container);
-                if (todoItem) {
-                    e.preventDefault();
-                    
-                    // Get the current todo text
-                    const todoText = todoItem.querySelector('.todo-text');
-                    const currentText = todoText.textContent.trim();
-                    
-                    // If todo text is empty or placeholder, create new todo
-                    if (currentText === '' || currentText === 'New todo item') {
-                        createNewTodoAfter(todoItem);
-                    } else {
-                        // Create new todo with current text
-                        todoText.textContent = currentText;
-                        createNewTodoAfter(todoItem);
-                    }
-                    updateCounts();
-                    return;
-                }
-                
-                // Check for markdown syntax []
-                const textBeforeCursor = getTextBeforeCursor(range);
-                if (textBeforeCursor.endsWith('[]')) {
-                    e.preventDefault();
-                    convertMarkdownToTodo(range, textBeforeCursor);
-                    updateCounts();
-                    return;
-                }
-            }
-        }
-    }
-    
-    // Handle Backspace key
-    if (e.key === 'Backspace') {
-        const editor = document.getElementById('simple-editor');
-        if (editor && editor.contains(document.activeElement)) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
-                
-                // Check if we're inside a todo item
-                const todoItem = findParentTodoItem(container);
-                if (todoItem) {
-                    const todoText = todoItem.querySelector('.todo-text');
-                    const range = selection.getRangeAt(0);
-                    
-                    if (range.startContainer === todoText && range.startOffset === 0) {
-                        e.preventDefault();
-                        // Delete the entire todo item
-                        deleteTodoItem(todoItem);
-                        return;
-                    }
-                }
-                
-                // Check if we're inside a simple checkbox text
-                const simpleCheckboxContainer = findParentSimpleCheckbox(container);
-                if (simpleCheckboxContainer) {
-                    const checkboxText = simpleCheckboxContainer.querySelector('.checkbox-text');
-                    const range = selection.getRangeAt(0);
-                    
-                    if (range.startContainer === checkboxText && range.startOffset === 0) {
-                        e.preventDefault();
-                        // Delete the entire simple checkbox
-                        deleteSimpleCheckbox(simpleCheckboxContainer);
-                        return;
-                    }
-                }
-            }
-        }
-    }    if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-        switch (e.key) {
-            case 'C':
-                e.preventDefault();
-                insertTodo();
-                break;
-        }
-    }
-});
 
 // IPC message handlers
 ipcRenderer.on('new-note', () => {
@@ -612,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing simple editor...');
-    initEditor();
+    // initEditor();
     
     // Set initial pin state
     const pinBtn = document.getElementById('pinBtn');

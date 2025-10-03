@@ -5,8 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StickyTop - Rich Sticky Notes</title>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/checklist@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@2.7.6/dist/quote.umd.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@editorjs/embed@latest"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/marker@latest"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/editorjs-color-picker@1.0.8/dist/index.umd.js"></script>
+
+    <script type="module">
+        import { Editor } from 'https://esm.sh/@tiptap/core'
+        import StarterKit from 'https://esm.sh/@tiptap/starter-kit'
+        const editor = new Editor({
+          element: document.querySelector('#editor'),
+          extensions: [StarterKit],
+          content: '<p>Hello World!</p>',
+        })
+      </script>
+    
 
     <style>
         * {
