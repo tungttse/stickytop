@@ -71,7 +71,8 @@
 
 .editor-wrapper {
     flex: 1;
-    overflow: hidden;
+    overflow-y: auto;
+    /* position: relative; */
 }
 
 .tiptap-editor {
@@ -84,7 +85,7 @@
     font-size: 14px;
     line-height: 1.6;
     overflow-y: auto;
-    padding: 20px;
+    padding: 10px;
     margin: 0;
     box-sizing: border-box;
 }
