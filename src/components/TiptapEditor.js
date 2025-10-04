@@ -7,13 +7,13 @@ import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Placeholder from '@tiptap/extension-placeholder'
 import CountdownTimer from './CountdownTimer';
 import SystemClock from './SystemClock';
+import { debounce } from 'lodash';
 
-const TiptapEditor = ({ onContentChange = ()=> {} }) => {
+const TiptapEditor = ({ content = '', onContentChange = () => {} }) => {
   const [lineNumbers, setLineNumbers] = useState([1]);
   const [showCountdown, setShowCountdown] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(10);
   const editorRef = useRef(null);
-  const [content, setContent] = useState('');
 
   // const updateLineNumbers = useCallback(() => {
   //   if (editor) {
@@ -96,6 +96,7 @@ const TiptapEditor = ({ onContentChange = ()=> {} }) => {
       editor.commands.setContent(content);
     }
   }, [editor, content]);
+
 
   // useEffect(() => {
   //   if (editor) {

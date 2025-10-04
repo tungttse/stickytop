@@ -2,11 +2,78 @@ const { app, BrowserWindow, Menu, ipcMain, dialog, Notification } = require('ele
 const path = require('path');
 const fs = require('fs');
 
+// Simple debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 let mainWindow;
 
+// Window state management
+const WINDOW_STATE_FILE = 'window-state.json';
+
+function getWindowStatePath() {
+  return path.join(app.getPath('userData'), WINDOW_STATE_FILE);
+}
+
+function saveWindowState() {
+  if (!mainWindow) return;
+  
+  try {
+    const bounds = mainWindow.getBounds();
+    const isMaximized = mainWindow.isMaximized();
+    const isMinimized = mainWindow.isMinimized();
+    
+    const windowState = {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+      isMaximized: isMaximized,
+      isMinimized: isMinimized,
+      timestamp: Date.now()
+    };
+    
+    fs.writeFileSync(getWindowStatePath(), JSON.stringify(windowState, null, 2));
+  } catch (error) {
+    console.error('Error saving window state:', error);
+  }
+}
+
+function loadWindowState() {
+  try {
+    const statePath = getWindowStatePath();
+    if (fs.existsSync(statePath)) {
+      const data = fs.readFileSync(statePath, 'utf8');
+      const windowState = JSON.parse(data);
+      
+      // Check if state is not too old (e.g., within 30 days)
+      const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+      if (windowState.timestamp && windowState.timestamp > thirtyDaysAgo) {
+        return windowState;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading window state:', error);
+  }
+  
+  return null;
+}
+
 function createWindow() {
-  // Create the browser window
-  mainWindow = new BrowserWindow({
+  // Load saved window state
+  const savedState = loadWindowState();
+  
+  // Default window options
+  const defaultOptions = {
     width: process.env.ENV ==='dev' ? 1200 : 300,
     height: process.env.ENV ==='dev' ? 800 : 600,
     minWidth: 200,
@@ -28,7 +95,18 @@ function createWindow() {
     backgroundColor: '#ffff99',
     show: false,
     opacity: 0.8
-  });
+  };
+
+  // Apply saved state if available
+  if (savedState) {
+    defaultOptions.x = savedState.x;
+    defaultOptions.y = savedState.y;
+    defaultOptions.width = savedState.width;
+    defaultOptions.height = savedState.height;
+  }
+
+  // Create the browser window
+  mainWindow = new BrowserWindow(defaultOptions);
 
   // Load the index.html file - handle both dev and production
   const isDev = process.env.ENV === 'dev' || process.argv.includes('--dev');
@@ -45,12 +123,27 @@ function createWindow() {
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
+    
+    // Restore maximized state if it was maximized
+    if (savedState && savedState.isMaximized) {
+      mainWindow.maximize();
+    }
+    
     // Open developer tools automatically for debugging
     process.env.ENV ==='dev' && mainWindow.webContents.openDevTools();
   });
 
+  // Save window state on resize/move
+  mainWindow.on('resize', debounce(saveWindowState, 500));
+  mainWindow.on('move', debounce(saveWindowState, 500));
+  mainWindow.on('maximize', saveWindowState);
+  mainWindow.on('unmaximize', saveWindowState);
+  mainWindow.on('minimize', saveWindowState);
+  mainWindow.on('restore', saveWindowState);
+
   // Handle window closed
   mainWindow.on('closed', () => {
+    saveWindowState(); // Save state before closing
     mainWindow = null;
   });
 
@@ -184,6 +277,42 @@ function createMenu() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 }
+
+ipcMain.handle('auto-save-note', async (event, content) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const autoSavePath = path.join(userDataPath, 'autosave.json');
+    
+    const autoSaveData = {
+      content: content,
+      timestamp: Date.now()
+    };
+    
+    await fs.promises.writeFile(autoSavePath, JSON.stringify(autoSaveData, null, 2));
+    return { success: true };
+  } catch (error) {
+    console.error('Error auto-saving note:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('load-auto-save-note', async (event) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const autoSavePath = path.join(userDataPath, 'autosave.json');
+    
+    const data = await fs.promises.readFile(autoSavePath, 'utf8');
+    const autoSaveData = JSON.parse(data);
+    
+    return { success: true, content: autoSaveData.content };
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return { success: false, error: 'No auto-saved note found' };
+    }
+    console.error('Error loading auto-saved note:', error);
+    return { success: false, error: error.message };
+  }
+});
 
 // IPC handlers
 ipcMain.handle('save-file', async (event, content) => {
@@ -398,4 +527,9 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+// Save window state before app quits
+app.on('before-quit', () => {
+  saveWindowState();
 });
