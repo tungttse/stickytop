@@ -6,6 +6,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    background-color: #ffff99; /* Default yellow, can be overridden by inline style */
 }
 
 .ProseMirror p,
@@ -24,7 +25,7 @@
     -webkit-app-region: drag;
     height: 20px;
     width: 100%;
-    background: #ffff99;
+    background: inherit; /* Inherit from parent app */
     /* border: 1px solid rgba(0, 0, 0, 0.1); */
     cursor: move;
     flex-shrink: 0;
@@ -90,12 +91,12 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: #ffff99;
+    background: inherit; /* Inherit from parent app */
     display: flex;
 }
 
 .line-numbers {
-    background: #ffff99;
+    background: inherit; /* Inherit from parent app */
     border-right: 1px solid rgba(0, 0, 0, 0.1);
     padding: 20px 8px 20px 12px;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -124,7 +125,7 @@
 .tiptap-editor {
     width: 100%;
     height: 100%;
-    background: #ffff99;
+    background: inherit; /* Inherit from parent app */
     border: none;
     outline: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

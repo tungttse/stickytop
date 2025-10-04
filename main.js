@@ -68,6 +68,23 @@ function loadWindowState() {
   return null;
 }
 
+function loadSavedColor() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const colorPath = path.join(userDataPath, 'sticky-color.json');
+    
+    if (fs.existsSync(colorPath)) {
+      const data = fs.readFileSync(colorPath, 'utf8');
+      const colorData = JSON.parse(data);
+      return colorData.color;
+    }
+  } catch (error) {
+    console.error('Error loading saved color:', error);
+  }
+  
+  return null;
+}
+
 function createWindow() {
   // Load saved window state
   const savedState = loadWindowState();
@@ -103,6 +120,12 @@ function createWindow() {
     defaultOptions.y = savedState.y;
     defaultOptions.width = savedState.width;
     defaultOptions.height = savedState.height;
+  }
+
+  // Load saved color for window background
+  const savedColor = loadSavedColor();
+  if (savedColor) {
+    defaultOptions.backgroundColor = savedColor;
   }
 
   // Create the browser window
@@ -235,6 +258,41 @@ function createMenu() {
       ]
     },
     {
+      label: 'Color',
+      submenu: [
+        {
+          label: 'Yellow',
+          click: () => {
+            mainWindow.webContents.send('change-color', '#ffff99');
+          }
+        },
+        {
+          label: 'Blue',
+          click: () => {
+            mainWindow.webContents.send('change-color', '#99ccff');
+          }
+        },
+        {
+          label: 'Green',
+          click: () => {
+            mainWindow.webContents.send('change-color', '#99ff99');
+          }
+        },
+        {
+          label: 'Pink',
+          click: () => {
+            mainWindow.webContents.send('change-color', '#ff99cc');
+          }
+        },
+        {
+          label: 'Purple',
+          click: () => {
+            mainWindow.webContents.send('change-color', '#cc99ff');
+          }
+        }
+      ]
+    },
+    {
       label: 'Debug',
       submenu: [
         {
@@ -310,6 +368,43 @@ ipcMain.handle('load-auto-save-note', async (event) => {
       return { success: false, error: 'No auto-saved note found' };
     }
     console.error('Error loading auto-saved note:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Color management
+ipcMain.handle('save-color', async (event, color) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const colorPath = path.join(userDataPath, 'sticky-color.json');
+    
+    const colorData = {
+      color: color,
+      timestamp: Date.now()
+    };
+    
+    await fs.promises.writeFile(colorPath, JSON.stringify(colorData, null, 2));
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving color:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('load-color', async (event) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const colorPath = path.join(userDataPath, 'sticky-color.json');
+    
+    const data = await fs.promises.readFile(colorPath, 'utf8');
+    const colorData = JSON.parse(data);
+    
+    return { success: true, color: colorData.color };
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return { success: false, error: 'No saved color found' };
+    }
+    console.error('Error loading color:', error);
     return { success: false, error: error.message };
   }
 });

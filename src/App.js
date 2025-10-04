@@ -5,6 +5,7 @@ function App() {
   const [content, setContent] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
+  const [backgroundColor, setBackgroundColor] = useState('#ffff99'); // Default yellow
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
@@ -26,6 +27,50 @@ function App() {
     };
     
     loadAutoSaved();
+  }, []);
+
+  // Load saved color on startup
+  useEffect(() => {
+    const loadSavedColor = async () => {
+      try {
+        if (window.electronAPI && window.electronAPI.loadColor) {
+          const result = await window.electronAPI.loadColor();
+          if (result.success) {
+            setBackgroundColor(result.color);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved color:', error);
+      }
+    };
+    
+    loadSavedColor();
+  }, []);
+
+  // Listen for color change from menu
+  useEffect(() => {
+    if (window.electronAPI && window.electronAPI.onColorChange) {
+      const handleColorChange = async (event, color) => {
+        setBackgroundColor(color);
+        // Save the new color
+        try {
+          if (window.electronAPI && window.electronAPI.saveColor) {
+            await window.electronAPI.saveColor(color);
+          }
+        } catch (error) {
+          console.error('Error saving color:', error);
+        }
+      };
+      
+      window.electronAPI.onColorChange(handleColorChange);
+      
+      // Cleanup listener on unmount
+      return () => {
+        if (window.electronAPI && window.electronAPI.removeColorChangeListener) {
+          window.electronAPI.removeColorChangeListener();
+        }
+      };
+    }
   }, []);
 
   // Auto-save when content changes
@@ -136,7 +181,7 @@ function App() {
   };
 
   return (
-    <div className={`app ${isMinimized ? 'minimized' : ''}`}>
+    <div className={`app ${isMinimized ? 'minimized' : ''}`} style={{ backgroundColor }}>
       <div className="drag-area"  onClick={handleDragAreaClick}>
         {saveStatus && (
           <div className={`save-status ${saveStatus}`}>
