@@ -4,9 +4,13 @@ import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
+import CountdownTimer from './CountdownTimer';
+import SystemClock from './SystemClock';
 
 const TiptapEditor = ({ content, onContentChange }) => {
   const [lineNumbers, setLineNumbers] = useState([1]);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [countdownSeconds, setCountdownSeconds] = useState(10);
   const editorRef = useRef(null);
 
   const updateLineNumbers = useCallback(() => {
@@ -16,7 +20,6 @@ const TiptapEditor = ({ content, onContentChange }) => {
       let lines = text.split('\n');
       lines = lines.filter(line => line.trim() !== '');
 
-      console.log(lines);
       const lineCount = Math.max(lines.length, 1);
       const numbers = Array.from({ length: lineCount }, (_, i) => i + 1);
       setLineNumbers(numbers);
@@ -69,7 +72,6 @@ const TiptapEditor = ({ content, onContentChange }) => {
 
   useEffect(() => {
     if (editor) {
-      // editor.commands.focus();
       updateLineNumbers();
     }
   }, [editor, updateLineNumbers]);
@@ -77,6 +79,35 @@ const TiptapEditor = ({ content, onContentChange }) => {
   useEffect(() => {
     updateLineNumbers();
   }, [content, updateLineNumbers]);
+
+  const handleCountdownComplete = () => {
+    console.log('Countdown completed!');
+    // Có thể thêm notification hoặc action khác
+  };
+
+  const handleCountdownCancel = () => {
+    setShowCountdown(false);
+  };
+
+  const toggleCountdown = () => {
+    setShowCountdown(!showCountdown);
+  };
+
+  const testNotification = async () => {
+    try {
+      if (window.electronAPI && window.electronAPI.showNotification) {
+        await window.electronAPI.showNotification({
+          title: "🔔 Test Notification",
+          body: "This is a test notification from StickyTop!",
+          sound: true
+        });
+      } else {
+        console.log('Notification API not available');
+      }
+    } catch (error) {
+      console.error('Error showing notification:', error);
+    }
+  };
 
   return (
     <div className="tiptap-container">
@@ -89,6 +120,52 @@ const TiptapEditor = ({ content, onContentChange }) => {
       </div>
       <div className="editor-wrapper" ref={editorRef}>
         <EditorContent editor={editor} />
+        
+        {/* Countdown Timer Section */}
+        <div className="countdown-section">
+          <button 
+            onClick={toggleCountdown}
+            className="countdown-toggle-btn"
+          >
+            {showCountdown ? '⏰ Hide Timer' : '⏰ Show Timer'}
+          </button>
+          
+          {showCountdown && (
+            <div className="countdown-input-section">
+              <label>
+                Set countdown (seconds):
+                <input
+                  type="number"
+                  value={countdownSeconds}
+                  onChange={(e) => setCountdownSeconds(parseInt(e.target.value) || 10)}
+                  min="1"
+                  max="3600"
+                  className="countdown-input"
+                />
+              </label>
+            </div>
+          )}
+          
+          {showCountdown && (
+            <CountdownTimer
+              initialSeconds={countdownSeconds}
+              onComplete={handleCountdownComplete}
+              onCancel={handleCountdownCancel}
+            />
+          )}
+          
+          {showCountdown && (
+            <button 
+              onClick={testNotification}
+              className="notification-test"
+            >
+              🔔 Test Notification
+            </button>
+          )}
+        </div>
+        
+        {/* System Clock Section */}
+        <SystemClock />
       </div>
     </div>
   );

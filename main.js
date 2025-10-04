@@ -1,21 +1,21 @@
-const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 let mainWindow;
 
 function createWindow() {
-  // console.log('Creating window', path.join(__dirname, 'preload.mjs'));
   // Create the browser window
   mainWindow = new BrowserWindow({
-    width: 300,
-    height: 300,
+    width: 1200,
+    height: 800,
     minWidth: 200,
-    minHeight: 200,
+    minHeight: 400,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: true,
+      preload: path.join(__dirname, "preload.js")
     },
     frame: false,
     alwaysOnTop: true,
@@ -235,6 +235,68 @@ ipcMain.handle('get-transparency', async (event) => {
   }
 });
 
+// Handle toggle minimize
+ipcMain.handle("toggle-minimize", async (event) => {
+ try {
+    const bounds = mainWindow.getBounds();
+    if (bounds.height > 50) {
+      // Minimize to title bar only
+      mainWindow.setBounds({
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: 40
+      });
+    } else {
+      // Restore to original size
+      mainWindow.setBounds({
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: 300
+      });
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Toggle minimize error:", error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Handle countdown notification
+ipcMain.handle("show-notification", async (event, objs) => {
+  try {
+    console.log('Showing notification...');
+    if (Notification.isSupported()) {
+      const { title, body, sound } = objs;
+      const notification = new Notification({
+        title: title || "StickyTop Timer",
+        body: body || "Countdown completed!",
+        icon: path.join(__dirname, "assets", "icon.png"),
+        sound: sound,
+        urgency: "critical"
+      });
+      
+      notification.show();
+      
+      // Flash window to get attention
+      if (mainWindow) {
+        mainWindow.flashFrame(true);
+        setTimeout(() => {
+          mainWindow.flashFrame(false);
+        }, 3000);
+      }
+      
+      return { success: true };
+    } else {
+      return { success: false, error: "Notifications not supported" };
+    }
+  } catch (error) {
+    console.error("Notification error:", error);
+    return { success: false, error: error.message };
+  }
+}); 
+
 // App event handlers
 app.whenReady().then(createWindow);
 
@@ -247,5 +309,83 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
+  }
+});
+
+// Handle system sound
+ipcMain.handle("play-system-sound", async (event, soundName = "Glass") => {
+  try {
+    // Play system sound using macOS say command
+    const { exec } = require('child_process');
+    
+    const soundCommands = {
+      "Glass": "afplay /System/Library/Sounds/Glass.aiff",
+      "Basso": "afplay /System/Library/Sounds/Basso.aiff", 
+      "Blow": "afplay /System/Library/Sounds/Blow.aiff",
+      "Bottle": "afplay /System/Library/Sounds/Bottle.aiff",
+      "Frog": "afplay /System/Library/Sounds/Frog.aiff",
+      "Funk": "afplay /System/Library/Sounds/Funk.aiff",
+      "Hero": "afplay /System/Library/Sounds/Hero.aiff",
+      "Morse": "afplay /System/Library/Sounds/Morse.aiff",
+      "Ping": "afplay /System/Library/Sounds/Ping.aiff",
+      "Pop": "afplay /System/Library/Sounds/Pop.aiff",
+      "Purr": "afplay /System/Library/Sounds/Purr.aiff",
+      "Sosumi": "afplay /System/Library/Sounds/Sosumi.aiff",
+      "Submarine": "afplay /System/Library/Sounds/Submarine.aiff",
+      "Tink": "afplay /System/Library/Sounds/Tink.aiff"
+    };
+    
+    const command = soundCommands[soundName] || soundCommands["Glass"];
+    
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Sound error:', error);
+      }
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('System sound error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Handle get system time
+ipcMain.handle("get-system-time", async (event) => {
+  try {
+    const now = new Date();
+    return {
+      success: true,
+      time: {
+        hours: now.getHours(),
+        minutes: now.getMinutes(),
+        seconds: now.getSeconds(),
+        date: now.toDateString(),
+        timeString: now.toLocaleTimeString(),
+        dateTimeString: now.toLocaleString()
+      }
+    };
+  } catch (error) {
+    console.error('Get time error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Handle speak text
+ipcMain.handle("speak-text", async (event, text) => {
+  try {
+    const { exec } = require('child_process');
+    const command = `say "${text}"`;
+    
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error('Speak error:', error);
+      }
+    });
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Speak text error:', error);
+    return { success: false, error: error.message };
   }
 });

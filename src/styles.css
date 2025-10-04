@@ -14,7 +14,6 @@
     width: 100%;
     background: #ffff99;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    -webkit-app-region: drag;
     cursor: move;
     flex-shrink: 0;
 }
@@ -189,4 +188,402 @@
 .tiptap-editor ul[data-type="taskList"] li>div {
     line-height: 1.6;
     min-height: 1.6em;
+}
+/* Minimized state */
+.app.minimized {
+  height: 20px;
+}
+
+.app.minimized .drag-area {
+  height: 20px;
+  cursor: pointer;
+}
+
+.app.minimized .drag-area:hover {
+
+}
+
+/* Drag area visual feedback */
+.drag-area {
+  transition: background-color 0.2s ease;
+}
+
+.drag-area:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Countdown Timer Styles */
+.countdown-timer {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 10px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.countdown-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.countdown-time {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.countdown-status {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.countdown-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.countdown-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  background: #ffff99;
+  color: #333;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.countdown-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.countdown-btn:active {
+  transform: translateY(1px);
+}
+
+.countdown-btn.start {
+  background: #4CAF50;
+  color: white;
+  border-color: #45a049;
+}
+
+.countdown-btn.pause {
+  background: #FF9800;
+  color: white;
+  border-color: #e68900;
+}
+
+.countdown-btn.reset {
+  background: #2196F3;
+  color: white;
+  border-color: #1976D2;
+}
+
+.countdown-btn.cancel {
+  background: #f44336;
+  color: white;
+  border-color: #d32f2f;
+}
+
+/* Countdown in minimized state */
+.app.minimized .countdown-timer {
+  display: none;
+}
+
+/* Countdown Section Styles */
+.countdown-section {
+  margin-top: 20px;
+  padding: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.countdown-toggle-btn {
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  background: #ffff99;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.countdown-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.countdown-input-section {
+  margin-bottom: 10px;
+}
+
+.countdown-input-section label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.countdown-input {
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  background: #ffff99;
+  color: #333;
+  font-size: 14px;
+  width: 80px;
+  text-align: center;
+}
+
+.countdown-input:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+/* Countdown Alert Styles */
+.countdown-alert {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+  z-index: 1000;
+  animation: alertSlide 0.3s ease-out;
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.alert-icon {
+  font-size: 18px;
+  animation: alertPulse 1s infinite;
+}
+
+.alert-text {
+  font-size: 14px;
+}
+
+@keyframes alertSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes alertPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Countdown Timer Alert State */
+.countdown-timer.alert {
+  border-color: #ff4444;
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+  animation: timerPulse 0.5s ease-in-out 3;
+}
+
+.countdown-timer.completed {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: #4CAF50;
+}
+
+.countdown-timer.completed .countdown-time {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+@keyframes timerPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* Status Colors */
+.countdown-status.completed {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.countdown-status.running {
+  color: #2196F3;
+}
+
+.countdown-status.paused {
+  color: #FF9800;
+}
+
+.countdown-status.ready {
+  color: #666;
+}
+
+/* Notification Test Button */
+.notification-test {
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  background: #9C27B0;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-test:hover {
+  background: #7B1FA2;
+}
+
+/* System Clock Styles */
+.system-clock {
+  margin-top: 10px;
+  padding: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.clock-toggle-btn {
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  background: #ffff99;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.clock-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.clock-display {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.time-display {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.time-text {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  margin-bottom: 5px;
+}
+
+.date-text {
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+.clock-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+  justify-content: center;
+}
+
+.clock-btn {
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  background: #ffff99;
+  color: #333;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clock-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+.clock-btn.sound {
+  background: #2196F3;
+  color: white;
+  border-color: #1976D2;
+}
+
+.clock-btn.speak {
+  background: #4CAF50;
+  color: white;
+  border-color: #45a049;
+}
+
+.clock-btn.test {
+  background: #FF9800;
+  color: white;
+  border-color: #e68900;
+}
+
+.sound-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sound-selector label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #333;
+}
+
+.sound-select {
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  background: #ffff99;
+  color: #333;
+  font-size: 12px;
+  min-width: 120px;
+}
+
+.sound-select:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
 }
