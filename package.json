@@ -9,8 +9,7 @@
     "start": "npm run build-react-dev && electron .",
     "dev": "npm run build-react-dev && electron . --dev",
     "dev:watch": "npm run build-react-dev && electron . --dev --watch",
-    "build": "npm run build-react && electron-builder",
-    "dist": "npm run build-react && electron-builder --publish=never"
+    "build": "npm run build-react && electron-builder"
   },
   "keywords": [
     "electron",
@@ -31,8 +30,10 @@
       "output": "dist"
     },
     "files": [
-      "**/*",
-      "!node_modules/**/*"
+      "dist/**/*",
+      "main.js",
+      "preload.js",
+      "package.json"
     ],
     "mac": {
       "category": "public.app-category.productivity"

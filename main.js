@@ -30,8 +30,17 @@ function createWindow() {
     opacity: 0.8
   });
 
-  // Load the index.html file
-  mainWindow.loadFile('dist/index.html');
+  // Load the index.html file - handle both dev and production
+  const isDev = process.env.ENV === 'dev' || process.argv.includes('--dev');
+  
+  if (isDev) {
+    // Development mode - load from dist folder
+    mainWindow.loadFile('dist/index.html');
+  } else {
+    // Production mode - load from app.asar
+    const indexPath = path.join(__dirname, 'dist','index.html');
+    mainWindow.loadFile(indexPath);
+  }
 
   // Show window when ready
   mainWindow.once('ready-to-show', () => {
@@ -240,7 +249,7 @@ ipcMain.handle('get-transparency', async (event) => {
 
 // Handle toggle minimize
 ipcMain.handle("toggle-minimize", async (event) => {
- try {
+  try {
     const bounds = mainWindow.getBounds();
     if (bounds.height > 50) {
       // Minimize to title bar only
@@ -267,11 +276,9 @@ ipcMain.handle("toggle-minimize", async (event) => {
 });
 
 // Handle countdown notification
-ipcMain.handle("show-notification", async (event, objs) => {
+ipcMain.handle("show-notification", async (event, { title, body, sound = true }) => {
   try {
-    console.log('Showing notification...');
     if (Notification.isSupported()) {
-      const { title, body, sound } = objs;
       const notification = new Notification({
         title: title || "StickyTop Timer",
         body: body || "Countdown completed!",
@@ -297,21 +304,6 @@ ipcMain.handle("show-notification", async (event, objs) => {
   } catch (error) {
     console.error("Notification error:", error);
     return { success: false, error: error.message };
-  }
-}); 
-
-// App event handlers
-app.whenReady().then(createWindow);
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
   }
 });
 
@@ -390,5 +382,20 @@ ipcMain.handle("speak-text", async (event, text) => {
   } catch (error) {
     console.error('Speak text error:', error);
     return { success: false, error: error.message };
+  }
+});
+
+// App event handlers
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
   }
 });

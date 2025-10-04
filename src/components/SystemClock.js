@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Toast } from 'react-hot-toast';
+
 
 const SystemClock = () => {
   const [currentTime, setCurrentTime] = useState(null);
@@ -37,7 +37,6 @@ const SystemClock = () => {
         }
       } catch (error) {
         console.error('Error getting system time:', error);
-        Toast.error('Error getting system time:', error);
       }
     };
 
@@ -54,7 +53,6 @@ const SystemClock = () => {
       }
     } catch (error) {
       console.error('Error playing sound:', error);
-      Toast.error('Error playing sound:', error);
     }
   };
 
