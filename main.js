@@ -7,10 +7,11 @@ let mainWindow;
 function createWindow() {
   // Create the browser window
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: process.env.ENV ==='dev' ? 1200 : 300,
+    height: process.env.ENV ==='dev' ? 800 : 600,
     minWidth: 200,
-    minHeight: 400,
+    minHeight: 20,
+    vibrancy: 'light',  
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -20,11 +21,13 @@ function createWindow() {
     frame: false,
     alwaysOnTop: true,
     resizable: true,
-    minimizable: false,
-    maximizable: false,
+    minimizable: true,
+    maximizable: true,
     titleBarStyle: 'hidden',
+    autoHideMenuBar: true,
     backgroundColor: '#ffff99',
-    show: false
+    show: false,
+    opacity: 0.8
   });
 
   // Load the index.html file
@@ -34,7 +37,7 @@ function createWindow() {
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
     // Open developer tools automatically for debugging
-    mainWindow.webContents.openDevTools();
+    process.env.ENV ==='dev' && mainWindow.webContents.openDevTools();
   });
 
   // Handle window closed

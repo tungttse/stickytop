@@ -8,15 +8,35 @@
     flex-direction: column;
 }
 
+.ProseMirror p,
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror li,
+.ProseMirror pre {
+  min-height: 10px;       /* block luôn cao tối thiểu 20px */
+  line-height: 10px;      /* chữ căn theo dòng 20px */
+  margin: 0;              /* bỏ margin mặc định */
+  padding: 0;
+}
+
 /* Drag Area */
 .drag-area {
+    -webkit-app-region: drag;
     height: 20px;
     width: 100%;
     background: #ffff99;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    /* border: 1px solid rgba(0, 0, 0, 0.1); */
     cursor: move;
     flex-shrink: 0;
 }
+
+.drag-area .click-zone {
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+    padding: 0 6px;
+    background: #ccc;
+    border-radius: 4px;
+  }
 
 /* Tiptap Editor with Line Numbers */
 .tiptap-container {
@@ -43,7 +63,7 @@
 }
 
 .line-number {
-    height: 1.6em;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: flex-end;

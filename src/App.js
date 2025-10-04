@@ -33,9 +33,9 @@ function App() {
     };
   }, [content]);
 
-  const handleContentChange = (newContent) => {
-    setContent(newContent);
-  };
+  // const handleContentChange = (newContent) => {
+  //   setContent(newContent);
+  // };
 
   const handleDragAreaClick = async (e) => {
     console.log('Drag area clicked!');
@@ -82,10 +82,8 @@ function App() {
 
   return (
     <div className={`app ${isMinimized ? 'minimized' : ''}`}>
-      <div 
-        className="drag-area" 
-        onClick={handleDragAreaClick}
-      >
+      <div className="drag-area"  onClick={handleDragAreaClick}>
+       
         {isMinimized && (
           <div className="minimized-preview">
             {getFirstLine(content)}
@@ -94,8 +92,8 @@ function App() {
       </div>
       {!isMinimized && (
         <TiptapEditor 
-          content={content}
-          onContentChange={handleContentChange}
+          // content={content}
+          // onContentChange={handleContentChange}
         />
       )}
     </div>

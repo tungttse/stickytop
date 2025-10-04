@@ -4,27 +4,29 @@ import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
+import Placeholder from '@tiptap/extension-placeholder'
 import CountdownTimer from './CountdownTimer';
 import SystemClock from './SystemClock';
 
-const TiptapEditor = ({ content, onContentChange }) => {
+const TiptapEditor = ({ onContentChange = ()=> {} }) => {
   const [lineNumbers, setLineNumbers] = useState([1]);
   const [showCountdown, setShowCountdown] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(10);
   const editorRef = useRef(null);
+  const [content, setContent] = useState('');
 
-  const updateLineNumbers = useCallback(() => {
-    if (editor) {
-      // Sử dụng editor.getText() thay vì DOM query
-      const text = editor.getText();
-      let lines = text.split('\n');
-      lines = lines.filter(line => line.trim() !== '');
+  // const updateLineNumbers = useCallback(() => {
+  //   if (editor) {
+  //     // Sử dụng editor.getText() thay vì DOM query
+  //     const text = editor.getText();
+  //     let lines = text.split('\n');
+  //     lines = lines.filter(line => line.trim() !== '') + 1;
 
-      const lineCount = Math.max(lines.length, 1);
-      const numbers = Array.from({ length: lineCount }, (_, i) => i + 1);
-      setLineNumbers(numbers);
-    }
-  }, [editor]);
+  //     const lineCount = Math.max(lines.length, 1);
+  //     const numbers = Array.from({ length: lineCount }, (_, i) => i + 1);
+  //     setLineNumbers(numbers);
+  //   }
+  // }, [editor]);
 
   const editor = useEditor({
     extensions: [
@@ -47,15 +49,40 @@ const TiptapEditor = ({ content, onContentChange }) => {
       TaskItem.configure({
         nested: true,
       }),
+      Placeholder.configure({
+        placeholder: 'Viết ghi chú của bạn ở đây...', // 👈 text placeholder
+        showOnlyWhenEditable: true, // chỉ hiện khi editable
+        showOnlyCurrent: false,     // hiện trên tất cả đoạn trống
+      }),
     ],
-    content: content,
+    onFocus: () => {
+      console.log('onFocus');
+    },
+    // placeholder: 'Start writing your sticky note...',
+    // content: 'Nathan is cool <3',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
+
       onContentChange(html);
       // Gọi updateLineNumbers với setTimeout để đảm bảo DOM đã update
-      setTimeout(() => {
-        updateLineNumbers();
-      }, 0);
+      // setTimeout(() => {
+      //   updateLineNumbers();
+      // }, 0);
+
+      // const editorView = editor.view.dom;
+      // const lineNumbers = document.querySelector('.line-numbers');
+      // lineNumbers.innerHTML = '';
+
+      // const nodes = editorView.querySelectorAll('p, li, pre, h1, h2, h3'); 
+      // nodes.forEach((node, idx) => {
+      //   const rect = node.getBoundingClientRect();
+      //   const div = document.createElement('div');
+      //   div.textContent = idx + 1;
+      //   div.style.height = rect.height + 'px';
+      //   console.log(rect.height);
+      //   lineNumbers.appendChild(div);
+      // });
+
     },
     editorProps: {
       attributes: {
@@ -68,17 +95,17 @@ const TiptapEditor = ({ content, onContentChange }) => {
     if (editor && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
-  }, [content, editor]);
+  }, [editor, content]);
 
-  useEffect(() => {
-    if (editor) {
-      updateLineNumbers();
-    }
-  }, [editor, updateLineNumbers]);
+  // useEffect(() => {
+  //   if (editor) {
+  //     updateLineNumbers();
+  //   }
+  // }, [editor, updateLineNumbers]);
 
-  useEffect(() => {
-    updateLineNumbers();
-  }, [content, updateLineNumbers]);
+  // useEffect(() => {
+  //   updateLineNumbers();
+  // }, [content, updateLineNumbers]);
 
   const handleCountdownComplete = () => {
     console.log('Countdown completed!');
@@ -111,25 +138,25 @@ const TiptapEditor = ({ content, onContentChange }) => {
 
   return (
     <div className="tiptap-container">
-      <div className="line-numbers">
+      {/* <div className="line-numbers">
         {lineNumbers.map((number) => (
           <div key={number} className="line-number">
             {number}
           </div>
         ))}
-      </div>
+      </div> */}
       <div className="editor-wrapper" ref={editorRef}>
         <EditorContent editor={editor} />
-        
+
         {/* Countdown Timer Section */}
-        <div className="countdown-section">
-          <button 
+        {/* <div className="countdown-section">
+          <button
             onClick={toggleCountdown}
             className="countdown-toggle-btn"
           >
             {showCountdown ? '⏰ Hide Timer' : '⏰ Show Timer'}
           </button>
-          
+
           {showCountdown && (
             <div className="countdown-input-section">
               <label>
@@ -145,7 +172,7 @@ const TiptapEditor = ({ content, onContentChange }) => {
               </label>
             </div>
           )}
-          
+
           {showCountdown && (
             <CountdownTimer
               initialSeconds={countdownSeconds}
@@ -153,19 +180,19 @@ const TiptapEditor = ({ content, onContentChange }) => {
               onCancel={handleCountdownCancel}
             />
           )}
-          
+
           {showCountdown && (
-            <button 
+            <button
               onClick={testNotification}
               className="notification-test"
             >
               🔔 Test Notification
             </button>
           )}
-        </div>
-        
+        </div> */}
+
         {/* System Clock Section */}
-        <SystemClock />
+        {/* <SystemClock /> */}
       </div>
     </div>
   );
