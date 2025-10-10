@@ -7,6 +7,9 @@
     "build-react": "webpack --mode production",
     "build-react-dev": "webpack --mode development",
     "start": "npm run build-react-dev && electron .",
+    "start:react": "webpack serve --config webpack.config.js --mode development",
+    "start:electron": "wait-on http://localhost:8080 && nodemon --watch main --exec electron .",
+    "start:watch": "concurrently \"npm run start:react\" \"npm run start:electron\"",
     "dev": "npm run build-react-dev && electron . --dev",
     "dev:watch": "npm run build-react-dev && electron . --dev --watch",
     "build": "npm run build-react && electron-builder"
@@ -17,11 +20,15 @@
     "rich-editor",
     "always-on-top"
   ],
-  "author": "Your Name",
+  "author": "ThanhTungTruong",
   "license": "MIT",
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "electron": "^27.0.0",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "nodemon": "^3.1.10",
+    "wait-on": "^9.0.1",
+    "webpack-dev-server": "^5.2.2"
   },
   "build": {
     "appId": "com.stickytop.app",
@@ -64,6 +71,7 @@
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
     "style-loader": "^4.0.0",
+    "tippy.js": "^6.3.7",
     "webpack": "^5.102.0",
     "webpack-cli": "^6.0.1"
   }

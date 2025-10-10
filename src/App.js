@@ -16,7 +16,7 @@ function App() {
       try {
         if (window.electronAPI && window.electronAPI.loadAutoSaveNote) {
           const result = await window.electronAPI.loadAutoSaveNote();
-          console.log('result', result);
+          // console.log('result', result);
           if (result.success) {
             setContent(result.content);
           }
@@ -75,27 +75,27 @@ function App() {
 
   // Auto-save when content changes
   useEffect(() => {
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
+    // if (autoSaveTimeoutRef.current) {
+    //   clearTimeout(autoSaveTimeoutRef.current);
+    // }
 
-    autoSaveTimeoutRef.current = setTimeout(async () => {
-      try {
-        if (window.electronAPI && window.electronAPI.autoSaveNote) {
-          console.log('autoSaveNote', content);
-          await window.electronAPI.autoSaveNote(content);
-          console.log('autoSaveNote completed');
-        }
-      } catch (error) {
-        console.error('Error auto-saving content:', error);
-      }
-    }, 5000);
+    // autoSaveTimeoutRef.current = setTimeout(async () => {
+    //   try {
+    //     if (window.electronAPI && window.electronAPI.autoSaveNote) {
+    //       console.log('autoSaveNote', content);
+    //       await window.electronAPI.autoSaveNote(content);
+    //       console.log('autoSaveNote completed');
+    //     }
+    //   } catch (error) {
+    //     console.error('Error auto-saving content:', error);
+    //   }
+    // }, 5000);
 
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
+    // return () => {
+    //   if (autoSaveTimeoutRef.current) {
+    //     clearTimeout(autoSaveTimeoutRef.current);
+    //   }
+    // };
   }, [content]);
 
   // Force save function
