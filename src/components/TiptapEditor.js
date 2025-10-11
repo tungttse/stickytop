@@ -35,6 +35,7 @@ const TiptapEditor = () => {
         placeholder: 'Type / to see commands (e.g. /countdown 5m, /remind 10m, /use meeting)',
       }),
     ],
+    autofocus: true,
     editorProps: {
       attributes: { class: 'tiptap-editor' },
     },

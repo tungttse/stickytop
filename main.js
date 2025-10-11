@@ -94,7 +94,7 @@ function createWindow() {
   
   // Default window options
   const defaultOptions = {
-    width: 1200,
+    width: 800,
     height: process.env.ENV ==='dev' ? 800 : 600,
     minWidth: 200,
     minHeight: 20,
@@ -157,7 +157,7 @@ function createWindow() {
     
     // Open developer tools automatically for debugging
     // process.env.ENV ==='dev' && mainWindow.webContents.openDevTools();
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   });
 
   // Save window state on resize/move

@@ -5,7 +5,7 @@ function App() {
   const [content, setContent] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
-  const [backgroundColor, setBackgroundColor] = useState('#ffff99'); // Default yellow
+  const [backgroundColor, setBackgroundColor] = useState('#94a4b4'); // Default yellow
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
@@ -181,7 +181,7 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <div className="app-container" style={{ backgroundColor: backgroundColor }}>
       <div className="drag-area"  onClick={handleDragAreaClick}></div>
       <TiptapEditor 
           content={content}
