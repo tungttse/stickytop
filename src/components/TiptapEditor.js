@@ -42,6 +42,8 @@ const TiptapEditor = ({ content = '', onContentChange = () => { } }) => {
         orderedList: false,
         listItem: false,
       }),
+      TaskList,
+      TaskItem,
       CountdownTimerExtension,
       SlashCommandsExtension,
       Placeholder.configure({
