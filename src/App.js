@@ -181,27 +181,12 @@ function App() {
   };
 
   return (
-    <div className={`app ${isMinimized ? 'minimized' : ''}`} style={{ backgroundColor }}>
-      <div className="drag-area"  onClick={handleDragAreaClick}>
-        {saveStatus && (
-          <div className={`save-status ${saveStatus}`}>
-            {saveStatus === 'saving' && '💾 Saving...'}
-            {saveStatus === 'saved' && '✅ Saved'}
-            {saveStatus === 'error' && '❌ Save failed'}
-          </div>
-        )}
-        {isMinimized && (
-          <div className="minimized-preview">
-            {getFirstLine(content)}
-          </div>
-        )}
-      </div>
-      {!isMinimized && (
-        <TiptapEditor 
+    <div className="app-container">
+      <div className="drag-area"  onClick={handleDragAreaClick}></div>
+      <TiptapEditor 
           content={content}
           onContentChange={setContent}
         />
-      )}
     </div>
   );
 }

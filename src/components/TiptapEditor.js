@@ -17,23 +17,8 @@ import { SlashCommands } from './SlashCommands'
 import { CountdownTimerExtension } from './CountdownTimerExtension'
 
 
-// Helper functions for countdown timer
-const formatTime = (seconds) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
 
-  if (hours > 0) {
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  } else {
-    return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  }
-};
-
-
-const TiptapEditor = ({ content = '', onContentChange = () => { } }) => {
-  const [showCountdown, setShowCountdown] = useState(false);
-  const [countdownSeconds, setCountdownSeconds] = useState(10);
+const TiptapEditor = () => {
 
   const editor = useEditor({
     extensions: [
@@ -55,17 +40,8 @@ const TiptapEditor = ({ content = '', onContentChange = () => { } }) => {
     },
   });
 
-  // Countdown timer functionality is now handled by JSX component
-
   return (
-    <div className="tiptap-container">
-      <EditorContent editor={editor} />
-   
-     
-
-      {/* <SystemClock /> */}
-
-    </div>
+    <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
   );
 };
 
