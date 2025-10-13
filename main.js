@@ -62,13 +62,11 @@ function saveWindowState() {
 function loadWindowState() {
   try {
     const statePath = getWindowStatePath();
-    console.log('statePath', statePath);
     if (fs.existsSync(statePath)) {
       const data = fs.readFileSync(statePath, 'utf8');
       console.log('data', data);
       const windowState = JSON.parse(data);
       console.log('windowState', windowState);
-      
       // Check if state is not too old (e.g., within 30 days)
       const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
       if (windowState.timestamp && windowState.timestamp > thirtyDaysAgo) {
