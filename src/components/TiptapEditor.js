@@ -15,10 +15,16 @@ import { Extension } from '@tiptap/core'
 import { SlashCommandsExtension } from './SlashCommandsExtension'
 import { SlashCommands } from './SlashCommands'
 import { CountdownTimerExtension } from './CountdownTimerExtension'
+import { CalendarTask } from '../extentions/CalendarTask'
 
 
 
-const TiptapEditor = () => {
+const TiptapEditor = (
+  {
+    content,
+    onContentChange,
+  }
+) => {
 
   const editor = useEditor({
     extensions: [
@@ -27,6 +33,7 @@ const TiptapEditor = () => {
         orderedList: false,
         listItem: false,
       }),
+      CalendarTask,
       TaskList,
       TaskItem,
       CountdownTimerExtension,
@@ -35,14 +42,44 @@ const TiptapEditor = () => {
         placeholder: 'Type / to see commands (e.g. /countdown 5m, /remind 10m, /use meeting)',
       }),
     ],
+    content : content,
+    onUpdate: ({ editor }) => {
+      onContentChange(editor.getHTML())
+    },
     autofocus: true,
     editorProps: {
       attributes: { class: 'tiptap-editor' },
     },
   });
+  useEffect(() => {
+    if (content !== editor.getHTML()) {
+      editor.commands.setContent(content)
+    }
+  }, [content])
+
+  console.log('content', content, editor.getHTML());
 
   return (
+    <>
     <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
+     <div style={{ marginTop: 10 }}>
+        <button
+          onClick={() => {
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: 'calendarTask',
+                attrs: { text: '📚 Đọc sách lúc 9h sáng thứ 7' },
+              })
+              .run()
+          }}
+        >
+          + Add Calendar Task
+        </button>
+      </div>
+    </>
+    
   );
 };
 

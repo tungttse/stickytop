@@ -11,5 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveColor: (color) => ipcRenderer.invoke('save-color', color),
   loadColor: () => ipcRenderer.invoke('load-color'),
   onColorChange: (callback) => ipcRenderer.on('change-color', callback),
-  removeColorChangeListener: () => ipcRenderer.removeAllListeners('change-color')
+  removeColorChangeListener: () => ipcRenderer.removeAllListeners('change-color'),
+  syncCalendarEvent: (data) => ipcRenderer.invoke('sync-calendar-event', data)
 });
+

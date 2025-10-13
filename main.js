@@ -1,6 +1,17 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { google } = require('googleapis');
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URL = process.env.REDIRECT_URL;
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+
+console.log('CLIENT_ID', CLIENT_ID);
+console.log('CLIENT_SECRET', CLIENT_SECRET);
+console.log('REDIRECT_URL', REDIRECT_URL);
+console.log('REFRESH_TOKEN', REFRESH_TOKEN);
 
 // Simple debounce function
 function debounce(func, wait) {
@@ -612,6 +623,34 @@ ipcMain.handle("speak-text", async (event, text) => {
     return { success: false, error: error.message };
   }
 });
+
+ipcMain.handle('sync-calendar-event', async (event, { text, date, time }) => {
+  try {
+    // Tạo Google Calendar client
+    const auth = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
+    auth.setCredentials({ refresh_token: REFRESH_TOKEN })
+    const calendar = google.calendar({ version: 'v3', auth })
+
+    // Xác định thời gian (thứ 7, 9h)
+    const now = new Date()
+    const saturday = new Date(now)
+    saturday.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7))
+    saturday.setHours(9, 0, 0)
+
+    await calendar.events.insert({
+      calendarId: 'primary',
+      requestBody: {
+        summary: text,
+        start: { dateTime: saturday.toISOString() },
+        end: { dateTime: new Date(saturday.getTime() + 60 * 60 * 1000).toISOString() },
+      },
+    })
+    return { success: true }
+  } catch (err) {
+    console.error(err)
+    return { success: false, error: err.message }
+  }
+})
 
 // App event handlers
 app.whenReady().then(createWindow);

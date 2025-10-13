@@ -61,7 +61,7 @@ export const SlashCommandsExtension = Extension.create({
           console.log('[SlashCommandsExtension] cmd', cmd)
           const commands = [
             {
-              key: 'countdown',
+              key: 'cd',
               title: 'Countdown Timer',
               description: 'Start a countdown timer (e.g. /countdown 5m task description)',
               icon: '⏱',
