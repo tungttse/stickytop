@@ -29,6 +29,8 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
             // Play system sound
             if (window.electronAPI && window.electronAPI.playSystemSound) {
               window.electronAPI.playSystemSound('Glass');
+              window.electronAPI.playSystemSound('Glass');
+              window.electronAPI.playSystemSound('Glass');
             }
             
             return 0;

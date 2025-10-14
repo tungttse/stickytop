@@ -34,7 +34,8 @@
     "appId": "com.stickytop.app",
     "productName": "StickyTop",
     "directories": {
-      "output": "dist"
+      "output": "release",
+      "buildResources": "assets"
     },
     "files": [
       "dist/**/*",
@@ -42,6 +43,7 @@
       "preload.js",
       "package.json"
     ],
+    "asar": true,
     "mac": {
       "category": "public.app-category.productivity"
     },
@@ -50,7 +52,8 @@
     },
     "linux": {
       "target": "AppImage"
-    }
+    },
+    "compression": "maximum"
   },
   "dependencies": {
     "@babel/core": "^7.28.4",
@@ -65,7 +68,10 @@
     "@tiptap/starter-kit": "^3.6.5",
     "@tiptap/suggestion": "^3.6.5",
     "babel-loader": "^10.0.0",
+    "cors": "^2.8.5",
     "css-loader": "^7.1.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "googleapis": "^162.0.0",
     "html-webpack-plugin": "^5.6.4",
     "react": "^19.2.0",
