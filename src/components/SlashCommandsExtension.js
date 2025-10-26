@@ -74,6 +74,7 @@ export const SlashCommandsExtension = Extension.create({
                 const duration = match ? match[1] : '5m'
                 const taskDescription = match ? match[2].trim() : ''
                 const seconds = parseDuration(duration)
+                console.log('[SlashCommandsExtension] Countdown', seconds, taskDescription)
 
                 // Insert countdown timer using JSX component
                 editor.chain().focus().deleteRange(range)

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain, dialog, Notification } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog, Notification, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { google } = require('googleapis');
@@ -27,6 +27,8 @@ function debounce(func, wait) {
 }
 
 let mainWindow;
+let autoMinimizeEnabled = false;
+let preMinimizeBounds = null;
 
 // Window state management
 const WINDOW_STATE_FILE = 'window-state.json';
@@ -97,6 +99,21 @@ function loadSavedColor() {
   return null;
 }
 
+function loadAutoMinimizeSetting() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const settingPath = path.join(userDataPath, 'auto-minimize-setting.json');
+    
+    if (fs.existsSync(settingPath)) {
+      const data = fs.readFileSync(settingPath, 'utf8');
+      const settingData = JSON.parse(data);
+      autoMinimizeEnabled = settingData.autoMinimize;
+    }
+  } catch (error) {
+    console.error('Error loading auto-minimize setting:', error);
+  }
+}
+
 function createWindow() {
   // Load saved window state
   const savedState = loadWindowState();
@@ -140,6 +157,9 @@ function createWindow() {
     defaultOptions.backgroundColor = savedColor;
   }
 
+  // Load auto-minimize setting
+  loadAutoMinimizeSetting();
+
   // Create the browser window
   mainWindow = new BrowserWindow(defaultOptions);
 
@@ -176,6 +196,49 @@ function createWindow() {
   mainWindow.on('unmaximize', saveWindowState);
   mainWindow.on('minimize', saveWindowState);
   mainWindow.on('restore', saveWindowState);
+
+  // Auto-minimize functionality
+  mainWindow.on('blur', () => {
+    if (autoMinimizeEnabled && mainWindow && !mainWindow.isDestroyed()) {
+      // Save current bounds before minimizing
+      preMinimizeBounds = mainWindow.getBounds();
+      
+      // Get screen size to calculate top-right position
+      const primaryDisplay = screen.getPrimaryDisplay();
+      const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+      
+      // Calculate minimized height (enough for first todo + padding)
+      const minimizedHeight = 60; // Minimum height for first todo
+      const currentWidth = preMinimizeBounds.width;
+      
+      // Move to top-right corner with margin
+      const margin = 20;
+      const x = screenWidth - currentWidth - margin;
+      const y = margin;
+      
+      // Resize and move window
+      mainWindow.setBounds({
+        x: x,
+        y: y,
+        width: currentWidth,
+        height: minimizedHeight
+      });
+      
+      // Send message to renderer to show only first todo
+      mainWindow.webContents.send('auto-minimize-activated');
+    }
+  });
+
+  mainWindow.on('focus', () => {
+    if (autoMinimizeEnabled && preMinimizeBounds && mainWindow && !mainWindow.isDestroyed()) {
+      // Restore to original bounds
+      mainWindow.setBounds(preMinimizeBounds);
+      preMinimizeBounds = null;
+      
+      // Send message to renderer to show all content
+      mainWindow.webContents.send('auto-minimize-deactivated');
+    }
+  });
 
   // Handle window closed
   mainWindow.on('closed', () => {
@@ -418,6 +481,69 @@ ipcMain.handle('load-color', async (event) => {
       return { success: false, error: 'No saved color found' };
     }
     console.error('Error loading color:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Auto-minimize setting management
+ipcMain.handle('save-auto-minimize-setting', async (event, autoMinimize) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const settingPath = path.join(userDataPath, 'auto-minimize-setting.json');
+    
+    const settingData = {
+      autoMinimize: autoMinimize,
+      timestamp: Date.now()
+    };
+    
+    await fs.promises.writeFile(settingPath, JSON.stringify(settingData, null, 2));
+    autoMinimizeEnabled = autoMinimize;
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving auto-minimize setting:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('load-auto-minimize-setting', async (event) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const settingPath = path.join(userDataPath, 'auto-minimize-setting.json');
+    
+    const data = await fs.promises.readFile(settingPath, 'utf8');
+    const settingData = JSON.parse(data);
+    
+    autoMinimizeEnabled = settingData.autoMinimize;
+    return { success: true, autoMinimize: settingData.autoMinimize };
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return { success: false, error: 'No auto-minimize setting found' };
+    }
+    console.error('Error loading auto-minimize setting:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('get-screen-size', async (event) => {
+  try {
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.workAreaSize;
+    return { success: true, width, height };
+  } catch (error) {
+    console.error('Error getting screen size:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('set-always-on-top', async (event, alwaysOnTop) => {
+  try {
+    if (mainWindow) {
+      mainWindow.setAlwaysOnTop(alwaysOnTop);
+      return { success: true };
+    }
+    return { success: false, error: 'Main window not found' };
+  } catch (error) {
+    console.error('Error setting always on top:', error);
     return { success: false, error: error.message };
   }
 });

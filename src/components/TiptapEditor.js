@@ -16,13 +16,15 @@ import { SlashCommandsExtension } from './SlashCommandsExtension'
 import { SlashCommands } from './SlashCommands'
 import { CountdownTimerExtension } from './CountdownTimerExtension'
 import { CalendarTask } from '../extentions/CalendarTask'
-
+// import HorizontalRule from '@tiptap/extension-horizontal-rule'
+import Paragraph from '@tiptap/extension-paragraph'
 
 
 const TiptapEditor = (
   {
     content,
     onContentChange,
+    isAutoMinimized = false,
   }
 ) => {
 
@@ -32,12 +34,18 @@ const TiptapEditor = (
         bulletList: false,
         orderedList: false,
         listItem: false,
+        // horizontalRule: false,
+        taskList: false,
+        taskItem: false,
       }),
+      // HorizontalRule,
+      Paragraph,
       CalendarTask,
       TaskList,
       TaskItem,
       CountdownTimerExtension,
       SlashCommandsExtension,
+     
       Placeholder.configure({
         placeholder: 'Type / to see commands (e.g. /countdown 5m, /remind 10m, /use meeting)',
       }),
@@ -59,25 +67,56 @@ const TiptapEditor = (
 
   console.log('content', content, editor.getHTML());
 
+  // Function to get first todo or first line
+  const getFirstTodo = () => {
+    if (!editor) return '';
+    
+    const html = editor.getHTML();
+    // Look for first task item or first paragraph
+    const taskMatch = html.match(/<li[^>]*data-type="taskItem"[^>]*>.*?<\/li>/);
+    if (taskMatch) {
+      return taskMatch[0];
+    }
+    
+    // If no task found, get first paragraph
+    const paragraphMatch = html.match(/<p[^>]*>.*?<\/p>/);
+    if (paragraphMatch) {
+      return paragraphMatch[0];
+    }
+    
+    return html;
+  };
+
   return (
     <>
-    <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
-     <div style={{ marginTop: 10 }}>
-        <button
-          onClick={() => {
-            editor
-              .chain()
-              .focus()
-              .insertContent({
-                type: 'calendarTask',
-                attrs: { text: '📚 Đọc sách lúc 9h sáng thứ 7' },
-              })
-              .run()
-          }}
-        >
-          + Add Calendar Task
-        </button>
-      </div>
+    <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''}`}>
+      {isAutoMinimized ? (
+        <div 
+          className="first-todo-preview"
+          dangerouslySetInnerHTML={{ __html: getFirstTodo() }}
+        />
+      ) : (
+        <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
+      )}
+    </div>
+     {!isAutoMinimized && (
+       <div style={{ marginTop: 10 }}>
+          <button
+            onClick={() => {
+              editor
+                .chain()
+                .focus()
+                .insertContent({
+                  type: 'calendarTask',
+                  attrs: { text: '📚 Đọc sách lúc 9h sáng thứ 7' },
+                })
+                .run()
+            }}
+          >
+            + Add Calendar Task
+          </button>
+        </div>
+     )}
     </>
     
   );

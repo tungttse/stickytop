@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import TiptapEditor from './components/TiptapEditor';
+import SettingsModal from './components/SettingsModal';
 
 function App() {
   const [content, setContent] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isAutoMinimized, setIsAutoMinimized] = useState(false);
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
   const [backgroundColor, setBackgroundColor] = useState('#94a4b4'); // Default yellow
+  const [showSettings, setShowSettings] = useState(false);
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
@@ -68,6 +71,47 @@ function App() {
       return () => {
         if (window.electronAPI && window.electronAPI.removeColorChangeListener) {
           window.electronAPI.removeColorChangeListener();
+        }
+      };
+    }
+  }, []);
+
+  // Listen for auto-minimize events
+  useEffect(() => {
+    if (window.electronAPI && window.electronAPI.onAutoMinimizeActivated) {
+      const handleAutoMinimizeActivated = () => {
+        setIsAutoMinimized(true);
+      };
+      
+      const handleAutoMinimizeDeactivated = () => {
+        setIsAutoMinimized(false);
+      };
+      
+      window.electronAPI.onAutoMinimizeActivated(handleAutoMinimizeActivated);
+      window.electronAPI.onAutoMinimizeDeactivated(handleAutoMinimizeDeactivated);
+      
+      // Cleanup listeners on unmount
+      return () => {
+        if (window.electronAPI && window.electronAPI.removeAutoMinimizeListeners) {
+          window.electronAPI.removeAutoMinimizeListeners();
+        }
+      };
+    }
+  }, []);
+
+  // Listen for settings menu event
+  useEffect(() => {
+    if (window.electronAPI && window.electronAPI.onOpenSettings) {
+      const handleOpenSettings = () => {
+        setShowSettings(true);
+      };
+      
+      window.electronAPI.onOpenSettings(handleOpenSettings);
+      
+      // Cleanup listener on unmount
+      return () => {
+        if (window.electronAPI && window.electronAPI.removeOpenSettingsListener) {
+          window.electronAPI.removeOpenSettingsListener();
         }
       };
     }
@@ -180,13 +224,34 @@ function App() {
     return firstLine || 'Start writing your sticky note...';
   };
 
+  // Settings modal handlers
+  const handleOpenSettings = () => {
+    setShowSettings(true);
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettings(false);
+  };
+
+  const handleUpdateStatus = (message) => {
+    setSaveStatus(message);
+    setTimeout(() => setSaveStatus(''), 3000);
+  };
+
   return (
-    <div className="app-container" style={{ backgroundColor: backgroundColor }}>
+    <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`} style={{ backgroundColor: backgroundColor }}>
       <div className="drag-area"  onClick={handleDragAreaClick}></div>
       <TiptapEditor 
           content={content}
           onContentChange={setContent}
+          isAutoMinimized={isAutoMinimized}
         />
+      {showSettings && (
+        <SettingsModal 
+          onClose={handleCloseSettings}
+          onUpdateStatus={handleUpdateStatus}
+        />
+      )}
     </div>
   );
 }

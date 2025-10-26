@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
-const { ipcRenderer } = window.require('electron');
+// const { ipcRenderer } = window.require('electron');
 
 const SettingsModal = ({ onClose, onUpdateStatus }) => {
   const [transparency, setTransparency] = useState(1.0);
   const [alwaysOnTop, setAlwaysOnTop] = useState(true);
+  const [autoMinimize, setAutoMinimize] = useState(false);
 
   useEffect(() => {
     loadCurrentSettings();
@@ -13,13 +14,19 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
   const loadCurrentSettings = async () => {
     try {
       // Load current transparency
-      const transparencyResult = await ipcRenderer.invoke('get-transparency');
+      const transparencyResult = await window.electronAPI.getTransparency();
       if (transparencyResult.success) {
         setTransparency(transparencyResult.opacity);
       }
       
       // Load current always on top state
       setAlwaysOnTop(true); // Default to true
+      
+      // Load auto-minimize setting
+      const autoMinimizeResult = await window.electronAPI.loadAutoMinimizeSetting();
+      if (autoMinimizeResult.success) {
+        setAutoMinimize(autoMinimizeResult.autoMinimize);
+      }
     } catch (error) {
       console.error('Error loading settings:', error);
     }
@@ -28,15 +35,19 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
   const saveSettings = async () => {
     try {
       // Save transparency
-      const result = await ipcRenderer.invoke('set-transparency', transparency);
+      const result = await window.electronAPI.setTransparency(transparency);
       if (result.success) {
         onUpdateStatus(`Transparency set to ${Math.round(transparency * 100)}%`);
       }
 
       // Save always on top state
-      const { remote } = window.require('electron');
-      const win = remote.getCurrentWindow();
-      win.setAlwaysOnTop(alwaysOnTop);
+      await window.electronAPI.setAlwaysOnTop(alwaysOnTop);
+      
+      // Save auto-minimize setting
+      const autoMinimizeResult = await window.electronAPI.saveAutoMinimizeSetting(autoMinimize);
+      if (autoMinimizeResult.success) {
+        onUpdateStatus('Settings saved successfully');
+      }
       
       onClose();
     } catch (error) {
@@ -51,6 +62,10 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
 
   const handleAlwaysOnTopChange = (e) => {
     setAlwaysOnTop(e.target.checked);
+  };
+
+  const handleAutoMinimizeChange = (e) => {
+    setAutoMinimize(e.target.checked);
   };
 
   return (
@@ -83,6 +98,15 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
               id="alwaysOnTopToggle" 
               checked={alwaysOnTop}
               onChange={handleAlwaysOnTopChange}
+            />
+          </div>
+          <div className="setting-group">
+            <label htmlFor="autoMinimizeToggle">Auto Minimize on Blur:</label>
+            <input 
+              type="checkbox" 
+              id="autoMinimizeToggle" 
+              checked={autoMinimize}
+              onChange={handleAutoMinimizeChange}
             />
           </div>
         </div>
