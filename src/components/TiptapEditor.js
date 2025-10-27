@@ -22,6 +22,8 @@ import { TimestampExtension } from '../extensions/TimestampExtension'
 import TimestampTooltip from './TimestampTooltip'
 import SortMenu from './SortMenu'
 import MiniMap from './MiniMap'
+import SearchBar from './SearchBar'
+import { SearchHighlight } from '../extensions/SearchHighlight'
 
 
 const TiptapEditor = (
@@ -38,6 +40,12 @@ const TiptapEditor = (
   const [completedTodoCount, setCompletedTodoCount] = useState(0);
   const [lastEditTime, setLastEditTime] = useState(null);
   const [showMiniMap, setShowMiniMap] = useState(true);
+  
+  // Search state
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchMatches, setSearchMatches] = useState([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
 
   const editor = useEditor({
@@ -58,6 +66,7 @@ const TiptapEditor = (
       CountdownTimerExtension,
       SlashCommandsExtension,
       TimestampExtension,
+      SearchHighlight,
      
       Placeholder.configure({
         placeholder: 'Type / to see commands (e.g. /countdown 5m, /remind 10m, /use meeting)',
@@ -165,6 +174,183 @@ const TiptapEditor = (
       };
     }
   }, [editor]);
+
+  // Search functionality
+  const performSearch = useCallback((query) => {
+    if (!editor) return;
+    
+    setSearchQuery(query);
+    
+    if (!query.trim()) {
+      setSearchMatches([]);
+      setCurrentMatchIndex(0);
+      // Clear all highlights
+      editor.commands.clearAllSearchHighlights();
+      return;
+    }
+
+    try {
+      const text = editor.getText();
+      const matches = [];
+      const searchRegex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      let match;
+
+      while ((match = searchRegex.exec(text)) !== null) {
+        matches.push({
+          from: match.index,
+          to: match.index + match[0].length,
+          text: match[0]
+        });
+      }
+
+      setSearchMatches(matches);
+      setCurrentMatchIndex(0);
+
+      // Apply highlights
+      if (matches.length > 0) {
+        // Clear existing highlights first
+        editor.commands.clearAllSearchHighlights();
+        
+        // Apply highlights to all matches
+        matches.forEach((match, index) => {
+          editor.commands.setTextSelection({ from: match.from, to: match.to });
+          editor.commands.setSearchHighlight({
+            class: 'search-highlight',
+            'data-type': 'searchHighlight'
+          });
+        });
+
+        // Set active highlight for first match and scroll to it
+        const activeMatch = matches[0];
+        editor.commands.setTextSelection({ from: activeMatch.from, to: activeMatch.to });
+        editor.commands.setSearchHighlight({
+          class: 'search-highlight-active',
+          'data-type': 'searchHighlightActive'
+        });
+
+        // Scroll to first match
+        setTimeout(() => {
+          const editorElement = editor.view.dom;
+          const selection = editor.state.selection;
+          const coords = editor.view.coordsAtPos(selection.from);
+          
+          if (coords) {
+            const editorRect = editorElement.getBoundingClientRect();
+            const scrollTop = editorElement.scrollTop + coords.top - editorRect.top - 100; // Offset for top bar
+            
+            editorElement.scrollTo({
+              top: scrollTop,
+              behavior: 'smooth'
+            });
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.warn('Search error:', error);
+      setSearchMatches([]);
+      setCurrentMatchIndex(0);
+    }
+  }, [editor]);
+
+  const navigateToMatch = useCallback((direction) => {
+    if (searchMatches.length === 0 || !editor) return;
+
+    let newIndex;
+    if (direction === 'next') {
+      newIndex = (currentMatchIndex + 1) % searchMatches.length;
+    } else {
+      newIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
+    }
+
+    setCurrentMatchIndex(newIndex);
+
+    try {
+      // Clear all highlights first
+      editor.commands.clearAllSearchHighlights();
+
+      // Reapply highlights
+      searchMatches.forEach((match, index) => {
+        editor.commands.setTextSelection({ from: match.from, to: match.to });
+        editor.commands.setSearchHighlight({
+          class: index === newIndex ? 'search-highlight-active' : 'search-highlight',
+          'data-type': index === newIndex ? 'searchHighlightActive' : 'searchHighlight'
+        });
+      });
+
+      // Scroll to current match
+      const currentMatch = searchMatches[newIndex];
+      if (currentMatch) {
+        // Set selection first
+        editor.commands.setTextSelection({ from: currentMatch.from, to: currentMatch.to });
+        
+        // Scroll to the match with smooth behavior
+        setTimeout(() => {
+          const editorElement = editor.view.dom;
+          const selection = editor.state.selection;
+          const coords = editor.view.coordsAtPos(selection.from);
+          
+          if (coords) {
+            const editorRect = editorElement.getBoundingClientRect();
+            const scrollTop = editorElement.scrollTop + coords.top - editorRect.top - 100; // Offset for top bar
+            
+            editorElement.scrollTo({
+              top: scrollTop,
+              behavior: 'smooth'
+            });
+          }
+        }, 50);
+      }
+    } catch (error) {
+      console.warn('Navigation error:', error);
+    }
+  }, [editor, searchMatches, currentMatchIndex]);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSearchMatches([]);
+    setCurrentMatchIndex(0);
+    setShowSearchBar(false);
+    editor?.commands.clearAllSearchHighlights();
+  }, [editor]);
+
+  // Keyboard shortcuts for search
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Command+F or Ctrl+F
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault();
+        setShowSearchBar(true);
+        setSearchQuery('');
+        setSearchMatches([]);
+        setCurrentMatchIndex(0);
+        return;
+      }
+
+      // Command+G or Ctrl+G (next match)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'g' && !e.shiftKey && showSearchBar) {
+        e.preventDefault();
+        navigateToMatch('next');
+        return;
+      }
+
+      // Command+Shift+G or Ctrl+Shift+G (previous match)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'G' && e.shiftKey && showSearchBar) {
+        e.preventDefault();
+        navigateToMatch('previous');
+        return;
+      }
+
+      // Escape to close search
+      if (e.key === 'Escape' && showSearchBar) {
+        e.preventDefault();
+        clearSearch();
+        return;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showSearchBar, navigateToMatch, clearSearch]);
 
   // Handle mouse hover for timestamp tooltip
   const handleMouseMove = (event) => {
@@ -362,6 +548,16 @@ const TiptapEditor = (
             editor={editor}
             isVisible={showMiniMap}
             onToggle={() => setShowMiniMap(false)}
+          />
+          <SearchBar
+            isVisible={showSearchBar}
+            onClose={clearSearch}
+            onSearch={performSearch}
+            onNext={() => navigateToMatch('next')}
+            onPrevious={() => navigateToMatch('previous')}
+            currentMatch={currentMatchIndex + 1}
+            totalMatches={searchMatches.length}
+            searchQuery={searchQuery}
           />
         </div>
       )}
