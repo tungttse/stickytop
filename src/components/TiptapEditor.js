@@ -21,6 +21,7 @@ import Paragraph from '@tiptap/extension-paragraph'
 import { TimestampExtension } from '../extensions/TimestampExtension'
 import TimestampTooltip from './TimestampTooltip'
 import SortMenu from './SortMenu'
+import FilterMenu from './FilterMenu'
 import MiniMap from './MiniMap'
 import SearchBar from './SearchBar'
 import { SearchHighlight } from '../extensions/SearchHighlight'
@@ -35,6 +36,7 @@ const TiptapEditor = (
 ) => {
   const [tooltip, setTooltip] = useState({ visible: false, position: { x: 0, y: 0 }, timestamps: null });
   const [currentSort, setCurrentSort] = useState('none');
+  const [currentFilter, setCurrentFilter] = useState('all');
   const [lineCount, setLineCount] = useState(0);
   const [todoCount, setTodoCount] = useState(0);
   const [completedTodoCount, setCompletedTodoCount] = useState(0);
@@ -313,6 +315,11 @@ const TiptapEditor = (
     editor?.commands.clearAllSearchHighlights();
   }, [editor]);
 
+  // Filter change handler
+  const handleFilterChange = useCallback((filterType) => {
+    setCurrentFilter(filterType);
+  }, []);
+
   // Keyboard shortcuts for search
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -502,6 +509,7 @@ const TiptapEditor = (
         <div className="top-bar-center">
           <div className="top-bar-section">
             <SortMenu onSort={handleSort} currentSort={currentSort} />
+            <FilterMenu onFilterChange={handleFilterChange} currentFilter={currentFilter} />
           </div>
         </div>
         <div className="top-bar-right">
@@ -525,7 +533,7 @@ const TiptapEditor = (
         </div>
       </div>
     )}
-    <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''}`}>
+    <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''} filter-${currentFilter}`}>
       {isAutoMinimized ? (
         <div 
           className="first-todo-preview"

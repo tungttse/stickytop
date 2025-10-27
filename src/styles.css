@@ -1582,6 +1582,144 @@ body,
   background: #e8eaed;
 }
 
+/* Filter Menu Styles */
+.filter-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.filter-button {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.filter-button:hover {
+  background: #f8f9fa;
+  border-color: #007AFF;
+}
+
+.filter-button:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.filter-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-button-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.filter-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-option:last-child {
+  border-bottom: none;
+}
+
+.filter-option:hover {
+  background: #f8f9fa;
+}
+
+.filter-option.active {
+  background: #e3f2fd;
+  color: #007AFF;
+  font-weight: 500;
+}
+
+/* Filter Content Styles */
+.filter-todo-only .ProseMirror > *:not([data-type="taskList"]):not([data-type="taskItem"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror [data-type="taskItem"]:not([data-checked="true"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror [data-type="taskItem"][data-checked="true"] {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure taskList containers are always visible when filtering todos */
+.filter-todo-only .ProseMirror [data-type="taskList"],
+.filter-completed-only .ProseMirror [data-type="taskList"],
+.filter-incomplete-only .ProseMirror [data-type="taskList"] {
+  max-height: none;
+  overflow: visible;
+  opacity: 1;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
@@ -3173,6 +3311,144 @@ body,
 
 .btn-secondary:hover {
   background: #e8eaed;
+}
+
+/* Filter Menu Styles */
+.filter-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.filter-button {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.filter-button:hover {
+  background: #f8f9fa;
+  border-color: #007AFF;
+}
+
+.filter-button:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.filter-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-button-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.filter-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-option:last-child {
+  border-bottom: none;
+}
+
+.filter-option:hover {
+  background: #f8f9fa;
+}
+
+.filter-option.active {
+  background: #e3f2fd;
+  color: #007AFF;
+  font-weight: 500;
+}
+
+/* Filter Content Styles */
+.filter-todo-only .ProseMirror > *:not([data-type="taskList"]):not([data-type="taskItem"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror [data-type="taskItem"]:not([data-checked="true"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror [data-type="taskItem"][data-checked="true"] {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure taskList containers are always visible when filtering todos */
+.filter-todo-only .ProseMirror [data-type="taskList"],
+.filter-completed-only .ProseMirror [data-type="taskList"],
+.filter-incomplete-only .ProseMirror [data-type="taskList"] {
+  max-height: none;
+  overflow: visible;
+  opacity: 1;
+  margin: 0.5rem 0;
+  padding: 0;
 }
 
 /* Ensure consistent line height for all elements */
@@ -5303,6 +5579,144 @@ body,
   background: #e8eaed;
 }
 
+/* Filter Menu Styles */
+.filter-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.filter-button {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.filter-button:hover {
+  background: #f8f9fa;
+  border-color: #007AFF;
+}
+
+.filter-button:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.filter-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-button-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.filter-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-option:last-child {
+  border-bottom: none;
+}
+
+.filter-option:hover {
+  background: #f8f9fa;
+}
+
+.filter-option.active {
+  background: #e3f2fd;
+  color: #007AFF;
+  font-weight: 500;
+}
+
+/* Filter Content Styles */
+.filter-todo-only .ProseMirror > *:not([data-type="taskList"]):not([data-type="taskItem"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror [data-type="taskItem"]:not([data-checked="true"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror [data-type="taskItem"][data-checked="true"] {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure taskList containers are always visible when filtering todos */
+.filter-todo-only .ProseMirror [data-type="taskList"],
+.filter-completed-only .ProseMirror [data-type="taskList"],
+.filter-incomplete-only .ProseMirror [data-type="taskList"] {
+  max-height: none;
+  overflow: visible;
+  opacity: 1;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
 @keyframes alertPulse {
   0%, 100% {
     transform: scale(1);
@@ -6773,6 +7187,144 @@ body,
 
 .btn-secondary:hover {
   background: #e8eaed;
+}
+
+/* Filter Menu Styles */
+.filter-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.filter-button {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.filter-button:hover {
+  background: #f8f9fa;
+  border-color: #007AFF;
+}
+
+.filter-button:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.filter-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-button-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.filter-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-option:last-child {
+  border-bottom: none;
+}
+
+.filter-option:hover {
+  background: #f8f9fa;
+}
+
+.filter-option.active {
+  background: #e3f2fd;
+  color: #007AFF;
+  font-weight: 500;
+}
+
+/* Filter Content Styles */
+.filter-todo-only .ProseMirror > *:not([data-type="taskList"]):not([data-type="taskItem"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror [data-type="taskItem"]:not([data-checked="true"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror [data-type="taskItem"][data-checked="true"] {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure taskList containers are always visible when filtering todos */
+.filter-todo-only .ProseMirror [data-type="taskList"],
+.filter-completed-only .ProseMirror [data-type="taskList"],
+.filter-incomplete-only .ProseMirror [data-type="taskList"] {
+  max-height: none;
+  overflow: visible;
+  opacity: 1;
+  margin: 0.5rem 0;
+  padding: 0;
 }
 
 /* Countdown Timer Alert State */
@@ -8262,6 +8814,144 @@ body,
 
 .btn-secondary:hover {
   background: #e8eaed;
+}
+
+/* Filter Menu Styles */
+.filter-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.filter-button {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.filter-button:hover {
+  background: #f8f9fa;
+  border-color: #007AFF;
+}
+
+.filter-button:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.filter-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-button-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.filter-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-option:last-child {
+  border-bottom: none;
+}
+
+.filter-option:hover {
+  background: #f8f9fa;
+}
+
+.filter-option.active {
+  background: #e3f2fd;
+  color: #007AFF;
+  font-weight: 500;
+}
+
+/* Filter Content Styles */
+.filter-todo-only .ProseMirror > *:not([data-type="taskList"]):not([data-type="taskItem"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror [data-type="taskItem"]:not([data-checked="true"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror [data-type="taskItem"][data-checked="true"] {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure taskList containers are always visible when filtering todos */
+.filter-todo-only .ProseMirror [data-type="taskList"],
+.filter-completed-only .ProseMirror [data-type="taskList"],
+.filter-incomplete-only .ProseMirror [data-type="taskList"] {
+  max-height: none;
+  overflow: visible;
+  opacity: 1;
+  margin: 0.5rem 0;
+  padding: 0;
 }
 
 /* Status Colors */
@@ -10102,4 +10792,142 @@ hr {
 
 .btn-secondary:hover {
   background: #e8eaed;
+}
+
+/* Filter Menu Styles */
+.filter-menu {
+  position: relative;
+  display: inline-block;
+  margin-left: 12px;
+}
+
+.filter-button {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.filter-button:hover {
+  background: #f8f9fa;
+  border-color: #007AFF;
+}
+
+.filter-button:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.filter-button-text {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-button-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.filter-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-option:last-child {
+  border-bottom: none;
+}
+
+.filter-option:hover {
+  background: #f8f9fa;
+}
+
+.filter-option.active {
+  background: #e3f2fd;
+  color: #007AFF;
+  font-weight: 500;
+}
+
+/* Filter Content Styles */
+.filter-todo-only .ProseMirror > *:not([data-type="taskList"]):not([data-type="taskItem"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-completed-only .ProseMirror [data-type="taskItem"]:not([data-checked="true"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror > *:not([data-type="taskList"]) {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+.filter-incomplete-only .ProseMirror [data-type="taskItem"][data-checked="true"] {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure taskList containers are always visible when filtering todos */
+.filter-todo-only .ProseMirror [data-type="taskList"],
+.filter-completed-only .ProseMirror [data-type="taskList"],
+.filter-incomplete-only .ProseMirror [data-type="taskList"] {
+  max-height: none;
+  overflow: visible;
+  opacity: 1;
+  margin: 0.5rem 0;
+  padding: 0;
 }
