@@ -100,6 +100,8 @@ function loadSavedColor() {
 }
 
 function loadAutoMinimizeSetting() {
+  autoMinimizeEnabled = false;
+  return;
   try {
     const userDataPath = app.getPath('userData');
     const settingPath = path.join(userDataPath, 'auto-minimize-setting.json');
@@ -107,10 +109,15 @@ function loadAutoMinimizeSetting() {
     if (fs.existsSync(settingPath)) {
       const data = fs.readFileSync(settingPath, 'utf8');
       const settingData = JSON.parse(data);
-      autoMinimizeEnabled = settingData.autoMinimize;
+      autoMinimizeEnabled = settingData.autoMinimize || false; // Default to false
+    } else {
+      // If no setting file exists, default to false
+      autoMinimizeEnabled = false;
     }
   } catch (error) {
     console.error('Error loading auto-minimize setting:', error);
+    // Default to false on error
+    autoMinimizeEnabled = false;
   }
 }
 
@@ -139,7 +146,7 @@ function createWindow() {
     titleBarStyle: 'hidden',
     autoHideMenuBar: true,
     backgroundColor: '#ffff99',
-    show: false,
+    show: true,
     opacity: 0.8
   };
 

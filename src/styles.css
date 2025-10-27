@@ -119,6 +119,306 @@ body,
     }
 }
 
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
 /* Settings Modal Styles */
 .modal {
   position: fixed;
@@ -154,6 +454,306 @@ body,
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .modal-header {
@@ -430,6 +1030,306 @@ body,
     }
 }
 
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
 /* Settings Modal Styles */
 .modal {
   position: fixed;
@@ -465,6 +1365,306 @@ body,
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .modal-header {
@@ -641,6 +1841,118 @@ body,
 /* Drag area visual feedback */
 .drag-area {
   transition: background-color 0.2s ease;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .drag-area:hover {
@@ -823,6 +2135,306 @@ body,
   }
 }
 
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
 /* Settings Modal Styles */
 .modal {
   position: fixed;
@@ -858,6 +2470,306 @@ body,
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .modal-header {
@@ -1013,6 +2925,306 @@ body,
   }
 }
 
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
 /* Settings Modal Styles */
 .modal {
   position: fixed;
@@ -1048,6 +3260,306 @@ body,
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .modal-header {
@@ -1220,6 +3732,306 @@ body,
   }
 }
 
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
 /* Settings Modal Styles */
 .modal {
   position: fixed;
@@ -1255,6 +4067,306 @@ body,
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .modal-header {
@@ -1778,6 +4890,306 @@ hr {
   }
 }
 
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
 /* Settings Modal Styles */
 .modal {
   position: fixed;
@@ -1813,6 +5225,306 @@ hr {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Timestamp Tooltip Styles */
+.timestamp-tooltip {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.timestamp-tooltip-content {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.timestamp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timestamp-item:last-child {
+  margin-bottom: 0;
+}
+
+.timestamp-label {
+  font-weight: 500;
+  color: #ccc;
+  margin-right: 8px;
+}
+
+.timestamp-value {
+  color: white;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Sort Menu Styles */
+.sort-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.sort-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  min-width: 180px;
+  justify-content: space-between;
+}
+
+.sort-menu-button:hover {
+  background: #e8eaed;
+  border-color: #d1d5db;
+}
+
+.sort-menu-button:active {
+  transform: translateY(1px);
+}
+
+.sort-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.sort-label {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+.sort-arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.sort-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.sort-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  background: white;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.sort-menu-item:last-child {
+  border-bottom: none;
+}
+
+.sort-menu-item:hover {
+  background: #f8f9fa;
+}
+
+.sort-menu-item.active {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.sort-menu-item.active:hover {
+  background: #bbdefb;
+}
+
+/* Node hover effects for timestamps */
+.tiptap-editor p:hover,
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover,
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced hover effects for all block elements */
+.tiptap-editor > *:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Specific hover effects for different node types */
+.tiptap-editor p:hover {
+  background: rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.tiptap-editor h1:hover,
+.tiptap-editor h2:hover,
+.tiptap-editor h3:hover,
+.tiptap-editor h4:hover,
+.tiptap-editor h5:hover,
+.tiptap-editor h6:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.tiptap-editor li:hover {
+  background: rgba(0, 0, 0, 0.06);
+  transform: translateX(2px);
+}
+
+.tiptap-editor ul:hover,
+.tiptap-editor ol:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  padding: 2px;
+  margin: -2px;
+}
+
+/* Top Bar Styles */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5e9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-height: 48px;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.top-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.top-bar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-bar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  letter-spacing: -0.5px;
+}
+
+.top-bar-button {
+  padding: 8px 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.top-bar-button:hover {
+  background: #0056CC;
+  transform: translateY(-1px);
+}
+
+.top-bar-button:active {
+  transform: translateY(0);
+}
+
+/* Status Bar Styles */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-top: 1px solid #e1e5e9;
+  font-size: 12px;
+  color: #666;
+  min-height: 32px;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-label {
+  font-weight: 500;
+  color: #888;
+}
+
+.status-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  color: #333;
+  background: #e8eaed;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
 }
 
 .modal-header {
