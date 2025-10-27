@@ -308,9 +308,22 @@ body,
     background-color: #94a4b4;
 }
 
+.editor-container {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+
+.editor-container.auto-minimized {
+  height: 100%;
+  overflow: hidden;
+}
+
 .tiptap-editor {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     width: 100%;
     height: 100%;
     background: inherit;
