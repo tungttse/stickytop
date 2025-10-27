@@ -21,6 +21,7 @@ import Paragraph from '@tiptap/extension-paragraph'
 import { TimestampExtension } from '../extensions/TimestampExtension'
 import TimestampTooltip from './TimestampTooltip'
 import SortMenu from './SortMenu'
+import MiniMap from './MiniMap'
 
 
 const TiptapEditor = (
@@ -34,7 +35,9 @@ const TiptapEditor = (
   const [currentSort, setCurrentSort] = useState('none');
   const [lineCount, setLineCount] = useState(0);
   const [todoCount, setTodoCount] = useState(0);
+  const [completedTodoCount, setCompletedTodoCount] = useState(0);
   const [lastEditTime, setLastEditTime] = useState(null);
+  const [showMiniMap, setShowMiniMap] = useState(true);
 
 
   const editor = useEditor({
@@ -69,11 +72,16 @@ const TiptapEditor = (
       const lines = text.split('\n').length;
       setLineCount(lines);
       
-      // Update todo count
+      // Update todo count and completed count
       const html = editor.getHTML();
       const todoMatches = html.match(/<li[^>]*data-type="taskItem"[^>]*>/g);
       const todoCount = todoMatches ? todoMatches.length : 0;
       setTodoCount(todoCount);
+      
+      // Count completed todos (checked)
+      const completedMatches = html.match(/<li[^>]*data-type="taskItem"[^>]*data-checked="true"[^>]*>/g);
+      const completedTodoCount = completedMatches ? completedMatches.length : 0;
+      setCompletedTodoCount(completedTodoCount);
       
       // Update last edit time
       setLastEditTime(new Date());
@@ -92,10 +100,15 @@ const TiptapEditor = (
       const lines = text.split('\n').length;
       setLineCount(lines);
       
-      // Update todo count when content changes
+      // Update todo count and completed count when content changes
       const todoMatches = content.match(/<li[^>]*data-type="taskItem"[^>]*>/g);
       const todoCount = todoMatches ? todoMatches.length : 0;
       setTodoCount(todoCount);
+      
+      // Count completed todos (checked)
+      const completedMatches = content.match(/<li[^>]*data-type="taskItem"[^>]*data-checked="true"[^>]*>/g);
+      const completedTodoCount = completedMatches ? completedMatches.length : 0;
+      setCompletedTodoCount(completedTodoCount);
     }
   }, [content])
 
@@ -345,6 +358,11 @@ const TiptapEditor = (
             position={tooltip.position}
             visible={tooltip.visible}
           />
+          <MiniMap
+            editor={editor}
+            isVisible={showMiniMap}
+            onToggle={() => setShowMiniMap(false)}
+          />
         </div>
       )}
     </div>
@@ -358,6 +376,10 @@ const TiptapEditor = (
           <div className="status-item">
             <span className="status-label">Todos:</span>
             <span className="status-value">{todoCount}</span>
+          </div>
+          <div className="status-item">
+            <span className="status-label">Completed:</span>
+            <span className="status-value completed">{completedTodoCount}</span>
           </div>
         </div>
         <div className="status-right">
