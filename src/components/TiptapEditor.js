@@ -20,7 +20,6 @@ import { CalendarTask } from '../extentions/CalendarTask'
 import Paragraph from '@tiptap/extension-paragraph'
 import { TimestampExtension } from '../extensions/TimestampExtension'
 import TimestampTooltip from './TimestampTooltip'
-import SortMenu from './SortMenu'
 import FilterMenu from './FilterMenu'
 import MiniMap from './MiniMap'
 import SearchBar from './SearchBar'
@@ -35,7 +34,6 @@ const TiptapEditor = (
   }
 ) => {
   const [tooltip, setTooltip] = useState({ visible: false, position: { x: 0, y: 0 }, timestamps: null });
-  const [currentSort, setCurrentSort] = useState('none');
   const [currentFilter, setCurrentFilter] = useState('all');
   const [lineCount, setLineCount] = useState(0);
   const [todoCount, setTodoCount] = useState(0);
@@ -78,9 +76,9 @@ const TiptapEditor = (
     onUpdate: ({ editor }) => {
       onContentChange(editor.getHTML())
       
-      // Update line count
+      // Update line count - only count non-empty lines
       const text = editor.getText();
-      const lines = text.split('\n').length;
+      const lines = text.split('\n').filter(line => line.trim().length > 0).length;
       setLineCount(lines);
       
       // Update todo count and completed count
@@ -89,9 +87,13 @@ const TiptapEditor = (
       const todoCount = todoMatches ? todoMatches.length : 0;
       setTodoCount(todoCount);
       
-      // Count completed todos (checked)
-      const completedMatches = html.match(/<li[^>]*data-type="taskItem"[^>]*data-checked="true"[^>]*>/g);
-      const completedTodoCount = completedMatches ? completedMatches.length : 0;
+      // Count completed todos (checked) - use DOM parsing for accuracy
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      const taskItems = tempDiv.querySelectorAll('li[data-type="taskItem"]');
+      const completedTodoCount = Array.from(taskItems).filter(item => 
+        item.getAttribute('data-checked') === 'true'
+      ).length;
       setCompletedTodoCount(completedTodoCount);
       
       // Update last edit time
@@ -106,9 +108,9 @@ const TiptapEditor = (
     if (content !== editor.getHTML()) {
       editor.commands.setContent(content)
       
-      // Update line count when content changes
+      // Update line count when content changes - only count non-empty lines
       const text = editor.getText();
-      const lines = text.split('\n').length;
+      const lines = text.split('\n').filter(line => line.trim().length > 0).length;
       setLineCount(lines);
       
       // Update todo count and completed count when content changes
@@ -116,9 +118,13 @@ const TiptapEditor = (
       const todoCount = todoMatches ? todoMatches.length : 0;
       setTodoCount(todoCount);
       
-      // Count completed todos (checked)
-      const completedMatches = content.match(/<li[^>]*data-type="taskItem"[^>]*data-checked="true"[^>]*>/g);
-      const completedTodoCount = completedMatches ? completedMatches.length : 0;
+      // Count completed todos (checked) - use DOM parsing for accuracy
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = content;
+      const taskItems = tempDiv.querySelectorAll('li[data-type="taskItem"]');
+      const completedTodoCount = Array.from(taskItems).filter(item => 
+        item.getAttribute('data-checked') === 'true'
+      ).length;
       setCompletedTodoCount(completedTodoCount);
     }
   }, [content])
@@ -396,86 +402,6 @@ const TiptapEditor = (
     setTooltip(prev => ({ ...prev, visible: false }));
   };
 
-  // Sort nodes by timestamp
-  const handleSort = (sortType) => {
-    if (!editor || sortType === 'none') {
-      setCurrentSort('none');
-      return;
-    }
-
-    try {
-      const { state, view } = editor;
-      const nodes = [];
-      
-      // Extract all block nodes with their positions and timestamps
-      state.doc.descendants((node, pos) => {
-        if (node.isBlock && node.attrs && node.attrs.createdAt) {
-          nodes.push({
-            node,
-            pos,
-            createdAt: node.attrs.createdAt,
-            updatedAt: node.attrs.updatedAt || node.attrs.createdAt,
-          });
-        }
-      });
-
-      console.log('Found nodes for sorting:', nodes.length);
-
-      if (nodes.length === 0) {
-        console.log('No nodes with timestamps found');
-        return;
-      }
-
-      // Sort nodes based on sort type
-      nodes.sort((a, b) => {
-        let timestampA, timestampB;
-        
-        switch (sortType) {
-          case 'created-asc':
-            timestampA = a.createdAt;
-            timestampB = b.createdAt;
-            break;
-          case 'created-desc':
-            timestampA = b.createdAt;
-            timestampB = a.createdAt;
-            break;
-          case 'updated-desc':
-            timestampA = b.updatedAt;
-            timestampB = a.updatedAt;
-            break;
-          case 'updated-asc':
-            timestampA = a.updatedAt;
-            timestampB = b.updatedAt;
-            break;
-          default:
-            return 0;
-        }
-        
-        return timestampA - timestampB;
-      });
-
-      console.log('Sorted nodes:', nodes.map(n => ({ 
-        type: n.node.type.name, 
-        createdAt: new Date(n.createdAt).toLocaleString(),
-        updatedAt: new Date(n.updatedAt).toLocaleString()
-      })));
-
-      // Rebuild content in sorted order
-      const newContent = nodes.map(({ node }) => {
-        return editor.schema.nodeFromJSON(node.toJSON());
-      });
-
-      // Replace the document content
-      const tr = state.tr;
-      tr.replaceWith(0, state.doc.content.size, newContent);
-      view.dispatch(tr);
-      
-      setCurrentSort(sortType);
-      console.log('Sort completed:', sortType);
-    } catch (error) {
-      console.error('Error sorting nodes:', error);
-    }
-  };
 
   // Function to get first todo or first line
   const getFirstTodo = () => {
@@ -508,7 +434,6 @@ const TiptapEditor = (
         </div>
         <div className="top-bar-center">
           <div className="top-bar-section">
-            <SortMenu onSort={handleSort} currentSort={currentSort} />
             <FilterMenu onFilterChange={handleFilterChange} currentFilter={currentFilter} />
           </div>
         </div>

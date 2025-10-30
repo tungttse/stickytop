@@ -38,7 +38,7 @@ function getWindowStatePath() {
 }
 
 function saveWindowState() {
-  if (!mainWindow) return;
+  if (!mainWindow || mainWindow.isDestroyed()) return;
   
   try {
     const bounds = mainWindow.getBounds();
@@ -599,6 +599,9 @@ ipcMain.handle('load-file', async () => {
 // Handle transparency settings
 ipcMain.handle('set-transparency', async (event, opacity) => {
   try {
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return { success: false, error: 'Window not available' };
+    }
     mainWindow.setOpacity(opacity);
     return { success: true };
   } catch (error) {
@@ -609,6 +612,9 @@ ipcMain.handle('set-transparency', async (event, opacity) => {
 
 ipcMain.handle('get-transparency', async (event) => {
   try {
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return { success: false, error: 'Window not available' };
+    }
     const opacity = mainWindow.getOpacity();
     return { success: true, opacity: opacity };
   } catch (error) {
@@ -620,6 +626,9 @@ ipcMain.handle('get-transparency', async (event) => {
 // Handle toggle minimize
 ipcMain.handle("toggle-minimize", async (event) => {
   try {
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return { success: false, error: 'Window not available' };
+    }
     const bounds = mainWindow.getBounds();
     if (bounds.height > 50) {
       // Minimize to title bar only
