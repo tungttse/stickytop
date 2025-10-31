@@ -77,27 +77,27 @@ function App() {
   }, []);
 
   // Listen for auto-minimize events
-  useEffect(() => {
-    if (window.electronAPI && window.electronAPI.onAutoMinimizeActivated) {
-      const handleAutoMinimizeActivated = () => {
-        setIsAutoMinimized(true);
-      };
+  // useEffect(() => {
+  //   if (window.electronAPI && window.electronAPI.onAutoMinimizeActivated) {
+  //     const handleAutoMinimizeActivated = () => {
+  //       setIsAutoMinimized(true);
+  //     };
       
-      const handleAutoMinimizeDeactivated = () => {
-        setIsAutoMinimized(false);
-      };
+  //     const handleAutoMinimizeDeactivated = () => {
+  //       setIsAutoMinimized(false);
+  //     };
       
-      window.electronAPI.onAutoMinimizeActivated(handleAutoMinimizeActivated);
-      window.electronAPI.onAutoMinimizeDeactivated(handleAutoMinimizeDeactivated);
+  //     window.electronAPI.onAutoMinimizeActivated(handleAutoMinimizeActivated);
+  //     window.electronAPI.onAutoMinimizeDeactivated(handleAutoMinimizeDeactivated);
       
-      // Cleanup listeners on unmount
-      return () => {
-        if (window.electronAPI && window.electronAPI.removeAutoMinimizeListeners) {
-          window.electronAPI.removeAutoMinimizeListeners();
-        }
-      };
-    }
-  }, []);
+  //     // Cleanup listeners on unmount
+  //     return () => {
+  //       if (window.electronAPI && window.electronAPI.removeAutoMinimizeListeners) {
+  //         window.electronAPI.removeAutoMinimizeListeners();
+  //       }
+  //     };
+  //   }
+  // }, []);
 
   // Listen for settings menu event
   useEffect(() => {

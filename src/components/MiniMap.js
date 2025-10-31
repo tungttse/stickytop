@@ -217,25 +217,8 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
       {/* Mini Map Panel */}
       {isHovered && (
         <div className="minimap-panel">
-          <div className="minimap-header">
-            <span className="minimap-title">Mini Map</span>
-            <button 
-              className="minimap-close"
-              onClick={onToggle}
-              title="Close mini map"
-            >
-              ×
-            </button>
-          </div>
           <div className="minimap-content">
-            {headings.length === 0 ? (
-              <div className="minimap-empty">
-                <span>No headings found</span>
-                <small>Add H1, H2, H3... to see them here</small>
-              </div>
-            ) : (
-              headingList
-            )}
+            {headingList}
           </div>
         </div>
       )}

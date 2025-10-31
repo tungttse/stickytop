@@ -13,7 +13,7 @@ body,
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f8f9fa;
+  background: inherit;
 }
 
 .app-container.auto-minimized {
@@ -26,7 +26,7 @@ body,
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: inherit;
   position: relative;
 }
 
@@ -115,58 +115,6 @@ body,
 
 .drag-area:hover {
   background: rgba(0, 0, 0, 0.05);
-}
-
-/* ===== TIPTAP EDITOR ===== */
-.ProseMirror {
-  outline: none;
-  padding: 20px;
-  min-height: 200px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333;
-  overflow-x: hidden;
-}
-
-.ProseMirror p,
-.ProseMirror h1,
-.ProseMirror h2,
-.ProseMirror h3,
-.ProseMirror h4,
-.ProseMirror h5,
-.ProseMirror h6,
-.ProseMirror ul,
-.ProseMirror ol,
-.ProseMirror li {
-  margin: 0.5rem 0;
-}
-
-.ProseMirror ul[data-type="taskList"] li {
-  display: flex;
-  align-items: flex-start;
-  margin: 0.25rem 0;
-}
-
-.ProseMirror ul[data-type="taskList"] li>label {
-  display: flex;
-  align-items: flex-start;
-  cursor: pointer;
-  margin: 0;
-  padding: 0;
-}
-
-.ProseMirror ul[data-type="taskList"] li>div {
-  margin-left: 8px;
-  flex: 1;
-}
-
-.ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
-  margin: 0;
-  margin-right: 8px;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  margin-top: 2px;
 }
 
 /* ===== TIPTAP EDITOR STYLES ===== */
@@ -533,7 +481,7 @@ body,
 }
 
 .minimap-trigger-button {
-  width: 40px;
+  width: 20px;
   height: 40px;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
@@ -567,7 +515,7 @@ body,
 .minimap-panel {
   position: absolute;
   top: 0;
-  right: 40px;
+  right: 20px;
   width: 280px;
   max-height: 400px;
   background: rgba(255, 255, 255, 0.95);
@@ -608,20 +556,6 @@ body,
   color: #333;
 }
 
-.minimap-close {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #666;
-  transition: background-color 0.2s ease;
-}
-
-.minimap-close:hover {
-  background: #e8eaed;
-}
 
 .minimap-content {
   max-height: 350px;
@@ -1121,4 +1055,10 @@ hr {
     padding: 6px 12px;
     font-size: 11px;
   }
+}
+
+/* ===== OVERRIDES ===== */
+/* Hide top bar while keeping search bar visible */
+.top-bar {
+  display: none !important;
 }

@@ -19,7 +19,6 @@ import { CalendarTask } from '../extentions/CalendarTask'
 // import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Paragraph from '@tiptap/extension-paragraph'
 import { TimestampExtension } from '../extensions/TimestampExtension'
-import TimestampTooltip from './TimestampTooltip'
 import FilterMenu from './FilterMenu'
 import MiniMap from './MiniMap'
 import SearchBar from './SearchBar'
@@ -33,13 +32,13 @@ const TiptapEditor = (
     isAutoMinimized = false,
   }
 ) => {
-  const [tooltip, setTooltip] = useState({ visible: false, position: { x: 0, y: 0 }, timestamps: null });
   const [currentFilter, setCurrentFilter] = useState('all');
   const [lineCount, setLineCount] = useState(0);
   const [todoCount, setTodoCount] = useState(0);
   const [completedTodoCount, setCompletedTodoCount] = useState(0);
   const [lastEditTime, setLastEditTime] = useState(null);
   const [showMiniMap, setShowMiniMap] = useState(true);
+  const [headingCount, setHeadingCount] = useState(0);
   
   // Search state
   const [showSearchBar, setShowSearchBar] = useState(false);
@@ -98,6 +97,16 @@ const TiptapEditor = (
       
       // Update last edit time
       setLastEditTime(new Date());
+      
+      // Count headings - only show minimap if there are at least 2 headings
+      const { state } = editor;
+      let headingCount = 0;
+      state.doc.descendants((node) => {
+        if (node.type.name === 'heading' && node.attrs.level) {
+          headingCount++;
+        }
+      });
+      setHeadingCount(headingCount);
     },
     autofocus: true,
     editorProps: {
@@ -126,8 +135,22 @@ const TiptapEditor = (
         item.getAttribute('data-checked') === 'true'
       ).length;
       setCompletedTodoCount(completedTodoCount);
+      
+      // Count headings when content changes - wait for editor to update
+      setTimeout(() => {
+        if (editor) {
+          const { state } = editor;
+          let headingCount = 0;
+          state.doc.descendants((node) => {
+            if (node.type.name === 'heading' && node.attrs.level) {
+              headingCount++;
+            }
+          });
+          setHeadingCount(headingCount);
+        }
+      }, 100);
     }
-  }, [content])
+  }, [content, editor])
 
   // Add timestamps to existing nodes when editor is ready
   useEffect(() => {
@@ -365,44 +388,6 @@ const TiptapEditor = (
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showSearchBar, navigateToMatch, clearSearch]);
 
-  // Handle mouse hover for timestamp tooltip
-  const handleMouseMove = (event) => {
-    if (!editor) return;
-
-    const { clientX, clientY } = event;
-    const editorElement = editor.view.dom;
-    const rect = editorElement.getBoundingClientRect();
-    
-    // Convert mouse position to editor coordinates
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    
-    // Find the node at the mouse position
-    const pos = editor.view.posAtCoords({ left: clientX, top: clientY });
-    if (pos) {
-      const node = editor.view.state.doc.nodeAt(pos.pos);
-      if (node && node.attrs.createdAt) {
-        setTooltip({
-          visible: true,
-          position: { x: clientX, y: clientY },
-          timestamps: {
-            createdAt: node.attrs.createdAt,
-            updatedAt: node.attrs.updatedAt,
-          }
-        });
-      } else {
-        setTooltip(prev => ({ ...prev, visible: false }));
-      }
-    } else {
-      setTooltip(prev => ({ ...prev, visible: false }));
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setTooltip(prev => ({ ...prev, visible: false }));
-  };
-
-
   // Function to get first todo or first line
   const getFirstTodo = () => {
     if (!editor) return '';
@@ -425,8 +410,7 @@ const TiptapEditor = (
 
   return (
     <>
-    {!isAutoMinimized && (
-      <div className="top-bar">
+    <div className="top-bar">
         <div className="top-bar-left">
           <div className="top-bar-section">
             <h3 className="top-bar-title">StickyTop</h3>
@@ -434,12 +418,12 @@ const TiptapEditor = (
         </div>
         <div className="top-bar-center">
           <div className="top-bar-section">
-            <FilterMenu onFilterChange={handleFilterChange} currentFilter={currentFilter} />
+          
           </div>
         </div>
         <div className="top-bar-right">
           <div className="top-bar-section">
-            <button
+            {/* <button
               className="top-bar-button"
               onClick={() => {
                 editor
@@ -453,11 +437,10 @@ const TiptapEditor = (
               }}
             >
               + Add Calendar Task
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
-    )}
     <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''} filter-${currentFilter}`}>
       {isAutoMinimized ? (
         <div 
@@ -466,22 +449,16 @@ const TiptapEditor = (
         />
       ) : (
         <div 
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
           style={{ height: '100%', width: '100%', position: 'relative' }}
         >
           <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
-          <TimestampTooltip
-            createdAt={tooltip.timestamps?.createdAt}
-            updatedAt={tooltip.timestamps?.updatedAt}
-            position={tooltip.position}
-            visible={tooltip.visible}
-          />
-          <MiniMap
-            editor={editor}
-            isVisible={showMiniMap}
-            onToggle={() => setShowMiniMap(false)}
-          />
+          {headingCount >= 2 && (
+            <MiniMap
+              editor={editor}
+              isVisible={showMiniMap}
+              onToggle={() => setShowMiniMap(false)}
+            />
+          )}
           <SearchBar
             isVisible={showSearchBar}
             onClose={clearSearch}
@@ -495,7 +472,11 @@ const TiptapEditor = (
         </div>
       )}
     </div>
-    {!isAutoMinimized && (
+    {
+     /*
+      * Status bar
+
+     {!isAutoMinimized && (
       <div className="status-bar">
         <div className="status-left">
           <div className="status-item">
@@ -521,6 +502,10 @@ const TiptapEditor = (
         </div>
       </div>
     )}
+
+      */
+    }
+    
     </>
     
   );
