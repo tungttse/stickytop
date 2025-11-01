@@ -19,14 +19,14 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
         setTransparency(transparencyResult.opacity);
       }
       
-      // Load current always on top state
-      setAlwaysOnTop(true); // Default to true
+      // Load current always on top state - DISABLED (has separate menu)
+      // setAlwaysOnTop(true); // Default to true
       
-      // Load auto-minimize setting
-      const autoMinimizeResult = await window.electronAPI.loadAutoMinimizeSetting();
-      if (autoMinimizeResult.success) {
-        setAutoMinimize(autoMinimizeResult.autoMinimize);
-      }
+      // Load auto-minimize setting - DISABLED
+      // const autoMinimizeResult = await window.electronAPI.loadMinimizeSetting();
+      // if (autoMinimizeResult.success) {
+      //   setAutoMinimize(autoMinimizeResult.autoMinimize);
+      // }
     } catch (error) {
       console.error('Error loading settings:', error);
     }
@@ -40,14 +40,14 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
         onUpdateStatus(`Transparency set to ${Math.round(transparency * 100)}%`);
       }
 
-      // Save always on top state
-      await window.electronAPI.setAlwaysOnTop(alwaysOnTop);
+      // Save always on top state - DISABLED (has separate menu)
+      // await window.electronAPI.setAlwaysOnTop(alwaysOnTop);
       
-      // Save auto-minimize setting
-      const autoMinimizeResult = await window.electronAPI.saveAutoMinimizeSetting(autoMinimize);
-      if (autoMinimizeResult.success) {
-        onUpdateStatus('Settings saved successfully');
-      }
+      // Save auto-minimize setting - DISABLED
+      // const autoMinimizeResult = await window.electronAPI.saveAutoMinimizeSetting(autoMinimize);
+      // if (autoMinimizeResult.success) {
+      //   onUpdateStatus('Settings saved successfully');
+      // }
       
       onClose();
     } catch (error) {
@@ -91,7 +91,8 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
               <span>{Math.round(transparency * 100)}%</span>
             </div>
           </div>
-          <div className="setting-group">
+          {/* Always On Top setting - DISABLED (has separate menu) */}
+          {/* <div className="setting-group">
             <label htmlFor="alwaysOnTopToggle">Always On Top:</label>
             <input 
               type="checkbox" 
@@ -99,8 +100,9 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
               checked={alwaysOnTop}
               onChange={handleAlwaysOnTopChange}
             />
-          </div>
-          <div className="setting-group">
+          </div> */}
+          {/* Auto Minimize setting - DISABLED */}
+          {/* <div className="setting-group">
             <label htmlFor="autoMinimizeToggle">Auto Minimize on Blur:</label>
             <input 
               type="checkbox" 
@@ -108,7 +110,7 @@ const SettingsModal = ({ onClose, onUpdateStatus }) => {
               checked={autoMinimize}
               onChange={handleAutoMinimizeChange}
             />
-          </div>
+          </div> */}
         </div>
         <div className="modal-footer">
           <button className="btn btn-primary" onClick={saveSettings}>Save</button>

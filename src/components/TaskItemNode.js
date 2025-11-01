@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 import { NodeSelection } from '@tiptap/pm/state'
 import CountdownDialog from './CountdownDialog'
@@ -11,8 +11,22 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const [showDialog, setShowDialog] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [dragOverPosition, setDragOverPosition] = useState(null) // 'before' | 'after' | null
+  const [enableDrag, setEnableDrag] = useState(true) // Default to true, will be updated from config
   const hasCountdown = node.attrs.countdownSeconds !== null
   const dragHandleRef = useRef(null)
+
+  // Load drag config on mount
+  useEffect(() => {
+    if (window.electronAPI && window.electronAPI.getAppConfig) {
+      window.electronAPI.getAppConfig().then((result) => {
+        if (result.success && result.config) {
+          setEnableDrag(result.config.enableDrag || false)
+        }
+      }).catch((error) => {
+        console.error('Error loading app config:', error)
+      })
+    }
+  }, [])
 
   const handleTimerClick = (e) => {
     e.stopPropagation()
@@ -312,13 +326,14 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       onDrop={handleWrapperDrop}
     >
       {/* Drop indicator line - BEFORE */}
-      {dragOverPosition === 'before' && draggedSourceIndex !== null && (
+      {enableDrag && dragOverPosition === 'before' && draggedSourceIndex !== null && (
         <div className="drop-indicator drop-indicator-before" />
       )}
-      <div 
-        ref={dragHandleRef}
-        className="drag-handle"
-        draggable={true}
+      {enableDrag && (
+        <div 
+          ref={dragHandleRef}
+          className="drag-handle"
+          draggable={true}
         onMouseDown={(e) => {
           // Ngăn ProseMirror intercept mousedown event
           e.stopPropagation()
@@ -410,10 +425,11 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           // CLEAR module-level variable khi drag kết thúc
           draggedSourceIndex = null
         }}
-        title="Drag to reorder"
-      >
-        <span className="drag-handle-icon">⋮⋮</span>
-      </div>
+          title="Drag to reorder"
+        >
+          <span className="drag-handle-icon">⋮⋮</span>
+        </div>
+      )}
       <label>
         <input
           type="checkbox"
@@ -438,7 +454,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
         )}
       </div>
       {/* Drop indicator line - AFTER */}
-      {dragOverPosition === 'after' && draggedSourceIndex !== null && (
+      {enableDrag && dragOverPosition === 'after' && draggedSourceIndex !== null && (
         <div className="drop-indicator drop-indicator-after" />
       )}
       

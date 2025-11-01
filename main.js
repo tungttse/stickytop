@@ -1,3 +1,6 @@
+// Load environment variables
+require('dotenv').config();
+
 const { app, BrowserWindow, Menu, ipcMain, dialog, Notification, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -7,6 +10,9 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URL = process.env.REDIRECT_URL;
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+
+// Load drag feature config
+const ENABLE_DRAG = process.env.ENABLE_DRAG === 'true';
 
 console.log('CLIENT_ID', CLIENT_ID);
 console.log('CLIENT_SECRET', CLIENT_SECRET);
@@ -254,42 +260,51 @@ function createWindow() {
   });
 
   // Create application menu
-  createMenu();
+  createMenu(isDev);
 }
 
-function createMenu() {
+function createMenu(isDev = false) {
+  // Get current state
+  const isAlwaysOnTop = mainWindow ? mainWindow.isAlwaysOnTop() : true; // Default to true
+  const savedColor = loadSavedColor();
+  const currentColor = savedColor || '#ffff99'; // Default to Yellow
+  
   const template = [
     {
       label: 'File',
       submenu: [
-        {
-          label: 'New Note',
-          accelerator: 'CmdOrCtrl+N',
-          click: () => {
-            mainWindow.webContents.send('new-note');
-          }
-        },
-        {
-          label: 'Save Note',
-          accelerator: 'CmdOrCtrl+S',
-          click: () => {
-            mainWindow.webContents.send('save-note');
-          }
-        },
-        {
-          label: 'Load Note',
-          accelerator: 'CmdOrCtrl+O',
-          click: () => {
-            mainWindow.webContents.send('load-note');
-          }
-        },
-        { type: 'separator' },
+        // {
+        //   label: 'New Note',
+        //   accelerator: 'CmdOrCtrl+N',
+        //   click: () => {
+        //     mainWindow.webContents.send('new-note');
+        //   }
+        // },
+        // {
+        //   label: 'Save Note',
+        //   accelerator: 'CmdOrCtrl+S',
+        //   click: () => {
+        //     mainWindow.webContents.send('save-note');
+        //   }
+        // },
+        // {
+        //   label: 'Load Note',
+        //   accelerator: 'CmdOrCtrl+O',
+        //   click: () => {
+        //     mainWindow.webContents.send('load-note');
+        //   }
+        // },
+        // { type: 'separator' },
         {
           label: 'Toggle Always On Top',
           accelerator: 'CmdOrCtrl+T',
+          type: 'checkbox',
+          checked: isAlwaysOnTop,
           click: () => {
-            const isAlwaysOnTop = mainWindow.isAlwaysOnTop();
-            mainWindow.setAlwaysOnTop(!isAlwaysOnTop);
+            const newState = !mainWindow.isAlwaysOnTop();
+            mainWindow.setAlwaysOnTop(newState);
+            // Update menu to reflect new state
+            createMenu(isDev);
           }
         },
         { type: 'separator' },
@@ -306,26 +321,26 @@ function createMenu() {
         }
       ]
     },
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectall' },
-        { type: 'separator' },
-        {
-          label: 'Insert Todo',
-          accelerator: 'CmdOrCtrl+Shift+C',
-          click: () => {
-            mainWindow.webContents.executeJavaScript('insertTodo()');
-          }
-        }
-      ]
-    },
+    // {
+    //   label: 'Edit',
+    //   submenu: [
+    //     { role: 'undo' },
+    //     { role: 'redo' },
+    //     { type: 'separator' },
+    //     { role: 'cut' },
+    //     { role: 'copy' },
+    //     { role: 'paste' },
+    //     { role: 'selectall' },
+    //     { type: 'separator' },
+    //     {
+    //       label: 'Insert Todo',
+    //       accelerator: 'CmdOrCtrl+Shift+C',
+    //       click: () => {
+    //         mainWindow.webContents.executeJavaScript('insertTodo()');
+    //       }
+    //     }
+    //   ]
+    // },
     {
       label: 'View',
       submenu: [
@@ -345,37 +360,56 @@ function createMenu() {
       submenu: [
         {
           label: 'Yellow',
+          type: 'checkbox',
+          checked: currentColor === '#ffff99',
           click: () => {
             mainWindow.webContents.send('change-color', '#ffff99');
+            createMenu(isDev); // Update menu to show new checked state
           }
         },
         {
           label: 'Blue',
+          type: 'checkbox',
+          checked: currentColor === '#99ccff',
           click: () => {
             mainWindow.webContents.send('change-color', '#99ccff');
+            createMenu(isDev); // Update menu to show new checked state
           }
         },
         {
           label: 'Green',
+          type: 'checkbox',
+          checked: currentColor === '#99ff99',
           click: () => {
             mainWindow.webContents.send('change-color', '#99ff99');
+            createMenu(isDev); // Update menu to show new checked state
           }
         },
         {
           label: 'Pink',
+          type: 'checkbox',
+          checked: currentColor === '#ff99cc',
           click: () => {
             mainWindow.webContents.send('change-color', '#ff99cc');
+            createMenu(isDev); // Update menu to show new checked state
           }
         },
         {
           label: 'Purple',
+          type: 'checkbox',
+          checked: currentColor === '#cc99ff',
           click: () => {
             mainWindow.webContents.send('change-color', '#cc99ff');
+            createMenu(isDev); // Update menu to show new checked state
           }
         }
       ]
-    },
-    {
+    }
+  ];
+
+  // Only add Debug menu in development mode
+  if (isDev) {
+    template.push({
       label: 'Debug',
       submenu: [
         {
@@ -412,8 +446,8 @@ function createMenu() {
           }
         }
       ]
-    }
-  ];
+    });
+  }
 
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
@@ -467,6 +501,11 @@ ipcMain.handle('save-color', async (event, color) => {
     };
     
     await fs.promises.writeFile(colorPath, JSON.stringify(colorData, null, 2));
+    
+    // Update menu to reflect new color
+    const isDev = process.env.ENV === 'dev' || process.argv.includes('--dev');
+    createMenu(isDev);
+    
     return { success: true };
   } catch (error) {
     console.error('Error saving color:', error);
@@ -538,6 +577,21 @@ ipcMain.handle('get-screen-size', async (event) => {
     return { success: true, width, height };
   } catch (error) {
     console.error('Error getting screen size:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Get app configuration
+ipcMain.handle('get-app-config', async (event) => {
+  try {
+    return { 
+      success: true, 
+      config: {
+        enableDrag: ENABLE_DRAG
+      }
+    };
+  } catch (error) {
+    console.error('Error getting app config:', error);
     return { success: false, error: error.message };
   }
 });
