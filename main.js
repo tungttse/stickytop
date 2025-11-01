@@ -229,9 +229,9 @@ function createWindow() {
     mainWindow.show();
     
     // Restore maximized state if it was maximized
-    if (savedState && savedState.isMaximized) {
-      mainWindow.maximize();
-    }
+    // if (savedState && savedState.isMaximized) {
+    //   mainWindow.maximize();
+    // }
     
     // Open developer tools automatically for debugging
     // process.env.ENV ==='dev' && mainWindow.webContents.openDevTools();
@@ -333,19 +333,6 @@ function createMenu(isDev = false) {
         // },
         // { type: 'separator' },
         {
-          label: 'Toggle Always On Top',
-          accelerator: 'CmdOrCtrl+T',
-          type: 'checkbox',
-          checked: isAlwaysOnTop,
-          click: () => {
-            const newState = !mainWindow.isAlwaysOnTop();
-            mainWindow.setAlwaysOnTop(newState);
-            // Update menu to reflect new state
-            createMenu(isDev);
-          }
-        },
-        { type: 'separator' },
-        {
           role: 'quit'
         }
       ]
@@ -381,6 +368,18 @@ function createMenu(isDev = false) {
         { role: 'zoomIn' },
         { role: 'zoomOut' },
         { type: 'separator' },
+        {
+          label: 'Always On Top',
+          accelerator: 'CmdOrCtrl+T',
+          type: 'checkbox',
+          checked: isAlwaysOnTop,
+          click: () => {
+            const newState = !mainWindow.isAlwaysOnTop();
+            mainWindow.setAlwaysOnTop(newState);
+            // Update menu to reflect new state
+            createMenu(isDev);
+          }
+        },
         {
           label: 'Transparent',
           type: 'checkbox',
