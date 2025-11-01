@@ -511,37 +511,6 @@ const TiptapEditor = (
 
   return (
     <>
-    <div className="top-bar">
-        <div className="top-bar-left">
-          <div className="top-bar-section">
-            <h3 className="top-bar-title">StickyTop</h3>
-          </div>
-        </div>
-        <div className="top-bar-center">
-          <div className="top-bar-section">
-          
-          </div>
-        </div>
-        <div className="top-bar-right">
-          <div className="top-bar-section">
-            {/* <button
-              className="top-bar-button"
-              onClick={() => {
-                editor
-                  .chain()
-                  .focus()
-                  .insertContent({
-                    type: 'calendarTask',
-                    attrs: { text: '📚 Đọc sách lúc 9h sáng thứ 7' },
-                  })
-                  .run()
-              }}
-            >
-              + Add Calendar Task
-            </button> */}
-          </div>
-        </div>
-      </div>
     <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''} filter-${currentFilter}`}>
       {isAutoMinimized ? (
         <div 
