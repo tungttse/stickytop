@@ -39,6 +39,8 @@ const TiptapEditor = (
   const [lastEditTime, setLastEditTime] = useState(null);
   const [showMiniMap, setShowMiniMap] = useState(true);
   const [headingCount, setHeadingCount] = useState(0);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [hasScrollbar, setHasScrollbar] = useState(false);
   
   // Search state
   const [showSearchBar, setShowSearchBar] = useState(false);
@@ -388,6 +390,103 @@ const TiptapEditor = (
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showSearchBar, navigateToMatch, clearSearch]);
 
+  // Scroll detection for scroll-to-top button
+  useEffect(() => {
+    if (!editor || isAutoMinimized) return;
+
+    const findScrollableElement = () => {
+      // Try to find the element with .tiptap-editor class
+      const editorElement = editor.view.dom;
+      if (!editorElement) return null;
+      
+      // Check if the editor element itself is scrollable
+      if (editorElement.scrollHeight > editorElement.clientHeight) {
+        return editorElement;
+      }
+      
+      // Check parent elements
+      let parent = editorElement.parentElement;
+      while (parent) {
+        if (parent.scrollHeight > parent.clientHeight && 
+            (parent.classList.contains('tiptap-editor') || 
+             getComputedStyle(parent).overflowY === 'auto' ||
+             getComputedStyle(parent).overflowY === 'scroll')) {
+          return parent;
+        }
+        parent = parent.parentElement;
+      }
+      
+      return editorElement;
+    };
+
+    const scrollableElement = findScrollableElement();
+    if (!scrollableElement) return;
+
+    const checkScroll = () => {
+      const scrollTop = scrollableElement.scrollTop;
+      const scrollHeight = scrollableElement.scrollHeight;
+      const clientHeight = scrollableElement.clientHeight;
+      
+      // Check if scrollbar exists
+      const hasScroll = scrollHeight > clientHeight;
+      setHasScrollbar(hasScroll);
+      
+      // Show button if scrolled down more than 100px and scrollbar exists
+      setShowScrollToTop(hasScroll && scrollTop > 100);
+    };
+
+    // Check on mount and content changes
+    checkScroll();
+    
+    // Listen to scroll events
+    scrollableElement.addEventListener('scroll', checkScroll);
+    
+    // Also check when content changes
+    const handleUpdate = () => {
+      setTimeout(checkScroll, 100);
+    };
+    
+    editor.on('update', handleUpdate);
+
+    return () => {
+      scrollableElement.removeEventListener('scroll', checkScroll);
+      editor.off('update', handleUpdate);
+    };
+  }, [editor, isAutoMinimized]);
+
+  // Handle scroll to top
+  const handleScrollToTop = () => {
+    if (!editor) return;
+    
+    // Find the scrollable element
+    const editorElement = editor.view.dom;
+    if (!editorElement) return;
+    
+    // Check if the editor element itself is scrollable
+    let scrollableElement = editorElement;
+    if (editorElement.scrollHeight <= editorElement.clientHeight) {
+      // Check parent elements
+      let parent = editorElement.parentElement;
+      while (parent) {
+        if (parent.scrollHeight > parent.clientHeight && 
+            (parent.classList.contains('tiptap-editor') || 
+             getComputedStyle(parent).overflowY === 'auto' ||
+             getComputedStyle(parent).overflowY === 'scroll')) {
+          scrollableElement = parent;
+          break;
+        }
+        parent = parent.parentElement;
+      }
+    }
+    
+    if (scrollableElement) {
+      scrollableElement.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   // Function to get first todo or first line
   const getFirstTodo = () => {
     if (!editor) return '';
@@ -469,6 +568,15 @@ const TiptapEditor = (
             totalMatches={searchMatches.length}
             searchQuery={searchQuery}
           />
+          {showScrollToTop && hasScrollbar && (
+            <button
+              className="scroll-to-top-button"
+              onClick={handleScrollToTop}
+              aria-label="Scroll to top"
+            >
+              ↑
+            </button>
+          )}
         </div>
       )}
     </div>
