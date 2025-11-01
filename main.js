@@ -127,6 +127,36 @@ function loadAutoMinimizeSetting() {
   }
 }
 
+function loadTransparencyState() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const transparencyPath = path.join(userDataPath, 'transparency-state.json');
+    
+    if (fs.existsSync(transparencyPath)) {
+      const data = fs.readFileSync(transparencyPath, 'utf8');
+      const transparencyData = JSON.parse(data);
+      return transparencyData.enabled || false; // Default to false
+    }
+  } catch (error) {
+    console.error('Error loading transparency state:', error);
+  }
+  
+  return false; // Default to false
+}
+
+function saveTransparencyState(enabled) {
+  try {
+    const userDataPath = app.getPath('userData');
+    const transparencyPath = path.join(userDataPath, 'transparency-state.json');
+    const transparencyData = { enabled };
+    fs.writeFileSync(transparencyPath, JSON.stringify(transparencyData, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error saving transparency state:', error);
+    return false;
+  }
+}
+
 function createWindow() {
   // Load saved window state
   const savedState = loadWindowState();
@@ -172,6 +202,12 @@ function createWindow() {
 
   // Load auto-minimize setting
   loadAutoMinimizeSetting();
+
+  // Load transparency state and apply
+  const isTransparent = loadTransparencyState();
+  if (isTransparent) {
+    defaultOptions.opacity = 0.9;
+  }
 
   // Create the browser window
   mainWindow = new BrowserWindow(defaultOptions);
@@ -268,6 +304,7 @@ function createMenu(isDev = false) {
   const isAlwaysOnTop = mainWindow ? mainWindow.isAlwaysOnTop() : true; // Default to true
   const savedColor = loadSavedColor();
   const currentColor = savedColor || '#ffff99'; // Default to Yellow
+  const isTransparent = loadTransparencyState();
   
   const template = [
     {
@@ -309,14 +346,6 @@ function createMenu(isDev = false) {
         },
         { type: 'separator' },
         {
-          label: 'Settings',
-          accelerator: 'CmdOrCtrl+,',
-          click: () => {
-            mainWindow.webContents.send('open-settings');
-          }
-        },
-        { type: 'separator' },
-        {
           role: 'quit'
         }
       ]
@@ -351,6 +380,21 @@ function createMenu(isDev = false) {
         { role: 'resetZoom' },
         { role: 'zoomIn' },
         { role: 'zoomOut' },
+        { type: 'separator' },
+        {
+          label: 'Transparent',
+          type: 'checkbox',
+          checked: isTransparent,
+          click: () => {
+            const newState = !isTransparent;
+            saveTransparencyState(newState);
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.setOpacity(newState ? 0.9 : 1.0);
+            }
+            // Update menu to reflect new state
+            createMenu(isDev);
+          }
+        },
         { type: 'separator' },
         { role: 'togglefullscreen' }
       ]
