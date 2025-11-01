@@ -687,8 +687,7 @@ body,
   right: 0;
   min-width: 200px;
   max-height: 400px;
-  background: #f0f0f0;
-  backdrop-filter: blur(10px);
+  background: #ffffff;
   border: 1px solid #e1e5e9;
   border-radius: 8px;
   font-size: 12px;
