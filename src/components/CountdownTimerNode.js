@@ -11,11 +11,15 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
   const taskDescription = node.attrs.taskDescription || '';
   const { setActiveCountdown, clearActiveCountdown, activeCountdown } = useCountdown();
   const nodeIdRef = useRef(`countdown-${Date.now()}-${Math.random()}`);
+  const isMountedRef = useRef(true);
 
   // Register với context khi mount
   useEffect(() => {
+    isMountedRef.current = true;
+    const currentNodeId = nodeIdRef.current;
+    
     const countdownData = {
-      nodeId: nodeIdRef.current,
+      nodeId: currentNodeId,
       initialSeconds: node.attrs.initialSeconds || 300,
       taskDescription,
       seconds,
@@ -23,10 +27,12 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
       isPaused,
       isCompleted,
       onStateUpdate: (newState) => {
-        setSeconds(newState.seconds);
-        setIsActive(newState.isActive);
-        setIsPaused(newState.isPaused);
-        setIsCompleted(newState.isCompleted);
+        if (isMountedRef.current) {
+          setSeconds(newState.seconds);
+          setIsActive(newState.isActive);
+          setIsPaused(newState.isPaused);
+          setIsCompleted(newState.isCompleted);
+        }
       },
       onCancel: () => {
         if (deleteNode) {
@@ -52,8 +58,15 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
     setActiveCountdown(countdownData);
 
     return () => {
-      // Clear khi unmount
-      clearActiveCountdown();
+      isMountedRef.current = false;
+      // Clear khi unmount - chỉ clear nếu đây vẫn là active countdown
+      // Sử dụng updater function pattern
+      setActiveCountdown((prev) => {
+        if (prev?.nodeId === currentNodeId) {
+          return null; // Clear nếu đây là active countdown
+        }
+        return prev; // Giữ nguyên nếu không phải
+      });
     };
   }, []);
 

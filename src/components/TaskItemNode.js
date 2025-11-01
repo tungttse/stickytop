@@ -40,15 +40,17 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const handleSelectDuration = (seconds) => {
     if (!editor) return
     
-    updateAttributes({ countdownSeconds: seconds })
     setShowDialog(false)
     
+    // Step 1: Clear active countdown trong context TRƯỚC KHI xóa nodes
+    // Điều này đảm bảo top bar ẩn ngay lập tức
+    clearActiveCountdown()
+    
     const { state } = editor
-    let tr = state.tr
     const countdownNodes = []
     const todoNodesToUpdate = []
     
-    // Step 1: Tìm tất cả countdown timer nodes và todos có countdown
+    // Step 2: Tìm tất cả countdown timer nodes và todos có countdown
     state.doc.descendants((node, nodePos) => {
       if (node.type.name === 'countdownTimer') {
         countdownNodes.push({ node, pos: nodePos })
@@ -58,61 +60,79 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       }
     })
     
-    // Step 2: Clear countdownSeconds của todos cũ (trong cùng transaction)
-    todoNodesToUpdate.forEach(({ node, pos }) => {
+    // Step 3: Tính toán insert position TRƯỚC KHI tạo transaction
+    const pos = getPos()
+    const currentTodoSize = node.nodeSize
+    
+    // Step 4: Tạo MỘT transaction duy nhất cho tất cả thay đổi
+    const tr = state.tr
+    
+    // 4a: Update countdownSeconds của todo hiện tại
+    if (pos !== undefined) {
       tr.setNodeMarkup(pos, null, {
         ...node.attrs,
-        countdownSeconds: null,
+        countdownSeconds: seconds,
       })
+    }
+    
+    // 4b: Clear countdownSeconds của todos cũ (trừ todo hiện tại)
+    todoNodesToUpdate.forEach(({ node: todoNode, pos: todoPos }) => {
+      if (todoPos !== pos) {
+        tr.setNodeMarkup(todoPos, null, {
+          ...todoNode.attrs,
+          countdownSeconds: null,
+        })
+      }
     })
     
-    // Step 3: Xóa tất cả countdown timer nodes (sort descending để xóa từ cuối lên đầu)
+    // 4c: Xóa tất cả countdown timer nodes (sort descending để xóa từ cuối lên đầu)
+    // ProseMirror sẽ tự động adjust positions khi delete, nên delete từ cuối lên đầu
     if (countdownNodes.length > 0) {
       countdownNodes.sort((a, b) => b.pos - a.pos)
-      countdownNodes.forEach(({ node, pos }) => {
-        tr.delete(pos, pos + node.nodeSize)
+      countdownNodes.forEach(({ node: delNode, pos: delPos }) => {
+        tr.delete(delPos, delPos + delNode.nodeSize)
       })
     }
     
-    // Dispatch tất cả thay đổi cùng lúc
-    if (countdownNodes.length > 0 || todoNodesToUpdate.length > 0) {
-      editor.view.dispatch(tr)
-    }
-    
-    // Step 4: Clear active countdown trong context
-    clearActiveCountdown()
-    
-    // Step 5: Insert countdown timer node mới
-    const pos = getPos()
+    // 4d: Insert countdown timer node mới
+    // Tính toán insert position sau khi đã delete (positions đã được adjust trong tr)
     if (pos !== undefined) {
       const taskText = node.content.textContent
-      const nodeSize = node.nodeSize
-      // Recalculate insert position after deletions
-      let insertPos = pos + nodeSize
-      // Adjust for any deleted nodes before this position
-      countdownNodes.forEach(({ pos: delPos }) => {
+      
+      // Tính toán insertPos ban đầu (trước khi delete)
+      let insertPos = pos + currentTodoSize
+      
+      // Adjust cho các nodes sẽ bị xóa trước insertPos
+      countdownNodes.forEach(({ node: delNode, pos: delPos }) => {
         if (delPos < insertPos) {
-          const { node: delNode } = countdownNodes.find(c => c.pos === delPos) || {}
-          if (delNode) {
-            insertPos -= delNode.nodeSize
-          }
+          insertPos -= delNode.nodeSize
         }
       })
       
-      // Use setTimeout to ensure DOM is ready
-      setTimeout(() => {
-        editor.chain()
-          .focus()
-          .insertContentAt(insertPos, {
-            type: 'countdownTimer',
-            attrs: {
-              initialSeconds: seconds,
-              taskDescription: taskText,
-            }
+      // Sau khi đã delete trong transaction, resolve position mới từ tr.doc
+      // và insert node mới
+      try {
+        const $insertPos = tr.doc.resolve(insertPos)
+        if ($insertPos.parent && $insertPos.parent.type.name === 'taskList') {
+          const countdownTimerNode = editor.schema.nodes.countdownTimer.create({
+            initialSeconds: seconds,
+            taskDescription: taskText,
           })
-          .run()
-      }, 0)
+          tr.insert(insertPos, countdownTimerNode)
+        }
+      } catch (error) {
+        console.warn('Error inserting countdown timer:', error)
+      }
     }
+    
+    // Step 5: Dispatch TẤT CẢ thay đổi trong MỘT transaction duy nhất
+    // Điều này chỉ gây ra MỘT lần re-render thay vì nhiều lần
+    editor.view.dispatch(tr)
+    
+    // Step 6: Focus lại editor
+    setTimeout(() => {
+      editor.commands.focus()
+    }, 0)
   }
 
   const handleWrapperDragOver = (e) => {

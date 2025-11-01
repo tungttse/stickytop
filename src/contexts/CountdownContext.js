@@ -18,7 +18,12 @@ export const CountdownProvider = ({ children }) => {
   const [activeCountdown, setActiveCountdownState] = useState(null);
 
   const setActiveCountdown = useCallback((countdownData) => {
-    setActiveCountdownState(countdownData);
+    // Nếu countdownData là function (update function), handle nó
+    if (typeof countdownData === 'function') {
+      setActiveCountdownState(countdownData);
+    } else {
+      setActiveCountdownState(countdownData);
+    }
   }, []);
 
   const clearActiveCountdown = useCallback(() => {
