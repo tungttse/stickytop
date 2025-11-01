@@ -38,7 +38,7 @@ body,
 .first-todo-preview {
   padding: 8px 12px;
   background: #f8f9fa;
-  border: 1px solid #e1e5e9;
+  border: 1px solid #04325f;
   border-radius: 6px;
   margin: 8px;
   font-size: 14px;
@@ -166,7 +166,6 @@ body,
   align-items: start;
   margin: 0;
   min-height: 1.6em;
-  border: 1px solid red;
 }
 
 .tiptap-editor ul[data-type="taskList"] li>label {
@@ -212,6 +211,13 @@ body,
 
 .tiptap-editor::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.5);
+}
+
+.tiptap-editor hr {
+  border: none;            /* xóa border mặc định */
+  height: 1px;             /* độ dày đường kẻ */
+  background-color: black; /* đổi màu sang đen */
+  margin: 0.75em 0;        /* khoảng cách trên dưới (tùy chỉnh) */
 }
 
 /* ===== TOP BAR ===== */
@@ -472,7 +478,7 @@ body,
 /* ===== MINI MAP ===== */
 .minimap-trigger {
   position: fixed;
-  top: 50%;
+  top: 33%;
   right: 0;
   transform: translateY(-50%);
   z-index: 1000;
@@ -514,13 +520,12 @@ body,
   position: absolute;
   top: 0;
   right: 0;
-  width: 280px;
+  min-width: 200px;
   max-height: 400px;
-  background: rgba(255, 255, 255, 0.5);
+  background: #f0f0f0;
   backdrop-filter: blur(10px);
   border: 1px solid #e1e5e9;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   font-size: 12px;
   overflow: hidden;
   animation: minimapSlideIn 0.2s ease-out;
@@ -1018,11 +1023,4 @@ body,
 /* Hide top bar while keeping search bar visible */
 .top-bar {
   display: none !important;
-}
-
-.tiptap-editor hr {
-  border: none;            /* xóa border mặc định */
-  height: 1px;             /* độ dày đường kẻ */
-  background-color: black; /* đổi màu sang đen */
-  margin: 0.75em 0;        /* khoảng cách trên dưới (tùy chỉnh) */
 }

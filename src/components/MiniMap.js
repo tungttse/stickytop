@@ -154,13 +154,13 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
 
   // Get color for heading level
   const getHeadingColor = (level) => {
+    return '#000000';
     const colors = {
       1: '#1a73e8', // blue
       2: '#34a853', // green
-      3: '#ea4335', // red
-      4: '#fbbc04', // yellow
-      5: '#9334e6', // purple
-      6: '#666666'  // gray
+      3: '#fbbc04', // yellow
+      4: '#9334e6', // purple
+      5: '#666666'  // gray
     };
     return colors[level] || '#666666';
   };
