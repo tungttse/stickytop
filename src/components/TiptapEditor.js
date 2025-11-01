@@ -19,6 +19,7 @@ import { CalendarTask } from '../extentions/CalendarTask'
 // import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Paragraph from '@tiptap/extension-paragraph'
 import { TimestampExtension } from '../extensions/TimestampExtension'
+import { TodoDragHandle } from '../extensions/TodoDragHandle'
 import FilterMenu from './FilterMenu'
 import MiniMap from './MiniMap'
 import SearchBar from './SearchBar'
@@ -64,6 +65,7 @@ const TiptapEditor = (
       CalendarTask,
       TaskList,
       CustomTaskItem,
+      TodoDragHandle,
       CountdownTimerExtension,
       SlashCommandsExtension,
       TimestampExtension,

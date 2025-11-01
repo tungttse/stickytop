@@ -203,6 +203,57 @@ body,
   position: relative;
 }
 
+.task-item-with-timer:hover .drag-handle {
+  opacity: 1;
+}
+
+.task-item-with-timer.is-dragging {
+  opacity: 0.5;
+}
+
+/* ===== DRAG HANDLE ===== */
+.drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  padding: 4px 6px;
+  margin-right: 4px;
+  margin-left: -2px;
+  user-select: none;
+  flex-shrink: 0;
+  min-width: 20px;
+  min-height: 20px;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle:hover,
+.drag-handle:active {
+  opacity: 1 !important;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.drag-handle-icon {
+  font-size: 16px;
+  color: #666;
+  line-height: 1;
+  letter-spacing: -2px;
+  pointer-events: none;
+}
+
+.drag-handle:hover .drag-handle-icon,
+.drag-handle:active .drag-handle-icon {
+  color: #333;
+}
+
 .task-item-with-timer > label {
   margin-right: 0.5rem;
   margin-top: 0.1rem;
