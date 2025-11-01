@@ -57,7 +57,7 @@ const CountdownBar = () => {
           <span className="countdown-bar-icon">⏱️</span>
           <div className="countdown-bar-text">
             <div className="countdown-bar-task">
-              {activeCountdown.taskDescription || 'Countdown Timer'}
+              {activeCountdown.taskDescription}
             </div>
             <div className="countdown-bar-time">{formatTime(seconds)}</div>
           </div>

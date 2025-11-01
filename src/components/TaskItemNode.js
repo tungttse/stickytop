@@ -17,9 +17,21 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const dragHandleRef = useRef(null)
   const { activeCountdown } = useCountdown()
   
+  // Helper function để extract text từ ProseMirror node
+  const getNodeText = (node) => {
+    let text = ''
+    node.descendants((n) => {
+      if (n.isText) {
+        text += n.text
+      }
+      return true
+    })
+    return text.trim()
+  }
+  
   // Check xem todo này có phải là todo đang có countdown active không
   // Ẩn icon nếu todo này có countdown và đang active
-  const taskText = node.content.textContent || ''
+  const taskText = getNodeText(node)
   const isActiveCountdownTodo = activeCountdown && 
     activeCountdown.taskDescription === taskText &&
     hasCountdown
@@ -106,7 +118,15 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     // 4d: Insert countdown timer node mới
     // Tính toán insert position sau khi đã delete (positions đã được adjust trong tr)
     if (pos !== undefined) {
-      const taskText = node.content.textContent
+      // Extract text từ todo node
+      let taskText = ''
+      node.descendants((n) => {
+        if (n.isText) {
+          taskText += n.text
+        }
+        return true
+      })
+      taskText = taskText.trim()
       
       // Tính toán insertPos ban đầu (trước khi delete)
       let insertPos = pos + currentTodoSize
@@ -480,7 +500,15 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
               overflow: hidden;
               text-overflow: ellipsis;
             `
-            dragImage.textContent = node.content.textContent || 'Todo item'
+            // Extract text từ todo node
+            let todoText = ''
+            node.descendants((n) => {
+              if (n.isText) {
+                todoText += n.text
+              }
+              return true
+            })
+            dragImage.textContent = todoText.trim() || 'Todo item'
             document.body.appendChild(dragImage)
             e.dataTransfer.setDragImage(dragImage, 10, 10)
             setTimeout(() => document.body.removeChild(dragImage), 0)
