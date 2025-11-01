@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NodeViewWrapper } from '@tiptap/react'
+import { NodeViewWrapper } from '@tiptap/react';
+import { useCountdown } from '../contexts/CountdownContext';
 
 const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
   const [seconds, setSeconds] = useState(node.attrs.initialSeconds || 300);
@@ -8,6 +9,53 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
   const [isCompleted, setIsCompleted] = useState(false);
   const intervalRef = useRef(null);
   const taskDescription = node.attrs.taskDescription || '';
+  const { setActiveCountdown, clearActiveCountdown, activeCountdown } = useCountdown();
+  const nodeIdRef = useRef(`countdown-${Date.now()}-${Math.random()}`);
+
+  // Register với context khi mount
+  useEffect(() => {
+    const countdownData = {
+      nodeId: nodeIdRef.current,
+      initialSeconds: node.attrs.initialSeconds || 300,
+      taskDescription,
+      seconds,
+      isActive,
+      isPaused,
+      isCompleted,
+      onStateUpdate: (newState) => {
+        setSeconds(newState.seconds);
+        setIsActive(newState.isActive);
+        setIsPaused(newState.isPaused);
+        setIsCompleted(newState.isCompleted);
+      },
+      onCancel: () => {
+        if (deleteNode) {
+          deleteNode();
+        }
+      },
+      onPause: () => {
+        setIsPaused(true);
+        setIsActive(false);
+      },
+      onResume: () => {
+        setIsPaused(false);
+        setIsActive(true);
+      },
+      onReset: () => {
+        setIsActive(false);
+        setIsPaused(false);
+        setIsCompleted(false);
+        setSeconds(node.attrs.initialSeconds || 300);
+      },
+    };
+    
+    setActiveCountdown(countdownData);
+
+    return () => {
+      // Clear khi unmount
+      clearActiveCountdown();
+    };
+  }, []);
 
   useEffect(() => {
     if (isActive && !isPaused && seconds > 0) {
@@ -52,6 +100,52 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
     };
   }, [isActive, isPaused, seconds, taskDescription]);
 
+  // Update context khi state thay đổi (chỉ update nếu đây là active countdown)
+  useEffect(() => {
+    // Chỉ update nếu nodeId khớp hoặc activeCountdown là null (đây là countdown đầu tiên)
+    const isThisActive = !activeCountdown || activeCountdown.nodeId === nodeIdRef.current;
+    
+    if (isThisActive) {
+      const countdownData = {
+        nodeId: nodeIdRef.current,
+        initialSeconds: node.attrs.initialSeconds || 300,
+        taskDescription,
+        seconds,
+        isActive,
+        isPaused,
+        isCompleted,
+        onStateUpdate: (newState) => {
+          setSeconds(newState.seconds);
+          setIsActive(newState.isActive);
+          setIsPaused(newState.isPaused);
+          setIsCompleted(newState.isCompleted);
+        },
+        onCancel: () => {
+          if (deleteNode) {
+            deleteNode();
+          }
+        },
+        onPause: () => {
+          setIsPaused(true);
+          setIsActive(false);
+        },
+        onResume: () => {
+          setIsPaused(false);
+          setIsActive(true);
+        },
+        onReset: () => {
+          setIsActive(false);
+          setIsPaused(false);
+          setIsCompleted(false);
+          setSeconds(node.attrs.initialSeconds || 300);
+        },
+      };
+      
+      setActiveCountdown(countdownData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds, isActive, isPaused, isCompleted]);
+
   const formatTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -95,47 +189,12 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
     return 'ready';
   };
 
-  const getStatusClass = () => {
-    const status = getStatusText();
-    return `countdown-status ${status}`;
-  };
-
+  // Minimal indicator - chỉ hiển thị badge nhỏ
   return (
-    <NodeViewWrapper className="countdown-timer-container">
-      <div className={`countdown-timer ${isCompleted ? 'completed' : ''}`}>
-        <div className="countdown-display">
-          <div className="countdown-time">{formatTime(seconds)}</div>
-          <div className={getStatusClass()}>{getStatusText()}</div>
-        </div>
-        
-        {taskDescription && (
-          <div className="countdown-task">📝 {taskDescription}</div>
-        )}
-        
-        <div className="countdown-controls">
-          {isActive && !isCompleted && (
-            <button className="countdown-btn pause" onClick={handlePause}>
-              Pause
-            </button>
-          )}
-          
-          {isPaused && !isCompleted && (
-            <button className="countdown-btn resume" onClick={handleResume}>
-              Resume
-            </button>
-          )}
-          
-          {(isPaused || isCompleted) && (
-            <button className="countdown-btn reset" onClick={handleReset}>
-              Reset
-            </button>
-          )}
-          
-          <button className="countdown-btn cancel" onClick={handleCancel}>
-            Cancel
-          </button>
-        </div>
-      </div>
+    <NodeViewWrapper className="countdown-timer-minimal">
+      <span className="countdown-minimal-badge">
+        ⏱️ {formatTime(seconds)}
+      </span>
     </NodeViewWrapper>
   );
 };

@@ -45,7 +45,7 @@ export const CountdownTimerExtension = Node.create({
 
   addNodeView() {
     return ReactNodeViewRenderer(CountdownTimerNode, {
-      contentDOMElementTag: 'div',
+      contentDOMElementTag: 'span',
     });
   },
 

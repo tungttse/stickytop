@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 import { NodeSelection } from '@tiptap/pm/state'
 import CountdownDialog from './CountdownDialog'
+import { useCountdown } from '../contexts/CountdownContext'
 
 // Module-level variable để lưu source index - shared giữa tất cả TaskItemNode instances
 // Đảm bảo source index luôn có, không phụ thuộc vào dataTransfer có thể bị override
@@ -34,18 +35,69 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     setShowDialog(true)
   }
 
+  const { clearActiveCountdown } = useCountdown()
+
   const handleSelectDuration = (seconds) => {
+    if (!editor) return
+    
     updateAttributes({ countdownSeconds: seconds })
     setShowDialog(false)
     
-    // Insert countdown timer node right after this task item
+    const { state } = editor
+    let tr = state.tr
+    const countdownNodes = []
+    const todoNodesToUpdate = []
+    
+    // Step 1: Tìm tất cả countdown timer nodes và todos có countdown
+    state.doc.descendants((node, nodePos) => {
+      if (node.type.name === 'countdownTimer') {
+        countdownNodes.push({ node, pos: nodePos })
+      }
+      if (node.type.name === 'taskItem' && node.attrs.countdownSeconds !== null) {
+        todoNodesToUpdate.push({ node, pos: nodePos })
+      }
+    })
+    
+    // Step 2: Clear countdownSeconds của todos cũ (trong cùng transaction)
+    todoNodesToUpdate.forEach(({ node, pos }) => {
+      tr.setNodeMarkup(pos, null, {
+        ...node.attrs,
+        countdownSeconds: null,
+      })
+    })
+    
+    // Step 3: Xóa tất cả countdown timer nodes (sort descending để xóa từ cuối lên đầu)
+    if (countdownNodes.length > 0) {
+      countdownNodes.sort((a, b) => b.pos - a.pos)
+      countdownNodes.forEach(({ node, pos }) => {
+        tr.delete(pos, pos + node.nodeSize)
+      })
+    }
+    
+    // Dispatch tất cả thay đổi cùng lúc
+    if (countdownNodes.length > 0 || todoNodesToUpdate.length > 0) {
+      editor.view.dispatch(tr)
+    }
+    
+    // Step 4: Clear active countdown trong context
+    clearActiveCountdown()
+    
+    // Step 5: Insert countdown timer node mới
     const pos = getPos()
-    if (pos !== undefined && editor) {
+    if (pos !== undefined) {
       const taskText = node.content.textContent
-      
-      // Find the position right after this task item
       const nodeSize = node.nodeSize
-      const insertPos = pos + nodeSize
+      // Recalculate insert position after deletions
+      let insertPos = pos + nodeSize
+      // Adjust for any deleted nodes before this position
+      countdownNodes.forEach(({ pos: delPos }) => {
+        if (delPos < insertPos) {
+          const { node: delNode } = countdownNodes.find(c => c.pos === delPos) || {}
+          if (delNode) {
+            insertPos -= delNode.nodeSize
+          }
+        }
+      })
       
       // Use setTimeout to ensure DOM is ready
       setTimeout(() => {
