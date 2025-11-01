@@ -1019,3 +1019,10 @@ body,
 .top-bar {
   display: none !important;
 }
+
+.tiptap-editor hr {
+  border: none;            /* xóa border mặc định */
+  height: 1px;             /* độ dày đường kẻ */
+  background-color: black; /* đổi màu sang đen */
+  margin: 0.75em 0;        /* khoảng cách trên dưới (tùy chỉnh) */
+}
