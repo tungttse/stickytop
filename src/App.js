@@ -126,9 +126,7 @@ function App() {
     autoSaveTimeoutRef.current = setTimeout(async () => {
       try {
         if (window.electronAPI && window.electronAPI.autoSaveNote) {
-          console.log('autoSaveNote', content);
           await window.electronAPI.autoSaveNote(content);
-          console.log('autoSaveNote completed');
         }
       } catch (error) {
         console.error('Error auto-saving content:', error);
