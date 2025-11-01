@@ -133,6 +133,16 @@ body,
   box-sizing: border-box;
 }
 
+/* Center editor content on large screens for better readability */
+@media (min-width: 1024px) {
+  .tiptap-editor {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
 .tiptap-editor:focus {
   outline: none;
 }
