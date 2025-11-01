@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { useCountdown } from '../contexts/CountdownContext';
 
-const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
+const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos }) => {
   const [seconds, setSeconds] = useState(node.attrs.initialSeconds || 300);
   const [isActive, setIsActive] = useState(true); // Auto-start
   const [isPaused, setIsPaused] = useState(false);
@@ -35,6 +35,28 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode }) => {
         }
       },
       onCancel: () => {
+        // Clear countdownSeconds của todo parent khi cancel
+        if (editor && getPos) {
+          const pos = getPos()
+          if (pos !== undefined) {
+            const { state } = editor
+            // Tìm todo item parent có countdownSeconds
+            state.doc.descendants((todoNode, todoPos) => {
+              if (todoNode.type.name === 'taskItem' && 
+                  todoNode.attrs.countdownSeconds !== null &&
+                  todoNode.content.textContent === taskDescription) {
+                // Clear countdownSeconds của todo
+                const tr = state.tr
+                tr.setNodeMarkup(todoPos, null, {
+                  ...todoNode.attrs,
+                  countdownSeconds: null,
+                })
+                editor.view.dispatch(tr)
+              }
+            })
+          }
+        }
+        // Xóa countdown timer node
         if (deleteNode) {
           deleteNode();
         }

@@ -15,6 +15,15 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const [enableDrag, setEnableDrag] = useState(true) // Default to true, will be updated from config
   const hasCountdown = node.attrs.countdownSeconds !== null
   const dragHandleRef = useRef(null)
+  const { activeCountdown } = useCountdown()
+  
+  // Check xem todo này có phải là todo đang có countdown active không
+  // Ẩn icon nếu todo này có countdown và đang active
+  const taskText = node.content.textContent || ''
+  const isActiveCountdownTodo = activeCountdown && 
+    activeCountdown.taskDescription === taskText &&
+    hasCountdown
+  const shouldShowTimerIcon = !node.attrs.checked && !isActiveCountdownTodo
 
   // Load drag config on mount
   useEffect(() => {
@@ -511,20 +520,20 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           }}
         />
       </label>
-      <div className="task-item-content">
-        <NodeViewContent className="content" />
-        {!node.attrs.checked && (
-          <button
-            className={`timer-icon ${hasCountdown ? 'active' : ''}`}
-            onClick={handleTimerClick}
-            onMouseDown={(e) => e.stopPropagation()}
-            title="Set countdown timer"
-            type="button"
-          >
-            ⏱️
-          </button>
-        )}
-      </div>
+              <div className="task-item-content">
+                <NodeViewContent className="content" />
+                {shouldShowTimerIcon && (
+                  <button
+                    className={`timer-icon ${hasCountdown ? 'active' : ''}`}
+                    onClick={handleTimerClick}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    title="Set countdown timer"
+                    type="button"
+                  >
+                    ⏱️
+                  </button>
+                )}
+              </div>
       {/* Drop indicator line - AFTER */}
       {enableDrag && dragOverPosition === 'after' && draggedSourceIndex !== null && (
         <div className="drop-indicator drop-indicator-after" />
