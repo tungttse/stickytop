@@ -200,7 +200,7 @@ body,
   display: flex;
   align-items: start;
   gap: 0.5rem;
-  position: relative;
+  position: relative; /* For drop indicator positioning */
 }
 
 .task-item-with-timer:hover .drag-handle {
@@ -208,7 +208,21 @@ body,
 }
 
 .task-item-with-timer.is-dragging {
-  opacity: 0.5;
+  opacity: 0.4;
+  transform: scale(0.98);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.task-item-with-timer.drag-over {
+  background-color: rgba(59, 130, 246, 0.05);
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+/* Cải thiện drag handle khi dragging */
+.task-item-with-timer.is-dragging .drag-handle {
+  opacity: 1;
+  cursor: grabbing;
 }
 
 /* ===== DRAG HANDLE ===== */
@@ -252,6 +266,54 @@ body,
 .drag-handle:hover .drag-handle-icon,
 .drag-handle:active .drag-handle-icon {
   color: #333;
+}
+
+/* ===== DROP INDICATOR ===== */
+.drop-indicator {
+  height: 2px;
+  background: #3b82f6;
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.drop-indicator-before {
+  top: -1px;
+}
+
+.drop-indicator-after {
+  bottom: -1px;
+}
+
+.drop-indicator::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid #3b82f6;
+}
+
+.drop-indicator::after {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-right: 6px solid #3b82f6;
 }
 
 .task-item-with-timer > label {

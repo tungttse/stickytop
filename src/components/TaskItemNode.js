@@ -10,6 +10,7 @@ let draggedSourceIndex = null
 export default function TaskItemNode({ node, updateAttributes, editor, getPos, deleteNode }) {
   const [showDialog, setShowDialog] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
+  const [dragOverPosition, setDragOverPosition] = useState(null) // 'before' | 'after' | null
   const hasCountdown = node.attrs.countdownSeconds !== null
   const dragHandleRef = useRef(null)
 
@@ -50,22 +51,58 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
 
   const handleWrapperDragOver = (e) => {
     // Only allow drop if something is being dragged from our drag handle
-    // CHÚ Ý: KHÔNG được gọi getData() trong dragover event - chỉ có thể đọc trong drop event
-    // Chỉ check types array hoặc module variable
-    const hasCustomType = e.dataTransfer.types.includes('application/x-todo-index')
-    const hasTextPlain = e.dataTransfer.types.includes('text/plain')
     const hasModuleIndex = draggedSourceIndex !== null
     
-    if (hasCustomType || hasTextPlain || hasModuleIndex) {
+    if (hasModuleIndex) {
       e.preventDefault()
       e.stopPropagation()
       e.dataTransfer.dropEffect = 'move'
+      
+      // Calculate drop position để hiển thị indicator
+      if (!editor || !getPos) return
+      
+      const { view } = editor
+      const coords = { left: e.clientX, top: e.clientY }
+      const posAtCoords = view.posAtCoords(coords)
+      
+      if (posAtCoords?.pos) {
+        const dropPos = posAtCoords.pos
+        const pos = getPos()
+        
+        if (pos !== undefined) {
+          const todoStart = pos
+          const todoEnd = pos + node.nodeSize
+          
+          // Determine if drop sẽ xảy ra before hay after todo này
+          if (dropPos < todoStart) {
+            setDragOverPosition('before')
+          } else if (dropPos > todoEnd) {
+            setDragOverPosition('after')
+          } else {
+            const relativePos = dropPos - todoStart
+            const midPoint = node.nodeSize / 2
+            setDragOverPosition(relativePos < midPoint ? 'before' : 'after')
+          }
+        }
+      }
+    } else {
+      setDragOverPosition(null)
+    }
+  }
+
+  const handleWrapperDragLeave = (e) => {
+    // Clear indicator khi rời khỏi todo item
+    // Chỉ clear nếu không có todo item nào khác ở trong
+    const relatedTarget = e.relatedTarget
+    if (!relatedTarget || !relatedTarget.closest || !relatedTarget.closest('.task-item-with-timer')) {
+      setDragOverPosition(null)
     }
   }
 
   const handleWrapperDrop = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    setDragOverPosition(null) // Clear indicator
     
     if (!editor) {
       console.log('Drop: No editor')
@@ -267,12 +304,17 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
 
   return (
     <NodeViewWrapper 
-      className={`task-item-with-timer ${isDragging ? 'is-dragging' : ''}`}
+      className={`task-item-with-timer ${isDragging ? 'is-dragging' : ''} ${dragOverPosition ? 'drag-over' : ''} ${dragOverPosition === 'before' ? 'drop-before' : ''} ${dragOverPosition === 'after' ? 'drop-after' : ''}`}
       data-type="taskItem" 
       data-checked={node.attrs.checked}
       onDragOver={handleWrapperDragOver}
+      onDragLeave={handleWrapperDragLeave}
       onDrop={handleWrapperDrop}
     >
+      {/* Drop indicator line - BEFORE */}
+      {dragOverPosition === 'before' && draggedSourceIndex !== null && (
+        <div className="drop-indicator drop-indicator-before" />
+      )}
       <div 
         ref={dragHandleRef}
         className="drag-handle"
@@ -324,16 +366,27 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           
           // Set drag image and data
           if (e.dataTransfer) {
+            // Tạo custom drag preview đẹp hơn
             const dragImage = document.createElement('div')
+            dragImage.style.cssText = `
+              position: absolute;
+              top: -1000px;
+              left: -1000px;
+              padding: 8px 12px;
+              background: white;
+              border: 2px solid #3b82f6;
+              border-radius: 6px;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+              font-size: 14px;
+              color: #333;
+              max-width: 300px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            `
             dragImage.textContent = node.content.textContent || 'Todo item'
-            dragImage.style.position = 'absolute'
-            dragImage.style.top = '-1000px'
-            dragImage.style.padding = '4px 8px'
-            dragImage.style.background = 'white'
-            dragImage.style.border = '1px solid #ccc'
-            dragImage.style.borderRadius = '4px'
             document.body.appendChild(dragImage)
-            e.dataTransfer.setDragImage(dragImage, 0, 0)
+            e.dataTransfer.setDragImage(dragImage, 10, 10)
             setTimeout(() => document.body.removeChild(dragImage), 0)
             e.dataTransfer.effectAllowed = 'move'
             
@@ -372,16 +425,23 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       </label>
       <div className="task-item-content">
         <NodeViewContent className="content" />
-        <button
-          className={`timer-icon ${hasCountdown ? 'active' : ''}`}
-          onClick={handleTimerClick}
-          onMouseDown={(e) => e.stopPropagation()}
-          title="Set countdown timer"
-          type="button"
-        >
-          ⏱️
-        </button>
+        {!node.attrs.checked && (
+          <button
+            className={`timer-icon ${hasCountdown ? 'active' : ''}`}
+            onClick={handleTimerClick}
+            onMouseDown={(e) => e.stopPropagation()}
+            title="Set countdown timer"
+            type="button"
+          >
+            ⏱️
+          </button>
+        )}
       </div>
+      {/* Drop indicator line - AFTER */}
+      {dragOverPosition === 'after' && draggedSourceIndex !== null && (
+        <div className="drop-indicator drop-indicator-after" />
+      )}
+      
       {showDialog && (
         <CountdownDialog
           onSelectDuration={handleSelectDuration}
