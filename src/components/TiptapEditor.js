@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, forwardRef, useImperat
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item'
 import { CustomTaskItem } from '../extensions/CustomTaskItem';
 import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Placeholder from '@tiptap/extension-placeholder'
@@ -53,22 +54,27 @@ const TiptapEditor = (
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        bulletList: false,
-        orderedList: false,
-        listItem: false,
+        // bulletList: false,
+        // orderedList: false,
+        // listItem: false,
         // horizontalRule: false,
-        taskList: false,
-        taskItem: false,
+        taskList: false, // disable default task list
+        taskItem: false, // disable default task item
       }),
       // HorizontalRule,
-      Paragraph,
+      // Paragraph,
       CalendarTask,
       TaskList,
-      CustomTaskItem,
-      TodoDragHandle,
-      CountdownTimerExtension,
-      SlashCommandsExtension,
-      TimestampExtension,
+      // TaskItem.configure({
+      //   nested: true, // Cho phép nested task lists
+      // }),
+      CustomTaskItem.configure({
+        nested: true, // Cho phép nested task lists
+      }),
+      // TodoDragHandle,
+      // CountdownTimerExtension,
+      // SlashCommandsExtension,
+      // TimestampExtension,
       SearchHighlight,
      
       Placeholder.configure({
