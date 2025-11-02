@@ -337,26 +337,18 @@ function createMenu(isDev = false) {
         }
       ]
     },
-    // {
-    //   label: 'Edit',
-    //   submenu: [
-    //     { role: 'undo' },
-    //     { role: 'redo' },
-    //     { type: 'separator' },
-    //     { role: 'cut' },
-    //     { role: 'copy' },
-    //     { role: 'paste' },
-    //     { role: 'selectall' },
-    //     { type: 'separator' },
-    //     {
-    //       label: 'Insert Todo',
-    //       accelerator: 'CmdOrCtrl+Shift+C',
-    //       click: () => {
-    //         mainWindow.webContents.executeJavaScript('insertTodo()');
-    //       }
-    //     }
-    //   ]
-    // },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectall' },
+      ]
+    },
     {
       label: 'View',
       submenu: [
