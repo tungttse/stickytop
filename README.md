@@ -6,16 +6,21 @@ A beautiful Electron application for creating rich text sticky notes that stay o
 
 v1
 - todo list + simple note + countdown.
+- analytic
+- beautiful view
+- premium template.
+- gan thong tin tracker
+
 
 v2 
 
 - export notion
 - export doto to other task list.
 - calendar event create
-- premium template.
+
 - reminder.
 - static 
-- archive 
+- archive.
 - previous changes (nhu Google Doc)
 - email reminder weekly.
 - code chuc nang subscription.
