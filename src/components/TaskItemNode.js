@@ -35,7 +35,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const isActiveCountdownTodo = activeCountdown &&
     activeCountdown.taskDescription === taskText &&
     hasCountdown
-  const shouldShowTimerIcon = !node.attrs.checked && !isActiveCountdownTodo
+  // Chỉ hiển thị icon khi todo có ít nhất 1 ký tự
+  const shouldShowTimerIcon = !node.attrs.checked && !isActiveCountdownTodo && taskText.length > 0
 
   // Format time function (same as CountdownTimerNode)
   const formatTime = (totalSeconds) => {
