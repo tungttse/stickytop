@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import TiptapEditor from './TiptapEditor';
-import CountdownBar from './components/CountdownBar';
+import CountdownBar from './components/countdown/CountdownBar';
 import { CountdownProvider } from './contexts/CountdownContext';
 import { EditorProvider } from './contexts/EditorContext';
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useCountdown } from '../contexts/CountdownContext';
-import { useEditorContext } from '../contexts/EditorContext';
+import { useCountdown } from '../../contexts/CountdownContext';
+import { useEditorContext } from '../../contexts/EditorContext';
 
 const CountdownBar = () => {
   const { activeCountdown } = useCountdown();

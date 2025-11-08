@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
-import { useCountdown } from '../contexts/CountdownContext';
+import { useCountdown } from '../../contexts/CountdownContext';
 
 const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos }) => {
   const [seconds, setSeconds] = useState(node.attrs.initialSeconds || 300);

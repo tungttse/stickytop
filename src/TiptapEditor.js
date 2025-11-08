@@ -6,7 +6,7 @@ import TaskItem from '@tiptap/extension-task-item'
 import { CustomTaskItem } from './extensions/CustomTaskItem';
 import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Placeholder from '@tiptap/extension-placeholder'
-import CountdownTimer from './components/CountdownTimer';
+import CountdownTimer from './components/countdown/CountdownTimer';
 import SystemClock from './components/SystemClock';
 import { debounce } from 'lodash';
 import Suggestion from '@tiptap/suggestion'
@@ -15,7 +15,7 @@ import tippy from 'tippy.js';
 import { Extension } from '@tiptap/core'
 import { SlashCommandsExtension } from './components/SlashCommandsExtension'
 import { SlashCommands } from './components/SlashCommands'
-import { CountdownTimerExtension } from './components/CountdownTimerExtension'
+import { CountdownTimerExtension } from './components/countdown/CountdownTimerExtension'
 import { CalendarTask } from './extentions/CalendarTask'
 // import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Paragraph from '@tiptap/extension-paragraph'

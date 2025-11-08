@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import CountdownTimerNode from '../components/CountdownTimerNode';
+import CountdownTimerNode from '../components/countdown/CountdownTimerNode';
 
 export const CountdownTimerExtension = Node.create({
   name: 'countdownTimer',
