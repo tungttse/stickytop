@@ -11,7 +11,7 @@ function App() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isAutoMinimized, setIsAutoMinimized] = useState(false);
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
-  const [backgroundColor, setBackgroundColor] = useState('#94a4b4'); // Default yellow
+  
   const [isThemeSelectorVisible, setIsThemeSelectorVisible] = useState(false);
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
@@ -37,49 +37,6 @@ function App() {
     loadAutoSaved();
   }, []);
 
-  // Load saved color on startup
-  useEffect(() => {
-    const loadSavedColor = async () => {
-      try {
-        if (window.electronAPI && window.electronAPI.loadColor) {
-          const result = await window.electronAPI.loadColor();
-          if (result.success) {
-            setBackgroundColor(result.color);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading saved color:', error);
-      }
-    };
-    
-    loadSavedColor();
-  }, []);
-
-  // Listen for color change from menu
-  useEffect(() => {
-    if (window.electronAPI && window.electronAPI.onColorChange) {
-      const handleColorChange = async (event, color) => {
-        setBackgroundColor(color);
-        // Save the new color
-        try {
-          if (window.electronAPI && window.electronAPI.saveColor) {
-            await window.electronAPI.saveColor(color);
-          }
-        } catch (error) {
-          console.error('Error saving color:', error);
-        }
-      };
-      
-      window.electronAPI.onColorChange(handleColorChange);
-      
-      // Cleanup listener on unmount
-      return () => {
-        if (window.electronAPI && window.electronAPI.removeColorChangeListener) {
-          window.electronAPI.removeColorChangeListener();
-        }
-      };
-    }
-  }, []);
 
   // Listen for auto-minimize events
   // useEffect(() => {

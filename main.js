@@ -389,56 +389,6 @@ function createMenu(isDev = false) {
         { type: 'separator' },
         { role: 'togglefullscreen' }
       ]
-    },
-    {
-      label: 'Color',
-      submenu: [
-        {
-          label: 'Yellow',
-          type: 'checkbox',
-          checked: currentColor === '#ffff99',
-          click: () => {
-            mainWindow.webContents.send('change-color', '#ffff99');
-            createMenu(isDev); // Update menu to show new checked state
-          }
-        },
-        {
-          label: 'Blue',
-          type: 'checkbox',
-          checked: currentColor === '#99ccff',
-          click: () => {
-            mainWindow.webContents.send('change-color', '#99ccff');
-            createMenu(isDev); // Update menu to show new checked state
-          }
-        },
-        {
-          label: 'Green',
-          type: 'checkbox',
-          checked: currentColor === '#99ff99',
-          click: () => {
-            mainWindow.webContents.send('change-color', '#99ff99');
-            createMenu(isDev); // Update menu to show new checked state
-          }
-        },
-        {
-          label: 'Pink',
-          type: 'checkbox',
-          checked: currentColor === '#ff99cc',
-          click: () => {
-            mainWindow.webContents.send('change-color', '#ff99cc');
-            createMenu(isDev); // Update menu to show new checked state
-          }
-        },
-        {
-          label: 'Purple',
-          type: 'checkbox',
-          checked: currentColor === '#cc99ff',
-          click: () => {
-            mainWindow.webContents.send('change-color', '#cc99ff');
-            createMenu(isDev); // Update menu to show new checked state
-          }
-        }
-      ]
     }
   ];
 
@@ -520,48 +470,6 @@ ipcMain.handle('load-auto-save-note', async (event) => {
       return { success: false, error: 'No auto-saved note found' };
     }
     console.error('Error loading auto-saved note:', error);
-    return { success: false, error: error.message };
-  }
-});
-
-// Color management
-ipcMain.handle('save-color', async (event, color) => {
-  try {
-    const userDataPath = app.getPath('userData');
-    const colorPath = path.join(userDataPath, 'sticky-color.json');
-    
-    const colorData = {
-      color: color,
-      timestamp: Date.now()
-    };
-    
-    await fs.promises.writeFile(colorPath, JSON.stringify(colorData, null, 2));
-    
-    // Update menu to reflect new color
-    const isDev = process.env.ENV === 'dev' || process.argv.includes('--dev');
-    createMenu(isDev);
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Error saving color:', error);
-    return { success: false, error: error.message };
-  }
-});
-
-ipcMain.handle('load-color', async (event) => {
-  try {
-    const userDataPath = app.getPath('userData');
-    const colorPath = path.join(userDataPath, 'sticky-color.json');
-    
-    const data = await fs.promises.readFile(colorPath, 'utf8');
-    const colorData = JSON.parse(data);
-    
-    return { success: true, color: colorData.color };
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return { success: false, error: 'No saved color found' };
-    }
-    console.error('Error loading color:', error);
     return { success: false, error: error.message };
   }
 });
