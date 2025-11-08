@@ -203,7 +203,6 @@ const TiptapEditor = (
         const text = event.clipboardData?.getData('text/plain') || '';
         if (text.trim()) {
           const lines = text.split('\n');
-          const isMultiLine = lines.length >= 2;
           
           // Code detection patterns
           const codePatterns = [
@@ -222,7 +221,7 @@ const TiptapEditor = (
           );
           
           // Nếu detect là code, format thành code block
-          if (isMultiLine && hasCodePattern) {
+          if (hasCodePattern) {
             event.preventDefault();
             
             const { schema } = view.state;
