@@ -206,12 +206,24 @@ function App() {
     return firstLine || 'Start writing your sticky note...';
   };
 
+  const handleExportClick = (e) => {
+    e.stopPropagation();
+    alert('export');
+  };
 
   return (
     <CountdownProvider>
       <EditorProvider>
         <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`} style={{ backgroundColor: backgroundColor }}>
-          <div className="drag-area"  onClick={handleDragAreaClick}></div>
+          <div className="drag-area"  onClick={handleDragAreaClick}>
+            <button 
+              className="export-button"
+              onClick={handleExportClick}
+              title="Export"
+            >
+              📤
+            </button>
+          </div>
           <CountdownBar />
           <TiptapEditor 
               content={content}

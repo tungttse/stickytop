@@ -165,7 +165,7 @@ function createWindow() {
   const defaultOptions = {
     width: 800,
     height: process.env.ENV ==='dev' ? 800 : 600,
-    minWidth: 200,
+    minWidth: 300,
     minHeight: 20,
     vibrancy: 'light',  
     webPreferences: {

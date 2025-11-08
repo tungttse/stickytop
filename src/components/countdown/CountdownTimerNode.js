@@ -63,20 +63,6 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
           deleteNode();
         }
       },
-      onPause: () => {
-        setIsPaused(true);
-        setIsActive(false);
-      },
-      onResume: () => {
-        setIsPaused(false);
-        setIsActive(true);
-      },
-      onReset: () => {
-        setIsActive(false);
-        setIsPaused(false);
-        setIsCompleted(false);
-        setSeconds(node.attrs.initialSeconds || 300);
-      },
     };
     
     setActiveCountdown(countdownData);
@@ -162,20 +148,6 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
           if (deleteNode) {
             deleteNode();
           }
-        },
-        onPause: () => {
-          setIsPaused(true);
-          setIsActive(false);
-        },
-        onResume: () => {
-          setIsPaused(false);
-          setIsActive(true);
-        },
-        onReset: () => {
-          setIsActive(false);
-          setIsPaused(false);
-          setIsCompleted(false);
-          setSeconds(node.attrs.initialSeconds || 300);
         },
       };
       
