@@ -20,6 +20,10 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ffeb3b',
       countdownBadgeBorder: '#fdd835',
+      codeBg: '#1e1e1e',
+      codeText: '#d4d4d4',
+      codeInlineBg: 'rgba(0, 0, 0, 0.1)',
+      codeInlineText: '#e83e8c',
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -48,6 +52,10 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#fbbf24',
       countdownBadgeBorder: '#f59e0b',
+      codeBg: '#0a0a0a',
+      codeText: '#e0e0e0',
+      codeInlineBg: 'rgba(255, 255, 255, 0.1)',
+      codeInlineText: '#ff6b9d',
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',

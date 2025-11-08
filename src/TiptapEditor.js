@@ -6,6 +6,7 @@ import TaskItem from '@tiptap/extension-task-item'
 import { CustomTaskItem } from './extensions/CustomTaskItem';
 import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Placeholder from '@tiptap/extension-placeholder'
+import Image from '@tiptap/extension-image';
 import CountdownTimer from './components/countdown/CountdownTimer';
 import SystemClock from './components/SystemClock';
 import { debounce } from 'lodash';
@@ -78,7 +79,13 @@ const TiptapEditor = (
       // SlashCommandsExtension,
       // TimestampExtension,
       SearchHighlight,
-     
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: 'tiptap-image',
+        },
+      }),
       Placeholder.configure({
         placeholder: 'Type / to see commands (e.g. /countdown 5m, /remind 10m, /use meeting)',
       }),
@@ -123,6 +130,111 @@ const TiptapEditor = (
     autofocus: true,
     editorProps: {
       attributes: { class: 'tiptap-editor' },
+      handleDrop: (view, event, slice, moved) => {
+        // Chỉ xử lý khi không phải move node (moved = false)
+        if (moved) return false;
+        
+        // Kiểm tra xem có file image không
+        const files = Array.from(event.dataTransfer?.files || []);
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        
+        if (imageFiles.length === 0) return false;
+        
+        event.preventDefault();
+        
+        // Xử lý từng image file
+        imageFiles.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const src = e.target.result;
+            // Insert image tại vị trí drop
+            const { schema } = view.state;
+            const coordinates = view.posAtCoords({
+              left: event.clientX,
+              top: event.clientY,
+            });
+            
+            if (coordinates) {
+              const imageNode = schema.nodes.image.create({ src });
+              const transaction = view.state.tr.insert(coordinates.pos, imageNode);
+              view.dispatch(transaction);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+        
+        return true;
+      },
+      handlePaste: (view, event, slice) => {
+        const items = Array.from(event.clipboardData?.items || []);
+        
+        // 1. Xử lý paste image từ clipboard (ưu tiên cao nhất)
+        const imageItems = items.filter(item => item.type.startsWith('image/'));
+        if (imageItems.length > 0) {
+          event.preventDefault();
+          imageItems.forEach((item) => {
+            const file = item.getAsFile();
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const src = e.target.result;
+                const { schema } = view.state;
+                const { selection } = view.state;
+                const imageNode = schema.nodes.image.create({ src });
+                const transaction = view.state.tr.replaceSelectionWith(imageNode);
+                view.dispatch(transaction);
+              };
+              reader.readAsDataURL(file);
+            }
+          });
+          return true;
+        }
+        
+        // 2. Xử lý paste code - detect và format thành code block
+        const text = event.clipboardData?.getData('text/plain') || '';
+        if (text.trim()) {
+          const lines = text.split('\n');
+          const isMultiLine = lines.length >= 2;
+          
+          // Code detection patterns
+          const codePatterns = [
+            /^(function|const|let|var|class|import|export|if|for|while|return|async|await|try|catch|finally|switch|case|default)\s/,
+            /[{}();=]/, // Common code characters
+            /^\s{2,}/, // Indentation (2+ spaces)
+            /^\t/, // Tab indentation
+            /^\s*\/\//, // Comments
+            /^\s*\/\*/, // Block comments
+            /=>\s*/, // Arrow functions
+            /console\.(log|error|warn|info)/, // Console statements
+          ];
+          
+          const hasCodePattern = codePatterns.some(pattern => 
+            lines.some(line => pattern.test(line.trim()))
+          );
+          
+          // Nếu detect là code, format thành code block
+          if (isMultiLine && hasCodePattern) {
+            event.preventDefault();
+            
+            const { schema } = view.state;
+            const { selection } = view.state;
+            
+            // Kiểm tra xem có codeBlock node type không
+            if (schema.nodes.codeBlock) {
+              // Tạo code block node với text content
+              // CodeBlock trong Tiptap chứa một text node với toàn bộ code (giữ nguyên newlines)
+              const codeText = text.trim();
+              const codeBlock = schema.nodes.codeBlock.create({}, schema.text(codeText));
+              const transaction = view.state.tr.replaceSelectionWith(codeBlock);
+              view.dispatch(transaction);
+              return true;
+            }
+          }
+        }
+        
+        // 3. Không phải image cũng không phải code, để default handler xử lý
+        return false;
+      },
     },
   });
 

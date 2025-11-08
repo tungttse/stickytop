@@ -41,6 +41,10 @@ export const ThemeProvider = ({ children }) => {
     root.style.setProperty('--theme-countdown-bar-text', theme.colors.countdownBarText);
     root.style.setProperty('--theme-countdown-badge-bg', theme.colors.countdownBadgeBg);
     root.style.setProperty('--theme-countdown-badge-border', theme.colors.countdownBadgeBorder);
+    root.style.setProperty('--theme-code-bg', theme.colors.codeBg || '#1e1e1e');
+    root.style.setProperty('--theme-code-text', theme.colors.codeText || '#d4d4d4');
+    root.style.setProperty('--theme-code-inline-bg', theme.colors.codeInlineBg || 'rgba(0, 0, 0, 0.1)');
+    root.style.setProperty('--theme-code-inline-text', theme.colors.codeInlineText || '#e83e8c');
     root.style.setProperty('--theme-font-family', theme.typography.fontFamily);
     root.style.setProperty('--theme-font-size', theme.typography.fontSize);
     root.style.setProperty('--theme-line-height', theme.typography.lineHeight);

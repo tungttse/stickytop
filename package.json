@@ -61,6 +61,7 @@
     "@babel/preset-react": "^7.27.1",
     "@tiptap/core": "^3.6.5",
     "@tiptap/extension-horizontal-rule": "^3.7.2",
+    "@tiptap/extension-image": "^3.10.3",
     "@tiptap/extension-list": "^3.6.5",
     "@tiptap/extension-paragraph": "^3.7.2",
     "@tiptap/extension-placeholder": "^3.6.5",
