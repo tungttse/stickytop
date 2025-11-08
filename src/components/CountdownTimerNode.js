@@ -9,6 +9,7 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
   const [isCompleted, setIsCompleted] = useState(false);
   const intervalRef = useRef(null);
   const taskDescription = node.attrs.taskDescription || '';
+  const todoPosition = node.attrs.todoPosition || null;
   const { setActiveCountdown, clearActiveCountdown, activeCountdown } = useCountdown();
   const nodeIdRef = useRef(`countdown-${Date.now()}-${Math.random()}`);
   const isMountedRef = useRef(true);
@@ -22,6 +23,7 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
       nodeId: currentNodeId,
       initialSeconds: node.attrs.initialSeconds || 300,
       taskDescription,
+      todoPosition,
       seconds,
       isActive,
       isPaused,
@@ -145,6 +147,7 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
         nodeId: nodeIdRef.current,
         initialSeconds: node.attrs.initialSeconds || 300,
         taskDescription,
+        todoPosition,
         seconds,
         isActive,
         isPaused,
@@ -181,55 +184,10 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, isActive, isPaused, isCompleted]);
 
-  const formatTime = (totalSeconds) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const secs = totalSeconds % 60;
-    
-    if (hours > 0) {
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    } else {
-      return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-  };
-
-  const handlePause = () => {
-    setIsPaused(true);
-    setIsActive(false);
-  };
-
-  const handleResume = () => {
-    setIsPaused(false);
-    setIsActive(true);
-  };
-
-  const handleReset = () => {
-    setIsActive(false);
-    setIsPaused(false);
-    setIsCompleted(false);
-    setSeconds(node.attrs.initialSeconds || 300);
-  };
-
-  const handleCancel = () => {
-    // Remove the node from the editor
-    if (deleteNode) {
-      deleteNode();
-    }
-  };
-
-  const getStatusText = () => {
-    if (isCompleted) return 'completed';
-    if (isPaused) return 'paused';
-    if (isActive) return 'running';
-    return 'ready';
-  };
-
   // Minimal indicator - chỉ hiển thị badge nhỏ
   return (
-    <NodeViewWrapper className="countdown-timer-minimal">
-      <span className="countdown-minimal-badge">
-        ⏱️ {formatTime(seconds)}
-      </span>
+    <NodeViewWrapper>
+      {/* Empty - UI hiển thị inline trong todo item thay vì ở đây */}
     </NodeViewWrapper>
   );
 };

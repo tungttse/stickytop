@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import TiptapEditor from './components/TiptapEditor';
+import TiptapEditor from './TiptapEditor';
 import CountdownBar from './components/CountdownBar';
 import { CountdownProvider } from './contexts/CountdownContext';
+import { EditorProvider } from './contexts/EditorContext';
 
 function App() {
   const [content, setContent] = useState('');
@@ -208,15 +209,17 @@ function App() {
 
   return (
     <CountdownProvider>
-      <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`} style={{ backgroundColor: backgroundColor }}>
-        <div className="drag-area"  onClick={handleDragAreaClick}></div>
-        <CountdownBar />
-        <TiptapEditor 
-            content={content}
-            onContentChange={setContent}
-            isAutoMinimized={isAutoMinimized}
-          />
-      </div>
+      <EditorProvider>
+        <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`} style={{ backgroundColor: backgroundColor }}>
+          <div className="drag-area"  onClick={handleDragAreaClick}></div>
+          <CountdownBar />
+          <TiptapEditor 
+              content={content}
+              onContentChange={setContent}
+              isAutoMinimized={isAutoMinimized}
+            />
+        </div>
+      </EditorProvider>
     </CountdownProvider>
   );
 }

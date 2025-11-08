@@ -25,6 +25,16 @@ export const CountdownTimerExtension = Node.create({
           'data-task-description': attributes.taskDescription,
         }),
       },
+      todoPosition: {
+        default: null,
+        parseHTML: element => {
+          const pos = element.getAttribute('data-todo-position');
+          return pos ? parseInt(pos) : null;
+        },
+        renderHTML: attributes => ({
+          'data-todo-position': attributes.todoPosition,
+        }),
+      },
       shouldRemove: {
         default: false,
       },

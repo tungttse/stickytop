@@ -51,22 +51,6 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
     const updateHeadings = () => {
       const newHeadings = extractHeadings();
       setHeadings(newHeadings);
-
-      // Add IDs to heading elements in the DOM
-      setTimeout(() => {
-        const editorElement = editor.view.dom;
-        newHeadings.forEach((heading, index) => {
-          const headingElements = editorElement.querySelectorAll(`h${heading.level}`);
-          const headingElement = Array.from(headingElements).find(el => 
-            el.textContent.trim() === heading.text.trim() && !el.id
-          );
-          
-          if (headingElement) {
-            headingElement.id = heading.id;
-            console.log('Added ID to heading:', heading.id, heading.text);
-          }
-        });
-      }, 200);
     };
 
     // Initial update
@@ -81,40 +65,7 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
     };
   }, [editor, extractHeadings]);
 
-  // Scroll spy to highlight current heading
-  useEffect(() => {
-    if (!editor || headings.length === 0) return;
-
-    const editorElement = editor.view.dom;
-    const headingElements = headings.map(h => document.getElementById(h.id)).filter(Boolean);
-
-    if (headingElements.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const headingId = entry.target.id;
-            setActiveHeadingId(headingId);
-          }
-        });
-      },
-      {
-        root: editorElement,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0
-      }
-    );
-
-    headingElements.forEach(element => {
-      observer.observe(element);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [editor, headings]);
-
+  
   // Handle click to scroll to heading
   const handleHeadingClick = useCallback((headingId) => {
     console.log('Clicking heading:', headingId);

@@ -1,8 +1,10 @@
 import React from 'react';
 import { useCountdown } from '../contexts/CountdownContext';
+import { useEditorContext } from '../contexts/EditorContext';
 
 const CountdownBar = () => {
   const { activeCountdown } = useCountdown();
+  const { scrollToTodo } = useEditorContext();
 
   // Get current state from activeCountdown (source of truth là CountdownTimerNode)
   const seconds = activeCountdown?.seconds || activeCountdown?.initialSeconds || 0;
@@ -46,6 +48,15 @@ const CountdownBar = () => {
     }
   };
 
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (activeCountdown?.todoPosition !== null && activeCountdown?.todoPosition !== undefined && scrollToTodo) {
+      scrollToTodo(activeCountdown.todoPosition);
+    }
+  };
+
   if (!activeCountdown) {
     return null;
   }
@@ -53,7 +64,11 @@ const CountdownBar = () => {
   return (
     <div className="countdown-bar">
       <div className="countdown-bar-content">
-        <div className="countdown-bar-info">
+        <div 
+          className="countdown-bar-info"
+          onDoubleClick={handleDoubleClick}
+          style={{ cursor: 'pointer' }}
+        >
           <span className="countdown-bar-icon">⏱️</span>
           <div className="countdown-bar-text">
             <div className="countdown-bar-task">

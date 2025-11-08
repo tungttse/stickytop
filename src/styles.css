@@ -374,6 +374,25 @@ body,
   background: #ffeb3b;
 }
 
+.countdown-inline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffeb3b;
+  border: 1px solid #fdd835;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 12px;
+  line-height: 1;
+  vertical-align: middle;
+}
+
 .task-item-with-timer[data-checked="true"] .task-item-content {
   opacity: 0.6;
   text-decoration: line-through;
@@ -390,6 +409,24 @@ body,
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 100;
   animation: slideDown 0.3s ease;
+  /* Ensure countdown bar is not transparent even when window is transparent */
+  opacity: 1 !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  /* Add solid background overlay to prevent transparency */
+  position: relative;
+}
+
+.countdown-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 1;
+  z-index: -1;
 }
 
 @keyframes slideDown {
@@ -486,28 +523,6 @@ body,
 .countdown-bar-btn.cancel:hover {
   background: rgba(255, 77, 77, 0.8);
   border-color: rgba(255, 77, 77, 1);
-}
-
-/* ===== COUNTDOWN MINIMAL INDICATOR (IN EDITOR) ===== */
-.countdown-timer-minimal {
-  display: inline-block;
-  margin: 0 4px;
-  vertical-align: middle;
-}
-
-.countdown-minimal-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #f0f0f0;
-  border: 1px solid #d0d0d0;
-  border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #333;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 /* ===== COUNTDOWN DIALOG ===== */

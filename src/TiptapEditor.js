@@ -3,28 +3,29 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item'
-import { CustomTaskItem } from '../extensions/CustomTaskItem';
+import { CustomTaskItem } from './extensions/CustomTaskItem';
 import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Placeholder from '@tiptap/extension-placeholder'
-import CountdownTimer from './CountdownTimer';
-import SystemClock from './SystemClock';
+import CountdownTimer from './components/CountdownTimer';
+import SystemClock from './components/SystemClock';
 import { debounce } from 'lodash';
 import Suggestion from '@tiptap/suggestion'
 import { ReactRenderer } from '@tiptap/react';
 import tippy from 'tippy.js';
 import { Extension } from '@tiptap/core'
-import { SlashCommandsExtension } from './SlashCommandsExtension'
-import { SlashCommands } from './SlashCommands'
-import { CountdownTimerExtension } from './CountdownTimerExtension'
-import { CalendarTask } from '../extentions/CalendarTask'
+import { SlashCommandsExtension } from './components/SlashCommandsExtension'
+import { SlashCommands } from './components/SlashCommands'
+import { CountdownTimerExtension } from './components/CountdownTimerExtension'
+import { CalendarTask } from './extentions/CalendarTask'
 // import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Paragraph from '@tiptap/extension-paragraph'
-import { TimestampExtension } from '../extensions/TimestampExtension'
-import { TodoDragHandle } from '../extensions/TodoDragHandle'
-import FilterMenu from './FilterMenu'
-import MiniMap from './MiniMap'
-import SearchBar from './SearchBar'
-import { SearchHighlight } from '../extensions/SearchHighlight'
+import { TimestampExtension } from './extensions/TimestampExtension'
+import { TodoDragHandle } from './extensions/TodoDragHandle'
+import FilterMenu from './components/FilterMenu'
+import MiniMap from './components/MiniMap'
+import SearchBar from './components/SearchBar'
+import { SearchHighlight } from './extensions/SearchHighlight'
+import { useEditorContext } from './contexts/EditorContext'
 
 
 const TiptapEditor = (
@@ -50,6 +51,7 @@ const TiptapEditor = (
   const [searchMatches, setSearchMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
+  const { setEditor: setEditorContext, setScrollToTodo: setScrollToTodoContext } = useEditorContext();
 
   const editor = useEditor({
     extensions: [
@@ -63,7 +65,7 @@ const TiptapEditor = (
       }),
       // HorizontalRule,
       // Paragraph,
-      CalendarTask,
+      // CalendarTask,
       TaskList,
       // TaskItem.configure({
       //   nested: true, // Cho phép nested task lists
@@ -72,7 +74,7 @@ const TiptapEditor = (
         nested: true, // Cho phép nested task lists
       }),
       // TodoDragHandle,
-      // CountdownTimerExtension,
+      CountdownTimerExtension,
       // SlashCommandsExtension,
       // TimestampExtension,
       SearchHighlight,
@@ -123,6 +125,14 @@ const TiptapEditor = (
       attributes: { class: 'tiptap-editor' },
     },
   });
+
+  // Set editor in context when ready
+  useEffect(() => {
+    if (editor) {
+      setEditorContext(editor);
+    }
+  }, [editor, setEditorContext]);
+
   useEffect(() => {
     if (content !== editor.getHTML()) {
       editor.commands.setContent(content)
@@ -163,58 +173,58 @@ const TiptapEditor = (
   }, [content, editor])
 
   // Add timestamps to existing nodes when editor is ready
-  useEffect(() => {
-    if (editor) {
-      // Add timestamps to all existing nodes that don't have them
-      setTimeout(() => {
-        try {
-          editor.commands.addTimestampsToAllNodes();
-        } catch (error) {
-          console.warn('Error adding timestamps to nodes:', error);
-        }
-      }, 100);
-    }
-  }, [editor]);
+  // useEffect(() => {
+  //   if (editor) {
+  //     // Add timestamps to all existing nodes that don't have them
+  //     setTimeout(() => {
+  //       try {
+  //         editor.commands.addTimestampsToAllNodes();
+  //       } catch (error) {
+  //         console.warn('Error adding timestamps to nodes:', error);
+  //       }
+  //     }, 100);
+  //   }
+  // }, [editor]);
 
   // Update timestamps when editor content changes (simplified approach)
-  useEffect(() => {
-    if (editor) {
-      const handleUpdate = () => {
-        // Only update timestamps for new nodes, not on every update
-        setTimeout(() => {
-          try {
-            const { state } = editor;
-            const now = Date.now();
-            const tr = state.tr;
-            let hasChanges = false;
+  // useEffect(() => {
+  //   if (editor) {
+  //     const handleUpdate = () => {
+  //       // Only update timestamps for new nodes, not on every update
+  //       setTimeout(() => {
+  //         try {
+  //           const { state } = editor;
+  //           const now = Date.now();
+  //           const tr = state.tr;
+  //           let hasChanges = false;
 
-            state.doc.descendants((node, pos) => {
-              if (node.isBlock && !node.attrs.createdAt) {
-                tr.setNodeMarkup(pos, null, {
-                  ...node.attrs,
-                  createdAt: now,
-                  updatedAt: now,
-                });
-                hasChanges = true;
-              }
-            });
+  //           state.doc.descendants((node, pos) => {
+  //             if (node.isBlock && !node.attrs.createdAt) {
+  //               tr.setNodeMarkup(pos, null, {
+  //                 ...node.attrs,
+  //                 createdAt: now,
+  //                 updatedAt: now,
+  //               });
+  //               hasChanges = true;
+  //             }
+  //           });
 
-            if (hasChanges) {
-              editor.view.dispatch(tr);
-            }
-          } catch (error) {
-            console.warn('Error updating timestamps:', error);
-          }
-        }, 100);
-      };
+  //           if (hasChanges) {
+  //             editor.view.dispatch(tr);
+  //           }
+  //         } catch (error) {
+  //           console.warn('Error updating timestamps:', error);
+  //         }
+  //       }, 100);
+  //     };
 
-      editor.on('update', handleUpdate);
+  //     editor.on('update', handleUpdate);
       
-      return () => {
-        editor.off('update', handleUpdate);
-      };
-    }
-  }, [editor]);
+  //     return () => {
+  //       editor.off('update', handleUpdate);
+  //     };
+  //   }
+  // }, [editor]);
 
   // Search functionality
   const performSearch = useCallback((query) => {
@@ -515,8 +525,85 @@ const TiptapEditor = (
     return html;
   };
 
+  // Helper function để extract text từ ProseMirror node
+  const getNodeText = useCallback((node) => {
+    let text = '';
+    node.descendants((n) => {
+      if (n.isText) {
+        text += n.text;
+      }
+      return true;
+    });
+    return text.trim();
+  }, []);
+
+  // Function để scroll đến todo item
+  const scrollToTodo = useCallback((todoPosition) => {
+    if (!editor || todoPosition === null || todoPosition === undefined) {
+      return;
+    }
+
+    try {
+      // Check if position is still valid
+      const { state } = editor;
+      if (todoPosition < 0 || todoPosition > state.doc.content.size) {
+        // Position is out of bounds, use fallback
+        throw new Error('Position out of bounds');
+      }
+
+      // Try to get DOM node from position
+      const domNode = editor.view.nodeDOM(todoPosition);
+      
+      if (domNode && domNode instanceof HTMLElement) {
+        // Scroll to the element
+        domNode.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        return;
+      }
+    } catch (error) {
+      // Fallback: Find by countdownSeconds attribute if position doesn't work
+      // This can happen if document has changed
+      try {
+        const { state } = editor;
+        let foundTodo = null;
+        let foundPos = null;
+
+        state.doc.descendants((node, pos) => {
+          if (node.type.name === 'taskItem' && node.attrs.countdownSeconds !== null) {
+            // Find the first todo with active countdown
+            if (!foundTodo) {
+              foundTodo = node;
+              foundPos = pos;
+            }
+          }
+          return true;
+        });
+
+        if (foundTodo && foundPos !== null) {
+          const domNode = editor.view.nodeDOM(foundPos);
+          if (domNode && domNode instanceof HTMLElement) {
+            domNode.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center',
+              inline: 'nearest'
+            });
+          }
+        }
+      } catch (fallbackError) {
+        console.warn('Error scrolling to todo:', fallbackError);
+      }
+    }
+  }, [editor]);
+
+  // Set scrollToTodo in context when ready
+  useEffect(() => {
+    setScrollToTodoContext(scrollToTodo);
+  }, [scrollToTodo, setScrollToTodoContext]);
+
   return (
-    <>
     <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''} filter-${currentFilter}`}>
       {isAutoMinimized ? (
         <div 
@@ -557,42 +644,6 @@ const TiptapEditor = (
         </div>
       )}
     </div>
-    {
-     /*
-      * Status bar
-
-     {!isAutoMinimized && (
-      <div className="status-bar">
-        <div className="status-left">
-          <div className="status-item">
-            <span className="status-label">Lines:</span>
-            <span className="status-value">{lineCount}</span>
-          </div>
-          <div className="status-item">
-            <span className="status-label">Todos:</span>
-            <span className="status-value">{todoCount}</span>
-          </div>
-          <div className="status-item">
-            <span className="status-label">Completed:</span>
-            <span className="status-value completed">{completedTodoCount}</span>
-          </div>
-        </div>
-        <div className="status-right">
-          {lastEditTime && (
-            <div className="status-item">
-              <span className="status-label">Last edit:</span>
-              <span className="status-value">{lastEditTime.toLocaleTimeString()}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    )}
-
-      */
-    }
-    
-    </>
-    
   );
 };
 

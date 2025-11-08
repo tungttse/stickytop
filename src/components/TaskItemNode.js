@@ -37,6 +37,22 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     hasCountdown
   const shouldShowTimerIcon = !node.attrs.checked && !isActiveCountdownTodo
 
+  // Format time function (same as CountdownTimerNode)
+  const formatTime = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const secs = totalSeconds % 60
+    
+    if (hours > 0) {
+      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    } else {
+      return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+    }
+  }
+
+  // Get countdown time from activeCountdown if this todo is active
+  const countdownSeconds = isActiveCountdownTodo ? (activeCountdown.seconds || activeCountdown.initialSeconds || 0) : null
+
   // Load drag config on mount
   useEffect(() => {
     if (window.electronAPI && window.electronAPI.getAppConfig) {
@@ -146,6 +162,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           const countdownTimerNode = editor.schema.nodes.countdownTimer.create({
             initialSeconds: seconds,
             taskDescription: taskText,
+            todoPosition: pos,
           })
           tr.insert(insertPos, countdownTimerNode)
         }
@@ -155,7 +172,6 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     }
     
     // Step 5: Dispatch TẤT CẢ thay đổi trong MỘT transaction duy nhất
-    // Điều này chỉ gây ra MỘT lần re-render thay vì nhiều lần
     editor.view.dispatch(tr)
     
     // Step 6: Focus lại editor
@@ -560,6 +576,11 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
                   >
                     ⏱️
                   </button>
+                )}
+                {isActiveCountdownTodo && countdownSeconds !== null && (
+                  <span className="countdown-inline-badge">
+                    ⏱️ {formatTime(countdownSeconds)}
+                  </span>
                 )}
               </div>
       {/* Drop indicator line - AFTER */}
