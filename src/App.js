@@ -16,6 +16,7 @@ function App() {
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
+  const saveStatusTimeoutRef = useRef(null);
 
   useEffect(() => {
     // Load auto-saved content
@@ -137,12 +138,26 @@ function App() {
         await window.electronAPI.autoSaveNote(content);
         setSaveStatus('saved');
         // Clear status after 2 seconds
-        setTimeout(() => setSaveStatus(''), 2000);
+        // Clear previous timeout if exists
+        if (saveStatusTimeoutRef.current) {
+          clearTimeout(saveStatusTimeoutRef.current);
+        }
+        saveStatusTimeoutRef.current = setTimeout(() => {
+          setSaveStatus('');
+          saveStatusTimeoutRef.current = null;
+        }, 2000);
       }
     } catch (error) {
       console.error('Error force saving:', error);
       setSaveStatus('error');
-      setTimeout(() => setSaveStatus(''), 3000);
+      // Clear previous timeout if exists
+      if (saveStatusTimeoutRef.current) {
+        clearTimeout(saveStatusTimeoutRef.current);
+      }
+      saveStatusTimeoutRef.current = setTimeout(() => {
+        setSaveStatus('');
+        saveStatusTimeoutRef.current = null;
+      }, 3000);
     }
   };
 
@@ -159,6 +174,11 @@ function App() {
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      // Clear save status timeout on unmount
+      if (saveStatusTimeoutRef.current) {
+        clearTimeout(saveStatusTimeoutRef.current);
+        saveStatusTimeoutRef.current = null;
+      }
     };
   }, [content]);
 
