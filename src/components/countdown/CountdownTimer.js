@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const CountdownTimer = ({ initialSeconds = 10, onComplete, onCancel }) => {
   const [seconds, setSeconds] = useState(initialSeconds);
-  const [isActive, setIsActive] = useState(true);
+  const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const intervalRef = useRef(null);
+  const alertTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (isActive && !isPaused && seconds > 0) {
@@ -27,8 +28,13 @@ const CountdownTimer = ({ initialSeconds = 10, onComplete, onCancel }) => {
             }
             
             // Visual alert
-            setTimeout(() => {
+            // Clear previous timeout if exists
+            if (alertTimeoutRef.current) {
+              clearTimeout(alertTimeoutRef.current);
+            }
+            alertTimeoutRef.current = setTimeout(() => {
               setShowAlert(false);
+              alertTimeoutRef.current = null;
             }, 5000);
             
             onComplete && onComplete();
@@ -40,7 +46,13 @@ const CountdownTimer = ({ initialSeconds = 10, onComplete, onCancel }) => {
       clearInterval(intervalRef.current);
     }
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+      if (alertTimeoutRef.current) {
+        clearTimeout(alertTimeoutRef.current);
+        alertTimeoutRef.current = null;
+      }
+    };
   }, [isActive, isPaused, seconds, onComplete]);
 
   const startTimer = () => {

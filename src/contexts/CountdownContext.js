@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const CountdownContext = createContext({
   activeCountdown: null,
@@ -27,6 +27,12 @@ export const CountdownProvider = ({ children }) => {
   }, []);
 
   const clearActiveCountdown = useCallback(() => {
+    setActiveCountdownState(null);
+  }, []);
+
+  // Initialize CountdownProvider
+  useEffect(() => {
+    // Clear any active countdown when app loads
     setActiveCountdownState(null);
   }, []);
 

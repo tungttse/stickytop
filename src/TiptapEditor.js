@@ -20,9 +20,9 @@ import { CountdownTimerExtension } from './components/countdown/CountdownTimerEx
 import { CalendarTask } from './extentions/CalendarTask'
 // import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Paragraph from '@tiptap/extension-paragraph'
-import { TimestampExtension } from './extensions/TimestampExtension'
-import { TodoDragHandle } from './extensions/TodoDragHandle'
-import FilterMenu from './components/FilterMenu'
+import { TimestampExtension } from './extensions/TimestampExtension.bk'
+import { TodoDragHandle } from './extensions/TodoDragHandle.bk'
+import FilterMenu from './components/FilterMenu.bk'
 import MiniMap from './components/MiniMap'
 import SearchBar from './components/SearchBar'
 import { SearchHighlight } from './extensions/SearchHighlight'
@@ -36,7 +36,6 @@ const TiptapEditor = (
     isAutoMinimized = false,
   }
 ) => {
-  const [currentFilter, setCurrentFilter] = useState('all');
   const [lineCount, setLineCount] = useState(0);
   const [todoCount, setTodoCount] = useState(0);
   const [completedTodoCount, setCompletedTodoCount] = useState(0);
@@ -53,6 +52,16 @@ const TiptapEditor = (
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
   const { setEditor: setEditorContext, setScrollToTodo: setScrollToTodoContext } = useEditorContext();
+  
+  // Track xem đã clear countdown khi load content lần đầu chưa
+  const hasClearedCountdownRef = useRef(false);
+  
+  // Refs để store timeout IDs cho cleanup
+  const clearCountdownTimeoutRef = useRef(null);
+  const headingCountTimeoutRef = useRef(null);
+  const searchScrollTimeoutRef = useRef(null);
+  const navigateScrollTimeoutRef = useRef(null);
+  const checkScrollTimeoutRef = useRef(null);
 
   const editor = useEditor({
     extensions: [
@@ -249,6 +258,62 @@ const TiptapEditor = (
     if (content !== editor.getHTML()) {
       editor.commands.setContent(content)
       
+      // Clear countdown timers when content is first loaded (app restart)
+      // Countdown should not persist across app sessions
+      if (!hasClearedCountdownRef.current) {
+        hasClearedCountdownRef.current = true;
+        
+        // Clear previous timeout if exists
+        if (clearCountdownTimeoutRef.current) {
+          clearTimeout(clearCountdownTimeoutRef.current);
+        }
+        
+        // Use setTimeout to ensure content is set first
+        clearCountdownTimeoutRef.current = setTimeout(() => {
+          if (!editor) return;
+          
+          const { state } = editor;
+          const tr = state.tr;
+          let hasChanges = false;
+          
+          // Find and delete all countdownTimer nodes
+          const countdownNodes = [];
+          state.doc.descendants((node, pos) => {
+            if (node.type.name === 'countdownTimer') {
+              countdownNodes.push({ node, pos });
+            }
+          });
+          
+          // Delete countdown nodes (from end to start to maintain positions)
+          if (countdownNodes.length > 0) {
+            countdownNodes.sort((a, b) => b.pos - a.pos);
+            countdownNodes.forEach(({ pos, node }) => {
+              tr.delete(pos, pos + node.nodeSize);
+              hasChanges = true;
+            });
+          }
+          
+          // Clear countdownSeconds from all taskItems
+          state.doc.descendants((node, pos) => {
+            if (node.type.name === 'taskItem' && node.attrs.countdownSeconds !== null) {
+              tr.setNodeMarkup(pos, null, {
+                ...node.attrs,
+                countdownSeconds: null,
+              });
+              hasChanges = true;
+            }
+          });
+          
+          if (hasChanges) {
+            editor.view.dispatch(tr);
+            // Update content after clearing countdown
+            onContentChange(editor.getHTML());
+          }
+          
+          clearCountdownTimeoutRef.current = null;
+        }, 100); // Small delay to ensure content is set first
+      }
+      
       // Update line count when content changes - only count non-empty lines
       const text = editor.getText();
       const lines = text.split('\n').filter(line => line.trim().length > 0).length;
@@ -269,7 +334,12 @@ const TiptapEditor = (
       setCompletedTodoCount(completedTodoCount);
       
       // Count headings when content changes - wait for editor to update
-      setTimeout(() => {
+      // Clear previous timeout if exists
+      if (headingCountTimeoutRef.current) {
+        clearTimeout(headingCountTimeoutRef.current);
+      }
+      
+      headingCountTimeoutRef.current = setTimeout(() => {
         if (editor) {
           const { state } = editor;
           let headingCount = 0;
@@ -280,63 +350,23 @@ const TiptapEditor = (
           });
           setHeadingCount(headingCount);
         }
+        headingCountTimeoutRef.current = null;
       }, 100);
     }
-  }, [content, editor])
+    
+    // Cleanup function
+    return () => {
+      if (clearCountdownTimeoutRef.current) {
+        clearTimeout(clearCountdownTimeoutRef.current);
+        clearCountdownTimeoutRef.current = null;
+      }
+      if (headingCountTimeoutRef.current) {
+        clearTimeout(headingCountTimeoutRef.current);
+        headingCountTimeoutRef.current = null;
+      }
+    };
+  }, [content, editor, onContentChange])
 
-  // Add timestamps to existing nodes when editor is ready
-  // useEffect(() => {
-  //   if (editor) {
-  //     // Add timestamps to all existing nodes that don't have them
-  //     setTimeout(() => {
-  //       try {
-  //         editor.commands.addTimestampsToAllNodes();
-  //       } catch (error) {
-  //         console.warn('Error adding timestamps to nodes:', error);
-  //       }
-  //     }, 100);
-  //   }
-  // }, [editor]);
-
-  // Update timestamps when editor content changes (simplified approach)
-  // useEffect(() => {
-  //   if (editor) {
-  //     const handleUpdate = () => {
-  //       // Only update timestamps for new nodes, not on every update
-  //       setTimeout(() => {
-  //         try {
-  //           const { state } = editor;
-  //           const now = Date.now();
-  //           const tr = state.tr;
-  //           let hasChanges = false;
-
-  //           state.doc.descendants((node, pos) => {
-  //             if (node.isBlock && !node.attrs.createdAt) {
-  //               tr.setNodeMarkup(pos, null, {
-  //                 ...node.attrs,
-  //                 createdAt: now,
-  //                 updatedAt: now,
-  //               });
-  //               hasChanges = true;
-  //             }
-  //           });
-
-  //           if (hasChanges) {
-  //             editor.view.dispatch(tr);
-  //           }
-  //         } catch (error) {
-  //           console.warn('Error updating timestamps:', error);
-  //         }
-  //       }, 100);
-  //     };
-
-  //     editor.on('update', handleUpdate);
-      
-  //     return () => {
-  //       editor.off('update', handleUpdate);
-  //     };
-  //   }
-  // }, [editor]);
 
   // Search functionality
   const performSearch = useCallback((query) => {
@@ -392,7 +422,12 @@ const TiptapEditor = (
         });
 
         // Scroll to first match
-        setTimeout(() => {
+        // Clear previous timeout if exists
+        if (searchScrollTimeoutRef.current) {
+          clearTimeout(searchScrollTimeoutRef.current);
+        }
+        
+        searchScrollTimeoutRef.current = setTimeout(() => {
           const editorElement = editor.view.dom;
           const selection = editor.state.selection;
           const coords = editor.view.coordsAtPos(selection.from);
@@ -406,6 +441,7 @@ const TiptapEditor = (
               behavior: 'smooth'
             });
           }
+          searchScrollTimeoutRef.current = null;
         }, 100);
       }
     } catch (error) {
@@ -447,7 +483,12 @@ const TiptapEditor = (
         editor.commands.setTextSelection({ from: currentMatch.from, to: currentMatch.to });
         
         // Scroll to the match with smooth behavior
-        setTimeout(() => {
+        // Clear previous timeout if exists
+        if (navigateScrollTimeoutRef.current) {
+          clearTimeout(navigateScrollTimeoutRef.current);
+        }
+        
+        navigateScrollTimeoutRef.current = setTimeout(() => {
           const editorElement = editor.view.dom;
           const selection = editor.state.selection;
           const coords = editor.view.coordsAtPos(selection.from);
@@ -461,6 +502,7 @@ const TiptapEditor = (
               behavior: 'smooth'
             });
           }
+          navigateScrollTimeoutRef.current = null;
         }, 50);
       }
     } catch (error) {
@@ -475,11 +517,6 @@ const TiptapEditor = (
     setShowSearchBar(false);
     editor?.commands.clearAllSearchHighlights();
   }, [editor]);
-
-  // Filter change handler
-  const handleFilterChange = useCallback((filterType) => {
-    setCurrentFilter(filterType);
-  }, []);
 
   // Keyboard shortcuts for search
   useEffect(() => {
@@ -573,7 +610,14 @@ const TiptapEditor = (
     
     // Also check when content changes
     const handleUpdate = () => {
-      setTimeout(checkScroll, 100);
+      // Clear previous timeout if exists
+      if (checkScrollTimeoutRef.current) {
+        clearTimeout(checkScrollTimeoutRef.current);
+      }
+      checkScrollTimeoutRef.current = setTimeout(() => {
+        checkScroll();
+        checkScrollTimeoutRef.current = null;
+      }, 100);
     };
     
     editor.on('update', handleUpdate);
@@ -581,6 +625,11 @@ const TiptapEditor = (
     return () => {
       scrollableElement.removeEventListener('scroll', checkScroll);
       editor.off('update', handleUpdate);
+      // Clear timeout on cleanup
+      if (checkScrollTimeoutRef.current) {
+        clearTimeout(checkScrollTimeoutRef.current);
+        checkScrollTimeoutRef.current = null;
+      }
     };
   }, [editor, isAutoMinimized]);
 
@@ -636,18 +685,6 @@ const TiptapEditor = (
     
     return html;
   };
-
-  // Helper function để extract text từ ProseMirror node
-  const getNodeText = useCallback((node) => {
-    let text = '';
-    node.descendants((n) => {
-      if (n.isText) {
-        text += n.text;
-      }
-      return true;
-    });
-    return text.trim();
-  }, []);
 
   // Function để scroll đến todo item
   const scrollToTodo = useCallback((todoPosition) => {
@@ -716,7 +753,7 @@ const TiptapEditor = (
   }, [scrollToTodo, setScrollToTodoContext]);
 
   return (
-    <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''} filter-${currentFilter}`}>
+    <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''}`}>
       {isAutoMinimized ? (
         <div 
           className="first-todo-preview"

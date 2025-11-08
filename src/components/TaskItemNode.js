@@ -15,6 +15,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const [enableDrag, setEnableDrag] = useState(true) // Default to true, will be updated from config
   const hasCountdown = node.attrs.countdownSeconds !== null
   const dragHandleRef = useRef(null)
+  const focusTimeoutRef = useRef(null)
+  const dragImageTimeoutRef = useRef(null)
   const { activeCountdown } = useCountdown()
 
   // Helper function để extract text từ ProseMirror node
@@ -35,6 +37,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const isActiveCountdownTodo = activeCountdown &&
     activeCountdown.taskDescription === taskText &&
     hasCountdown
+
+  console.log('isActiveCountdownTodo', isActiveCountdownTodo)
   // Chỉ hiển thị icon khi todo có ít nhất 1 ký tự
   const shouldShowTimerIcon = !node.attrs.checked && !isActiveCountdownTodo && taskText.length > 0
 
@@ -65,6 +69,18 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
         console.error('Error loading app config:', error)
       })
     }
+    
+    // Cleanup function to clear timeouts
+    return () => {
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+      if (dragImageTimeoutRef.current) {
+        clearTimeout(dragImageTimeoutRef.current);
+        dragImageTimeoutRef.current = null;
+      }
+    };
   }, [])
 
   const handleTimerClick = (e) => {
@@ -176,9 +192,16 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     editor.view.dispatch(tr)
 
     // Step 6: Focus lại editor
-    setTimeout(() => {
-      editor.commands.focus()
-    }, 0)
+    // Clear previous timeout if exists
+    if (focusTimeoutRef.current) {
+      clearTimeout(focusTimeoutRef.current);
+    }
+    focusTimeoutRef.current = setTimeout(() => {
+      if (editor) {
+        editor.commands.focus();
+      }
+      focusTimeoutRef.current = null;
+    }, 0);
   }
 
   const handleWrapperDragOver = (e) => {
@@ -528,7 +551,16 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
               dragImage.textContent = todoText.trim() || 'Todo item'
               document.body.appendChild(dragImage)
               e.dataTransfer.setDragImage(dragImage, 10, 10)
-              setTimeout(() => document.body.removeChild(dragImage), 0)
+              // Clear previous timeout if exists
+              if (dragImageTimeoutRef.current) {
+                clearTimeout(dragImageTimeoutRef.current);
+              }
+              dragImageTimeoutRef.current = setTimeout(() => {
+                if (document.body.contains(dragImage)) {
+                  document.body.removeChild(dragImage);
+                }
+                dragImageTimeoutRef.current = null;
+              }, 0)
               e.dataTransfer.effectAllowed = 'move'
 
               // Store the index using custom data type to avoid conflict with text/plain
