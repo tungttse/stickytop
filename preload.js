@@ -25,6 +25,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners('auto-minimize-activated');
     ipcRenderer.removeAllListeners('auto-minimize-deactivated');
   },
-  getAppConfig: () => ipcRenderer.invoke('get-app-config')
+  getAppConfig: () => ipcRenderer.invoke('get-app-config'),
+  saveTheme: (theme) => ipcRenderer.invoke('save-theme', theme),
+  loadTheme: () => ipcRenderer.invoke('load-theme')
 });
 

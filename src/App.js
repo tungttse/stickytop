@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import TiptapEditor from './TiptapEditor';
 import CountdownBar from './components/countdown/CountdownBar';
+import ThemeSelector from './components/ThemeSelector';
 import { CountdownProvider } from './contexts/CountdownContext';
 import { EditorProvider } from './contexts/EditorContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
   const [content, setContent] = useState('');
@@ -10,6 +12,7 @@ function App() {
   const [isAutoMinimized, setIsAutoMinimized] = useState(false);
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
   const [backgroundColor, setBackgroundColor] = useState('#94a4b4'); // Default yellow
+  const [isThemeSelectorVisible, setIsThemeSelectorVisible] = useState(false);
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
@@ -211,28 +214,46 @@ function App() {
     alert('export');
   };
 
+  const handleThemeClick = (e) => {
+    e.stopPropagation();
+    setIsThemeSelectorVisible(true);
+  };
+
   return (
-    <CountdownProvider>
-      <EditorProvider>
-        <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`} style={{ backgroundColor: backgroundColor }}>
-          <div className="drag-area"  onClick={handleDragAreaClick}>
-            <button 
-              className="export-button"
-              onClick={handleExportClick}
-              title="Export"
-            >
-              📤
-            </button>
-          </div>
-          <CountdownBar />
-          <TiptapEditor 
-              content={content}
-              onContentChange={setContent}
-              isAutoMinimized={isAutoMinimized}
+    <ThemeProvider>
+      <CountdownProvider>
+        <EditorProvider>
+          <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`}>
+            <div className="drag-area"  onClick={handleDragAreaClick}>
+              <button 
+                className="theme-button"
+                onClick={handleThemeClick}
+                title="Theme"
+              >
+                🎨
+              </button>
+              <button 
+                className="export-button"
+                onClick={handleExportClick}
+                title="Export"
+              >
+                📤
+              </button>
+            </div>
+            <ThemeSelector 
+              isVisible={isThemeSelectorVisible}
+              onClose={() => setIsThemeSelectorVisible(false)}
             />
-        </div>
-      </EditorProvider>
-    </CountdownProvider>
+            <CountdownBar />
+            <TiptapEditor 
+                content={content}
+                onContentChange={setContent}
+                isAutoMinimized={isAutoMinimized}
+              />
+          </div>
+        </EditorProvider>
+      </CountdownProvider>
+    </ThemeProvider>
   );
 }
 

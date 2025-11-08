@@ -566,6 +566,44 @@ ipcMain.handle('load-color', async (event) => {
   }
 });
 
+// Theme management
+ipcMain.handle('save-theme', async (event, theme) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const themePath = path.join(userDataPath, 'sticky-theme.json');
+    
+    const themeData = {
+      theme: theme,
+      timestamp: Date.now()
+    };
+    
+    await fs.promises.writeFile(themePath, JSON.stringify(themeData, null, 2));
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving theme:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('load-theme', async (event) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const themePath = path.join(userDataPath, 'sticky-theme.json');
+    
+    const data = await fs.promises.readFile(themePath, 'utf8');
+    const themeData = JSON.parse(data);
+    
+    return { success: true, theme: themeData.theme };
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return { success: false, error: 'No saved theme found' };
+    }
+    console.error('Error loading theme:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Auto-minimize setting management
 ipcMain.handle('save-auto-minimize-setting', async (event, autoMinimize) => {
   try {
