@@ -194,6 +194,52 @@ body,
   background: var(--theme-export-button-active);
 }
 
+/* ===== TOP RIGHT ACTIONS ===== */
+.top-right-actions {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.minimize-button {
+  -webkit-app-region: no-drag;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  color: var(--theme-icon-color);
+}
+
+.minimize-button:hover {
+  background: var(--theme-drag-area-hover);
+}
+
+.minimize-button:active {
+  background: var(--theme-export-button-active);
+}
+
+.minimize-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--theme-icon-color);
+}
+
+.minimize-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
 /* ===== TIPTAP EDITOR STYLES ===== */
 .tiptap-editor {
   flex: 1;

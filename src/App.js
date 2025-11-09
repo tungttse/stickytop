@@ -5,6 +5,7 @@ import ThemeSelector from './components/ThemeSelector';
 import { CountdownProvider } from './contexts/CountdownContext';
 import { EditorProvider } from './contexts/EditorContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import DashIcon from './assets/icons/dash.svg';
 
 function App() {
   const [content, setContent] = useState('');
@@ -215,6 +216,18 @@ function App() {
                 title="Export"
               >
                 📤
+              </button>
+            </div>
+            <div className="top-right-actions">
+              <button 
+                className="minimize-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  alert('minimize');
+                }}
+                title="Minimize"
+              >
+                <DashIcon className="minimize-icon" />
               </button>
             </div>
             <ThemeSelector 
