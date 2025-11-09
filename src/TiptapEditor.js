@@ -66,16 +66,24 @@ const TiptapEditor = (
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // bulletList: false,
-        // orderedList: false,
-        // listItem: false,
-        // horizontalRule: false,
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
         taskList: false, // disable default task list
         taskItem: false, // disable default task item
       }),
       // HorizontalRule,
       // Paragraph,
       // CalendarTask,
+      BulletList.configure({
+        nested: true,
+      }),
+      OrderedList.configure({
+        nested: true,
+      }),
+      ListItem.configure({
+        nested: true,
+      }),
       TaskList,
       // TaskItem.configure({
       //   nested: true, // Cho phép nested task lists
