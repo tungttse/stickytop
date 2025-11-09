@@ -26,6 +26,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadTheme: () => ipcRenderer.invoke('load-theme'),
   googleLogin: () => ipcRenderer.invoke('google-login'),
   getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
-  googleLogout: () => ipcRenderer.invoke('google-logout')
+  googleLogout: () => ipcRenderer.invoke('google-logout'),
+  getCalendarEvents: (date) => ipcRenderer.invoke('get-calendar-events', date)
 });
 

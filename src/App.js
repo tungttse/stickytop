@@ -3,6 +3,7 @@ import TiptapEditor from './TiptapEditor';
 import CountdownBar from './components/countdown/CountdownBar';
 import ThemeSelector from './components/ThemeSelector';
 import GoogleLogin from './components/GoogleLogin';
+import FloatingControlBar from './components/FloatingControlBar';
 import { CountdownProvider } from './contexts/CountdownContext';
 import { EditorProvider } from './contexts/EditorContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -245,6 +246,7 @@ function App() {
                 onContentChange={setContent}
                 isAutoMinimized={isAutoMinimized}
               />
+            <FloatingControlBar currentUser={currentUser} />
           </div>
         </EditorProvider>
       </CountdownProvider>
