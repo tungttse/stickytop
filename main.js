@@ -1117,6 +1117,61 @@ ipcMain.handle('sync-calendar-event', async (event, { text, date, time }) => {
   }
 });
 
+// Get calendar events for a specific date
+ipcMain.handle('get-calendar-events', async (event, dateString) => {
+  try {
+    if (!userTokens) {
+      return { success: false, error: 'Not logged in. Please login with Google first.', events: [] };
+    }
+
+    const oauth2Client = new google.auth.OAuth2(
+      CLIENT_ID,
+      CLIENT_SECRET,
+      REDIRECT_URL
+    );
+    oauth2Client.setCredentials(userTokens);
+
+    // Refresh token if needed
+    if (userTokens.expiry_date && userTokens.expiry_date <= Date.now()) {
+      const { credentials } = await oauth2Client.refreshAccessToken();
+      saveUserTokens(credentials);
+      oauth2Client.setCredentials(credentials);
+    }
+
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    // Parse date string (format: YYYY-MM-DD) in local timezone
+    const [year, month, day] = dateString.split('-').map(Number);
+    const startOfDay = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const endOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+    // Fetch events for the day
+    const response = await calendar.events.list({
+      calendarId: 'primary',
+      timeMin: startOfDay.toISOString(),
+      timeMax: endOfDay.toISOString(),
+      singleEvents: true,
+      orderBy: 'startTime',
+    });
+
+    const events = (response.data.items || []).map(event => ({
+      id: event.id,
+      summary: event.summary || '(No title)',
+      description: event.description || '',
+      start: event.start?.dateTime || event.start?.date,
+      end: event.end?.dateTime || event.end?.date,
+      allDay: !event.start?.dateTime, // If no dateTime, it's an all-day event
+      location: event.location || '',
+      htmlLink: event.htmlLink || '',
+    }));
+
+    return { success: true, events };
+  } catch (err) {
+    console.error('Error fetching calendar events:', err);
+    return { success: false, error: err.message, events: [] };
+  }
+});
+
 // App event handlers
 app.whenReady().then(createWindow);
 
