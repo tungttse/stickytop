@@ -438,44 +438,34 @@ ol {
 }
 
 .timer-icon {
-  background: none;
-  border: none;
-  font-size: 16px;
+  width: 18px;
+  height: 18px;
+  color: var(--theme-icon-color);
+}
+
+.timer-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.timer-icon-button {
   cursor: pointer;
-  padding: 2px 4px;
-  opacity: 0.4;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  vertical-align: middle;
-  margin-left: 12px;
-  line-height: 1;
-}
-
-.timer-icon:hover {
-  opacity: 1;
-  background: rgba(0, 122, 255, 0.1);
-}
-
-.timer-icon.active {
-  opacity: 1;
-  background: #ffeb3b;
+  background-color: inherit;
+  border: none;
 }
 
 .countdown-inline-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--theme-countdown-badge-bg);
-  border: 1px solid var(--theme-countdown-badge-border);
-  border-radius: 12px;
+  /* background: var(--theme-countdown-badge-bg); */
+  /* border: 1px solid var(--theme-countdown-badge-border); */
+  /* border-radius: 12px; */
   padding: 2px 8px;
   font-size: 12px;
   font-weight: 600;
-  color: #333;
+  /* color: #333; */
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   flex-shrink: 0;

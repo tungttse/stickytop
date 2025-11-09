@@ -3,6 +3,7 @@ import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 import { NodeSelection } from '@tiptap/pm/state'
 import CountdownDialog from './countdown/CountdownDialog'
 import { useCountdown } from '../contexts/CountdownContext'
+import StopwatchIcon from '../assets/icons/stopwatch.svg'
 
 // Module-level variable để lưu source index - shared giữa tất cả TaskItemNode instances
 // Đảm bảo source index luôn có, không phụ thuộc vào dataTransfer có thể bị override
@@ -69,7 +70,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
         console.error('Error loading app config:', error)
       })
     }
-    
+
     // Cleanup function to clear timeouts
     return () => {
       if (focusTimeoutRef.current) {
@@ -599,22 +600,26 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       </label>
       <div className="task-item-content">
         <NodeViewContent className="content" />
+        <span className="countdown-inline-badge">
         {shouldShowTimerIcon && (
           <button
-            className={`timer-icon ${hasCountdown ? 'active' : ''}`}
+            className="timer-icon-button"
             onClick={handleTimerClick}
             onMouseDown={(e) => e.stopPropagation()}
             title="Set countdown timer"
             type="button"
           >
-            ⏱️
+            <StopwatchIcon className="timer-icon" />
           </button>
         )}
         {isActiveCountdownTodo && countdownSeconds !== null && (
-          <span className="countdown-inline-badge">
-            ⏱️ {formatTime(countdownSeconds)}
-          </span>
+          <>
+            <StopwatchIcon className="timer-icon" /> {formatTime(countdownSeconds)}
+          </>
+          
+          
         )}
+        </span>
       </div>
       {/* Drop indicator line - AFTER */}
       {enableDrag && dragOverPosition === 'after' && draggedSourceIndex !== null && (
