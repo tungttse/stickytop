@@ -4,6 +4,7 @@ require('dotenv').config();
 const { app, BrowserWindow, Menu, ipcMain, dialog, Notification, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const http = require('http');
 const { google } = require('googleapis');
 
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -13,6 +14,10 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
 
 // Load drag feature config
 const ENABLE_DRAG = process.env.ENABLE_DRAG === 'true';
+
+// OAuth port range
+const PORT_START = parseInt(process.env.PORT_START || '3000', 10);
+const PORT_END = parseInt(process.env.PORT_END || '3003', 10);
 
 console.log('CLIENT_ID', CLIENT_ID);
 console.log('CLIENT_SECRET', CLIENT_SECRET);
@@ -799,33 +804,318 @@ ipcMain.handle("speak-text", async (event, text) => {
   }
 });
 
+// ===== GOOGLE OAUTH & CALENDAR =====
+
+// Store user tokens
+let userTokens = null;
+
+// Load saved tokens
+function loadUserTokens() {
+  try {
+    const userDataPath = app.getPath('userData');
+    const tokensPath = path.join(userDataPath, 'google-tokens.json');
+    if (fs.existsSync(tokensPath)) {
+      const data = fs.readFileSync(tokensPath, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error loading tokens:', error);
+  }
+  return null;
+}
+
+// Save user tokens
+function saveUserTokens(tokens) {
+  try {
+    const userDataPath = app.getPath('userData');
+    const tokensPath = path.join(userDataPath, 'google-tokens.json');
+    if (tokens) {
+      fs.writeFileSync(tokensPath, JSON.stringify(tokens, null, 2));
+      userTokens = tokens;
+    } else {
+      // Delete file if tokens is null
+      if (fs.existsSync(tokensPath)) {
+        fs.unlinkSync(tokensPath);
+      }
+      userTokens = null;
+    }
+  } catch (error) {
+    console.error('Error saving tokens:', error);
+  }
+}
+
+// Load tokens on startup
+userTokens = loadUserTokens();
+
+// Function to find available port
+function findAvailablePort(startPort, endPort) {
+  return new Promise((resolve, reject) => {
+    const tryPort = (port) => {
+      if (port > endPort) {
+        reject(new Error(`No available port found between ${startPort} and ${endPort}`));
+        return;
+      }
+
+      const testServer = http.createServer();
+      testServer.listen(port, '127.0.0.1', () => {
+        testServer.once('close', () => resolve(port));
+        testServer.close();
+      });
+
+      testServer.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+          tryPort(port + 1);
+        } else {
+          reject(err);
+        }
+      });
+    };
+
+    tryPort(startPort);
+  });
+}
+
+// OAuth Login Handler
+ipcMain.handle('google-login', async (event) => {
+  try {
+    // Find available port from PORT_START to PORT_END
+    const port = await findAvailablePort(PORT_START, PORT_END);
+    const redirectUri = `http://127.0.0.1:${port}/callback`;
+
+    const oauth2Client = new google.auth.OAuth2(
+      CLIENT_ID,
+      CLIENT_SECRET,
+      redirectUri
+    );
+
+    const scopes = [
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile'
+    ];
+
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes,
+      prompt: 'consent'
+    });
+
+    const authWindow = new BrowserWindow({
+      width: 500,
+      height: 600,
+      show: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+
+    authWindow.loadURL(authUrl);
+    authWindow.show();
+
+    return new Promise((resolve, reject) => {
+      let server;
+      let serverResolve;
+      let serverReject;
+
+      const cleanup = () => {
+        if (server) {
+          server.close();
+          server = null;
+        }
+        if (authWindow && !authWindow.isDestroyed()) {
+          authWindow.close();
+        }
+      };
+
+      server = http.createServer((req, res) => {
+        if (req.url && req.url.startsWith('/callback')) {
+          const url = new URL(req.url, `http://127.0.0.1:${port}`);
+          const code = url.searchParams.get('code');
+          const error = url.searchParams.get('error');
+
+          if (error) {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('<html><body><h1>Authorization failed</h1><p>You can close this window.</p></body></html>');
+            cleanup();
+            if (serverReject) {
+              serverReject({ success: false, error: error });
+            }
+            return;
+          }
+
+          if (code) {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('<html><body><h1>Authorization successful!</h1><p>You can close this window.</p></body></html>');
+            
+            (async () => {
+              try {
+                const { tokens } = await oauth2Client.getToken(code);
+                saveUserTokens(tokens);
+                
+                oauth2Client.setCredentials(tokens);
+                const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+                const userInfo = await oauth2.userinfo.get();
+                
+                cleanup();
+                
+                if (serverResolve) {
+                  serverResolve({
+                    success: true,
+                    user: {
+                      email: userInfo.data.email,
+                      name: userInfo.data.name,
+                      picture: userInfo.data.picture
+                    }
+                  });
+                }
+              } catch (error) {
+                cleanup();
+                if (serverReject) {
+                  serverReject({ success: false, error: error.message });
+                }
+              }
+            })();
+          } else {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('<html><body><h1>No authorization code</h1><p>You can close this window.</p></body></html>');
+            cleanup();
+            if (serverReject) {
+              serverReject({ success: false, error: 'No authorization code received' });
+            }
+          }
+        } else {
+          res.writeHead(404);
+          res.end('Not found');
+        }
+      });
+
+      server.listen(port, '127.0.0.1', () => {
+        serverResolve = resolve;
+        serverReject = reject;
+      });
+
+      server.on('error', (err) => {
+        cleanup();
+        if (serverReject) {
+          serverReject({ success: false, error: err.message });
+        }
+      });
+
+      authWindow.on('closed', () => {
+        cleanup();
+        if (serverReject) {
+          serverReject({ success: false, error: 'Auth window closed' });
+        }
+      });
+    });
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// Get current user
+ipcMain.handle('get-current-user', async (event) => {
+  if (!userTokens) {
+    return { success: false, user: null };
+  }
+
+  try {
+    const oauth2Client = new google.auth.OAuth2(
+      CLIENT_ID,
+      CLIENT_SECRET,
+      REDIRECT_URL
+    );
+    oauth2Client.setCredentials(userTokens);
+
+    // Refresh token if needed
+    if (userTokens.expiry_date && userTokens.expiry_date <= Date.now()) {
+      const { credentials } = await oauth2Client.refreshAccessToken();
+      saveUserTokens(credentials);
+      oauth2Client.setCredentials(credentials);
+    }
+
+    const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
+    const userInfo = await oauth2.userinfo.get();
+
+    return {
+      success: true,
+      user: {
+        email: userInfo.data.email,
+        name: userInfo.data.name,
+        picture: userInfo.data.picture
+      }
+    };
+  } catch (error) {
+    // Token invalid, clear it
+    saveUserTokens(null);
+    return { success: false, user: null, error: error.message };
+  }
+});
+
+// Logout handler
+ipcMain.handle('google-logout', async (event) => {
+  try {
+    saveUserTokens(null);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+// Update sync-calendar-event handler
 ipcMain.handle('sync-calendar-event', async (event, { text, date, time }) => {
   try {
-    // Tạo Google Calendar client
-    const auth = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL)
-    auth.setCredentials({ refresh_token: REFRESH_TOKEN })
-    const calendar = google.calendar({ version: 'v3', auth })
+    if (!userTokens) {
+      return { success: false, error: 'Not logged in. Please login with Google first.' };
+    }
 
-    // Xác định thời gian (thứ 7, 9h)
-    const now = new Date()
-    const saturday = new Date(now)
-    saturday.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7))
-    saturday.setHours(9, 0, 0)
+    const oauth2Client = new google.auth.OAuth2(
+      CLIENT_ID,
+      CLIENT_SECRET,
+      REDIRECT_URL
+    );
+    oauth2Client.setCredentials(userTokens);
+
+    // Refresh token if needed
+    if (userTokens.expiry_date && userTokens.expiry_date <= Date.now()) {
+      const { credentials } = await oauth2Client.refreshAccessToken();
+      saveUserTokens(credentials);
+      oauth2Client.setCredentials(credentials);
+    }
+
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    // Parse date and time
+    let startDateTime;
+    if (date && time) {
+      startDateTime = new Date(`${date}T${time}`);
+    } else {
+      // Default: next Saturday 9am
+      const now = new Date();
+      const saturday = new Date(now);
+      saturday.setDate(now.getDate() + ((6 - now.getDay() + 7) % 7));
+      saturday.setHours(9, 0, 0);
+      startDateTime = saturday;
+    }
+
+    const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1 hour
 
     await calendar.events.insert({
       calendarId: 'primary',
       requestBody: {
         summary: text,
-        start: { dateTime: saturday.toISOString() },
-        end: { dateTime: new Date(saturday.getTime() + 60 * 60 * 1000).toISOString() },
+        start: { dateTime: startDateTime.toISOString() },
+        end: { dateTime: endDateTime.toISOString() },
       },
-    })
-    return { success: true }
+    });
+
+    return { success: true };
   } catch (err) {
-    console.error(err)
-    return { success: false, error: err.message }
+    console.error(err);
+    return { success: false, error: err.message };
   }
-})
+});
 
 // App event handlers
 app.whenReady().then(createWindow);

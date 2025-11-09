@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   getAppConfig: () => ipcRenderer.invoke('get-app-config'),
   saveTheme: (theme) => ipcRenderer.invoke('save-theme', theme),
-  loadTheme: () => ipcRenderer.invoke('load-theme')
+  loadTheme: () => ipcRenderer.invoke('load-theme'),
+  googleLogin: () => ipcRenderer.invoke('google-login'),
+  getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
+  googleLogout: () => ipcRenderer.invoke('google-logout')
 });
 

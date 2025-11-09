@@ -27,3 +27,19 @@ v2
   
 
 ## Installation
+
+---
+
+Bước 1: Truy cập Google Cloud Console
+Vào https://console.cloud.google.com
+Chọn project của bạn (hoặc tạo mới)
+
+Bước 2: Vào OAuth 2.0 Client IDs
+
+Nho chon WEBAPP - not desktop app
+
+Vào APIs & Services → Credentials
+Tìm OAuth 2.0 Client IDs trong danh sách
+Click vào client ID bạn đang dùng (hoặc tạo mới)
+
+

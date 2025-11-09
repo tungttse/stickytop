@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import TiptapEditor from './TiptapEditor';
 import CountdownBar from './components/countdown/CountdownBar';
 import ThemeSelector from './components/ThemeSelector';
+import GoogleLogin from './components/GoogleLogin';
 import { CountdownProvider } from './contexts/CountdownContext';
 import { EditorProvider } from './contexts/EditorContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -14,6 +15,7 @@ function App() {
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
   
   const [isThemeSelectorVisible, setIsThemeSelectorVisible] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
@@ -217,6 +219,9 @@ function App() {
               >
                 📤
               </button>
+              <div className="google-login-wrapper">
+                <GoogleLogin onLoginSuccess={setCurrentUser} />
+              </div>
             </div>
             <div className="top-right-actions">
               <button 
