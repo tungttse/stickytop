@@ -48,6 +48,7 @@ export const ThemeProvider = ({ children }) => {
     root.style.setProperty('--theme-font-family', theme.typography.fontFamily);
     root.style.setProperty('--theme-font-size', theme.typography.fontSize);
     root.style.setProperty('--theme-line-height', theme.typography.lineHeight);
+    root.style.setProperty('--theme-icon-color', theme.colors.iconColor);
   };
 
   const setTheme = (themeId) => {

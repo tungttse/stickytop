@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCountdown } from '../../contexts/CountdownContext';
 import { useEditorContext } from '../../contexts/EditorContext';
+import StopwatchIcon from '../../assets/icons/stopwatch.svg';
 
 const CountdownBar = () => {
   const { activeCountdown } = useCountdown();
@@ -48,7 +49,7 @@ const CountdownBar = () => {
           onDoubleClick={handleDoubleClick}
           style={{ cursor: 'pointer' }}
         >
-          <span className="countdown-bar-icon">⏱️</span>
+          <StopwatchIcon width={50} height={50} className="countdown-bar-icon" />
           <div className="countdown-bar-text">
             <div className="countdown-bar-task">
               {activeCountdown.taskDescription}

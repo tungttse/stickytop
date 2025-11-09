@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { debounce } from 'lodash';
+import OutlineIcon from '../assets/icons/outline-text.svg';
 
 const MiniMap = ({ editor, isVisible, onToggle }) => {
   const [headings, setHeadings] = useState([]);
@@ -27,17 +28,20 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
     state.doc.descendants((node, pos) => {
       if (node.type.name === 'heading' && node.attrs.level) {
         const text = node.textContent;
-        const level = node.attrs.level;
-        const slug = generateSlug(text);
-        const uniqueId = `${slug}-${idCounter++}`;
+        // Chỉ thêm heading nếu có ít nhất 1 ký tự sau khi trim
+        if (text && text.trim().length > 0) {
+          const level = node.attrs.level;
+          const slug = generateSlug(text);
+          const uniqueId = `${slug}-${idCounter++}`;
 
-        headingsList.push({
-          id: uniqueId,
-          level: level,
-          text: text,
-          position: pos,
-          element: null // Will be set when we find the DOM element
-        });
+          headingsList.push({
+            id: uniqueId,
+            level: level,
+            text: text.trim(), // Trim text để loại bỏ khoảng trắng thừa
+            position: pos,
+            element: null // Will be set when we find the DOM element
+          });
+        }
       }
     });
 
@@ -162,7 +166,7 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
     >
       {/* Trigger Button */}
       <div className="minimap-trigger-button">
-        <span className="minimap-trigger-icon">📋</span>
+        <OutlineIcon className="minimap-trigger-icon" />
       </div>
       
       {/* Mini Map Panel */}

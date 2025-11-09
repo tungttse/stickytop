@@ -24,6 +24,7 @@ export const themes = {
       codeText: '#d4d4d4',
       codeInlineBg: 'rgba(0, 0, 0, 0.1)',
       codeInlineText: '#e83e8c',
+      iconColor: '#333333', // Đen cho theme sáng
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -56,6 +57,7 @@ export const themes = {
       codeText: '#e0e0e0',
       codeInlineBg: 'rgba(255, 255, 255, 0.1)',
       codeInlineText: '#ff6b9d',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -84,6 +86,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#d4a574',
       countdownBadgeBorder: '#b8864a',
+      iconColor: '#5c4b37', // Màu nâu đậm cho sepia
     },
     typography: {
       fontFamily: 'Georgia, "Times New Roman", serif',
@@ -112,6 +115,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#e0e0e0',
       countdownBadgeBorder: '#c0c0c0',
+      iconColor: '#2c2c2c', // Đen cho theme sáng
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -140,6 +144,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#4a5568',
       countdownBadgeBorder: '#2d3748',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -168,6 +173,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ff8787',
       countdownBadgeBorder: '#fa5252',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -196,6 +202,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#69db7c',
       countdownBadgeBorder: '#51cf66',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -224,6 +231,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#74c0fc',
       countdownBadgeBorder: '#4dabf7',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -252,6 +260,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ffec99',
       countdownBadgeBorder: '#ffd43b',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -280,6 +289,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#d0bfff',
       countdownBadgeBorder: '#b197fc',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -308,6 +318,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ffb84d',
       countdownBadgeBorder: '#ff922b',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -336,6 +347,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ff8cc8',
       countdownBadgeBorder: '#f06595',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -364,6 +376,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#dee2e6',
       countdownBadgeBorder: '#adb5bd',
+      iconColor: '#1a1a1a', // Đen cho theme sáng
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -392,6 +405,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#2a2a2a',
       countdownBadgeBorder: '#1a1a1a',
+      iconColor: '#ffffff', // Trắng cho theme tối
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -420,6 +434,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#f4d4a0',
       countdownBadgeBorder: '#d4a574',
+      iconColor: '#2c2c2c', // Đen cho theme sáng
     },
     typography: {
       fontFamily: 'Georgia, "Times New Roman", serif',
@@ -448,6 +463,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#7dd3fc',
       countdownBadgeBorder: '#38bdf8',
+      iconColor: '#1a3a4a', // Đen cho theme sáng
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -476,6 +492,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#86efac',
       countdownBadgeBorder: '#4ade80',
+      iconColor: '#1a3a2a', // Đen cho theme sáng
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -504,6 +521,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#fdba74',
       countdownBadgeBorder: '#fb923c',
+      iconColor: '#4a2a1a', // Đen cho theme sáng
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -532,6 +550,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#c084fc',
       countdownBadgeBorder: '#a855f7',
+      iconColor: '#3a2a4a', // Đen cho theme sáng
     },
     typography: {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',

@@ -28,6 +28,8 @@ import SearchBar from './components/SearchBar'
 import { SearchHighlight } from './extensions/SearchHighlight'
 import { useEditorContext } from './contexts/EditorContext'
 
+import UpIcon from './assets/icons/arrow-up-square.svg'
+
 
 const TiptapEditor = (
   {
@@ -789,13 +791,7 @@ const TiptapEditor = (
             searchQuery={searchQuery}
           />
           {showScrollToTop && hasScrollbar && (
-            <button
-              className="scroll-to-top-button"
-              onClick={handleScrollToTop}
-              aria-label="Scroll to top"
-            >
-              ↑
-            </button>
+            <UpIcon width={50} height={50} className="scroll-to-top-button" onClick={handleScrollToTop} />
           )}
         </div>
       )}

@@ -23,6 +23,17 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: {
+              dimensions: false, // Loại bỏ width/height từ SVG gốc, cho phép control từ props hoặc CSS
+            }
+          }
+        ]
       }
     ]
   },
