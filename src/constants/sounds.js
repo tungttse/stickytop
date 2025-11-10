@@ -8,7 +8,7 @@ export const SOUND_SOURCES = {
     name: 'Forest',
     // Local file: place forest.wav in public/sounds/ directory
     // Use relative path from index.html (which is in dist/)
-    url: './public/sounds/forestbirds.mp3',
+    url: './public/sounds/rain.mp3',
     // Online URL example: url: 'https://example.com/sounds/forest.mp3'
   },
   rain: {

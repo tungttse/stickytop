@@ -303,7 +303,8 @@ function createWindow() {
   });
 
   // Create application menu
-  createMenu(isDev);
+  // Menu disabled - completely hide application menu
+  Menu.setApplicationMenu(null);
 }
 
 function createMenu(isDev = false) {
@@ -1103,7 +1104,7 @@ ipcMain.handle('sync-calendar-event', async (event, { text, date, time }) => {
 
     const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1 hour
 
-    await calendar.events.insert({
+    const response = await calendar.events.insert({
       calendarId: 'primary',
       requestBody: {
         summary: text,
@@ -1112,7 +1113,12 @@ ipcMain.handle('sync-calendar-event', async (event, { text, date, time }) => {
       },
     });
 
-    return { success: true };
+    return { 
+      success: true, 
+      eventId: response.data.id,
+      eventDate: date || null,
+      eventTime: time || null
+    };
   } catch (err) {
     console.error(err);
     return { success: false, error: err.message };
@@ -1180,6 +1186,41 @@ ipcMain.handle('get-calendar-events', async (event, dateString) => {
   } catch (err) {
     console.error('Error fetching calendar events:', err);
     return { success: false, error: err.message, events: [] };
+  }
+});
+
+// Delete calendar event
+ipcMain.handle('delete-calendar-event', async (event, eventId) => {
+  try {
+    if (!userTokens) {
+      return { success: false, error: 'Not logged in. Please login with Google first.' };
+    }
+
+    const oauth2Client = new google.auth.OAuth2(
+      CLIENT_ID,
+      CLIENT_SECRET,
+      REDIRECT_URL
+    );
+    oauth2Client.setCredentials(userTokens);
+
+    // Refresh token if needed
+    if (userTokens.expiry_date && userTokens.expiry_date <= Date.now()) {
+      const { credentials } = await oauth2Client.refreshAccessToken();
+      saveUserTokens(credentials);
+      oauth2Client.setCredentials(credentials);
+    }
+
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+
+    await calendar.events.delete({
+      calendarId: 'primary',
+      eventId: eventId,
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error deleting calendar event:', err);
+    return { success: false, error: err.message };
   }
 });
 

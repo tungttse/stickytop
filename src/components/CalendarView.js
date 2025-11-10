@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useEditorContext } from '../contexts/EditorContext';
 
 const CalendarView = ({ onClose }) => {
   const { currentTheme } = useTheme();
+  const { editor } = useEditorContext();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -276,6 +278,42 @@ const CalendarView = ({ onClose }) => {
       });
 
       if (result.success) {
+        // Update todo item with calendar event info
+        if (editor && result.eventId) {
+          const { state } = editor;
+          const { doc } = state;
+          
+          // Find todo item with matching text
+          doc.descendants((node, pos) => {
+            if (node.type.name === 'taskItem' && !node.attrs.checked) {
+              // Get text content of the todo item
+              let nodeText = '';
+              node.descendants((n) => {
+                if (n.isText) {
+                  nodeText += n.text;
+                }
+                return true;
+              });
+              
+              if (nodeText.trim() === todoText.trim()) {
+                // Update the todo item with calendar event info
+                const tr = state.tr;
+                tr.setNodeMarkup(pos, null, {
+                  ...node.attrs,
+                  calendarEvent: {
+                    eventId: result.eventId,
+                    date: result.eventDate,
+                    time: result.eventTime,
+                  }
+                });
+                editor.view.dispatch(tr);
+                return false; // Stop searching
+              }
+            }
+            return true;
+          });
+        }
+        
         // Refresh events after creating
         await fetchEvents(selectedDate);
       } else {
@@ -287,6 +325,36 @@ const CalendarView = ({ onClose }) => {
       setIsCreatingEvent(false);
     }
   }, [selectedDate, calculateTimeFromPosition, fetchEvents]);
+
+  // Handle delete event
+  const handleDeleteEvent = useCallback(async (eventId, eventSummary) => {
+    // Confirm before deleting
+    const confirmed = window.confirm(`Are you sure you want to delete "${eventSummary}"?`);
+    
+    if (!confirmed) {
+      return;
+    }
+
+    if (!window.electronAPI || !window.electronAPI.deleteCalendarEvent) {
+      setError('Calendar API not available. Please login with Google first.');
+      return;
+    }
+
+    setError(null);
+
+    try {
+      const result = await window.electronAPI.deleteCalendarEvent(eventId);
+
+      if (result.success) {
+        // Refresh events after deleting
+        await fetchEvents(selectedDate);
+      } else {
+        setError(result.error || 'Failed to delete calendar event');
+      }
+    } catch (err) {
+      setError(err.message || 'Error deleting calendar event');
+    }
+  }, [selectedDate, fetchEvents]);
 
   // Generate time slots (00:00 to 23:59)
   const timeSlots = [];
@@ -363,6 +431,16 @@ const CalendarView = ({ onClose }) => {
                       title={event.summary}
                     >
                       <div className="calendar-event-title">{event.summary}</div>
+                      <button
+                        className="calendar-event-delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteEvent(event.id, event.summary);
+                        }}
+                        title="Delete event"
+                      >
+                        ×
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -398,6 +476,16 @@ const CalendarView = ({ onClose }) => {
                   <div className="calendar-event-time">
                     {getTimeFromDateTime(event.start)} - {getTimeFromDateTime(event.end)}
                   </div>
+                  <button
+                    className="calendar-event-delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteEvent(event.id, event.summary);
+                    }}
+                    title="Delete event"
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
               

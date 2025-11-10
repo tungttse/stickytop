@@ -46,6 +46,19 @@ export const CustomTaskItem = TaskItem.extend({
           return {}
         },
       },
+      calendarEvent: {
+        default: null,
+        parseHTML: element => {
+          const value = element.getAttribute('data-calendar-event')
+          return value ? JSON.parse(value) : null
+        },
+        renderHTML: attributes => {
+          if (attributes.calendarEvent !== null) {
+            return { 'data-calendar-event': JSON.stringify(attributes.calendarEvent) }
+          }
+          return {}
+        },
+      },
     }
   },
   

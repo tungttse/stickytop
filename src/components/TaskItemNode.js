@@ -32,6 +32,47 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     return text.trim()
   }
 
+  // Format calendar event time for display
+  const formatCalendarEventTime = (date, time) => {
+    if (!date || !time) return '';
+    
+    try {
+      // Parse date (YYYY-MM-DD) and time (HH:mm)
+      const [year, month, day] = date.split('-').map(Number);
+      const [hours, minutes] = time.split(':').map(Number);
+      
+      const eventDate = new Date(year, month - 1, day, hours, minutes);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const eventDay = new Date(year, month - 1, day);
+      
+      // Calculate days difference
+      const daysDiff = Math.floor((eventDay - today) / (1000 * 60 * 60 * 24));
+      
+      // Format time
+      const timeStr = eventDate.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+      
+      if (daysDiff === 0) {
+        return `Today ${timeStr}`;
+      } else if (daysDiff === 1) {
+        return `Tomorrow ${timeStr}`;
+      } else if (daysDiff === -1) {
+        return `Yesterday ${timeStr}`;
+      } else if (daysDiff > 0 && daysDiff <= 7) {
+        return `${daysDiff}d ${timeStr}`;
+      } else {
+        // Show date and time
+        return `${day}/${month} ${timeStr}`;
+      }
+    } catch (err) {
+      return `${date} ${time}`;
+    }
+  }
+
   // Check xem todo này có phải là todo đang có countdown active không
   // Ẩn icon nếu todo này có countdown và đang active
   const taskText = getNodeText(node)
@@ -618,8 +659,11 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           <>
             <StopwatchIcon className="timer-icon" /> {formatTime(countdownSeconds)}
           </>
-          
-          
+        )}
+        {node.attrs.calendarEvent && node.attrs.calendarEvent.date && node.attrs.calendarEvent.time && (
+          <span className="calendar-event-badge" title="Scheduled in calendar">
+            📅 {formatCalendarEventTime(node.attrs.calendarEvent.date, node.attrs.calendarEvent.time)}
+          </span>
         )}
         </span>
       </div>
