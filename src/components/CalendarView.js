@@ -52,6 +52,43 @@ const CalendarView = ({ onClose }) => {
     fetchEvents(selectedDate);
   }, [selectedDate, fetchEvents]);
 
+  // Auto-scroll to current time when viewing today (only when date changes or after loading)
+  useEffect(() => {
+    let scrollTimeout = null;
+    
+    if (isToday(selectedDate) && timeSlotsContainerRef.current && !loading) {
+      // Calculate current time position directly using current time
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const currentTimePos = (hours * 60) + (minutes / 60 * 60);
+      
+      // Account for all-day section height if present
+      const allDaySection = timeSlotsContainerRef.current?.querySelector('.calendar-all-day-section');
+      const allDayHeight = allDaySection ? allDaySection.offsetHeight : 0;
+      
+      // Scroll to current time position, with some offset to center it better
+      const scrollPosition = currentTimePos + allDayHeight - 100; // Offset 100px from top for better visibility
+      
+      // Use setTimeout to ensure DOM is ready
+      scrollTimeout = setTimeout(() => {
+        if (timeSlotsContainerRef.current) {
+          timeSlotsContainerRef.current.scrollTo({
+            top: Math.max(0, scrollPosition),
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+    }
+    
+    // Cleanup timeout on unmount or when dependencies change
+    return () => {
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    };
+  }, [selectedDate, loading]); // Only scroll when date changes or loading completes, not every minute
+
   // Update current time every minute
   useEffect(() => {
     const updateCurrentTime = () => {

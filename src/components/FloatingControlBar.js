@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import CalendarIcon from '../assets/icons/calendar.svg';
 import CalendarView from './CalendarView';
+import MusicControl from './MusicControl';
 
 const FloatingControlBar = ({ currentUser }) => {
   const [activeControl, setActiveControl] = useState(null);
@@ -63,6 +64,9 @@ const FloatingControlBar = ({ currentUser }) => {
             </button>
           );
         })}
+        
+        {/* Music Control - always visible, not in controls array */}
+        <MusicControl />
       </div>
 
       {/* Render active control's modal/sidebar */}
