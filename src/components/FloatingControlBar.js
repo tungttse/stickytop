@@ -38,6 +38,7 @@ const FloatingControlBar = ({ currentUser }) => {
     setActiveControl(null);
   };
 
+
   // Get the active control config
   const activeControlConfig = controls.find(c => c.id === activeControl);
   const ActiveComponent = activeControlConfig?.component;
@@ -66,14 +67,16 @@ const FloatingControlBar = ({ currentUser }) => {
 
       {/* Render active control's modal/sidebar */}
       {activeControlConfig && ActiveComponent && (
-        <div className="floating-control-overlay" onClick={handleCloseControl}>
+        <>
           <div 
             className="floating-control-sidebar"
             onClick={(e) => e.stopPropagation()}
           >
             <ActiveComponent onClose={handleCloseControl} />
           </div>
-        </div>
+          {/* Invisible overlay - không che phủ events, chỉ để layout */}
+          <div className="floating-control-overlay" />
+        </>
       )}
     </>
   );

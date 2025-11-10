@@ -188,7 +188,7 @@ function createWindow() {
     autoHideMenuBar: true,
     backgroundColor: '#ffff99',
     show: true,
-    opacity: 0.8
+    opacity: 1.0 // Default to fully opaque, will be adjusted based on transparency setting
   };
 
   // Apply saved state if available
@@ -212,6 +212,8 @@ function createWindow() {
   const isTransparent = loadTransparencyState();
   if (isTransparent) {
     defaultOptions.opacity = 0.9;
+  } else {
+    defaultOptions.opacity = 1.0; // Fully opaque if transparency is disabled
   }
 
   // Create the browser window
@@ -1154,16 +1156,25 @@ ipcMain.handle('get-calendar-events', async (event, dateString) => {
       orderBy: 'startTime',
     });
 
-    const events = (response.data.items || []).map(event => ({
-      id: event.id,
-      summary: event.summary || '(No title)',
-      description: event.description || '',
-      start: event.start?.dateTime || event.start?.date,
-      end: event.end?.dateTime || event.end?.date,
-      allDay: !event.start?.dateTime, // If no dateTime, it's an all-day event
-      location: event.location || '',
-      htmlLink: event.htmlLink || '',
-    }));
+    const events = (response.data.items || [])
+      .filter(event => {
+        // Filter out birthday events
+        // Check eventType
+        if (event.eventType === 'birthday') {
+          return false;
+        }
+        return true;
+      })
+      .map(event => ({
+        id: event.id,
+        summary: event.summary || '(No title)',
+        description: event.description || '',
+        start: event.start?.dateTime || event.start?.date,
+        end: event.end?.dateTime || event.end?.date,
+        allDay: !event.start?.dateTime, // If no dateTime, it's an all-day event
+        location: event.location || '',
+        htmlLink: event.htmlLink || '',
+      }));
 
     return { success: true, events };
   } catch (err) {

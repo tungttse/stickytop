@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 
 const CalendarView = ({ onClose }) => {
@@ -7,6 +7,10 @@ const CalendarView = ({ onClose }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [dragOverTimeSlot, setDragOverTimeSlot] = useState(null); // { hour, minutes }
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const timeSlotsContainerRef = useRef(null);
 
   // Format date to YYYY-MM-DD
   const formatDateString = (date) => {
@@ -47,6 +51,36 @@ const CalendarView = ({ onClose }) => {
   useEffect(() => {
     fetchEvents(selectedDate);
   }, [selectedDate, fetchEvents]);
+
+  // Update current time every minute
+  useEffect(() => {
+    const updateCurrentTime = () => {
+      setCurrentTime(new Date());
+    };
+
+    // Update immediately
+    updateCurrentTime();
+
+    // Update every minute
+    const interval = setInterval(updateCurrentTime, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate current time line position
+  const getCurrentTimePosition = useCallback(() => {
+    if (!isToday(selectedDate)) {
+      return null; // Only show for today
+    }
+
+    const hours = currentTime.getHours();
+    const minutes = currentTime.getMinutes();
+    
+    // Calculate position: hour * 60px + (minutes / 60) * 60px
+    const position = (hours * 60) + (minutes / 60 * 60);
+    
+    return position;
+  }, [selectedDate, currentTime]);
 
   // Navigation functions
   const goToPreviousDay = () => {
@@ -105,6 +139,118 @@ const CalendarView = ({ onClose }) => {
     };
   };
 
+  // Calculate time from Y position in time slots container
+  const calculateTimeFromPosition = useCallback((clientY) => {
+    if (!timeSlotsContainerRef.current) return null;
+    
+    const container = timeSlotsContainerRef.current;
+    const rect = container.getBoundingClientRect();
+    const relativeY = clientY - rect.top;
+    
+    // Account for all-day section if present
+    const allDaySection = container.querySelector('.calendar-all-day-section');
+    const allDayHeight = allDaySection ? allDaySection.offsetHeight : 0;
+    const adjustedY = relativeY - allDayHeight;
+    
+    if (adjustedY < 0) return null;
+    
+    // Each hour slot is 60px, calculate which hour and minute
+    const hours = adjustedY / 60; // Convert pixels to hours (decimal)
+    const hour = Math.floor(hours);
+    const minutesDecimal = (hours - hour) * 60; // Get minutes from decimal part
+    const minutes = Math.floor(minutesDecimal);
+    
+    // Clamp to valid range
+    if (hour < 0 || hour >= 24) return null;
+    
+    // Round to nearest 15 minutes
+    const roundedMinutes = Math.floor(minutes / 15) * 15;
+    
+    return { hour, minutes: roundedMinutes };
+  }, []);
+
+  // Handle drag over time slots
+  const handleTimeSlotsDragOver = useCallback((e) => {
+    // Check if dragging a todo item
+    const hasTodoData = e.dataTransfer.types.includes('application/x-todo-text') || 
+                        e.dataTransfer.types.includes('application/x-todo-index');
+    
+    if (hasTodoData) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = 'copy';
+      
+      const time = calculateTimeFromPosition(e.clientY);
+      if (time) {
+        setDragOverTimeSlot(time);
+      }
+    }
+  }, [calculateTimeFromPosition]);
+
+  // Handle drag leave
+  const handleTimeSlotsDragLeave = useCallback((e) => {
+    // Only clear if we're actually leaving the container
+    const relatedTarget = e.relatedTarget;
+    if (!relatedTarget || !timeSlotsContainerRef.current?.contains(relatedTarget)) {
+      setDragOverTimeSlot(null);
+    }
+  }, []);
+
+  // Handle drop on time slots
+  const handleTimeSlotsDrop = useCallback(async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setDragOverTimeSlot(null);
+    
+    // Get todo text from dataTransfer
+    const todoText = e.dataTransfer.getData('application/x-todo-text');
+    
+    if (!todoText || !todoText.trim()) {
+      console.log('Drop: No todo text found');
+      return;
+    }
+
+    // Calculate time from drop position
+    const time = calculateTimeFromPosition(e.clientY);
+    if (!time) {
+      console.log('Drop: Could not calculate time from position');
+      return;
+    }
+
+    // Check if user is logged in
+    if (!window.electronAPI || !window.electronAPI.syncCalendarEvent) {
+      setError('Calendar API not available. Please login with Google first.');
+      return;
+    }
+
+    // Format date and time
+    const dateString = formatDateString(selectedDate);
+    const timeString = `${String(time.hour).padStart(2, '0')}:${String(time.minutes).padStart(2, '0')}`;
+
+    setIsCreatingEvent(true);
+    setError(null);
+
+    try {
+      const result = await window.electronAPI.syncCalendarEvent({
+        text: todoText.trim(),
+        date: dateString,
+        time: timeString,
+      });
+
+      if (result.success) {
+        // Refresh events after creating
+        await fetchEvents(selectedDate);
+      } else {
+        setError(result.error || 'Failed to create calendar event');
+      }
+    } catch (err) {
+      setError(err.message || 'Error creating calendar event');
+    } finally {
+      setIsCreatingEvent(false);
+    }
+  }, [selectedDate, calculateTimeFromPosition, fetchEvents]);
+
   // Generate time slots (00:00 to 23:59)
   const timeSlots = [];
   for (let hour = 0; hour < 24; hour++) {
@@ -161,7 +307,13 @@ const CalendarView = ({ onClose }) => {
         )}
 
         {!loading && !error && (
-          <div className="calendar-time-slots">
+          <div 
+            className="calendar-time-slots"
+            ref={timeSlotsContainerRef}
+            onDragOver={handleTimeSlotsDragOver}
+            onDragLeave={handleTimeSlotsDragLeave}
+            onDrop={handleTimeSlotsDrop}
+          >
             {/* All-day events section */}
             {events.some(e => e.allDay) && (
               <div className="calendar-all-day-section">
@@ -181,12 +333,20 @@ const CalendarView = ({ onClose }) => {
             )}
             
             {/* Time slots */}
-            {timeSlots.map((time, index) => (
-              <div key={index} className="calendar-time-slot">
-                <div className="calendar-time-label">{time}</div>
-                <div className="calendar-time-line"></div>
-              </div>
-            ))}
+            {timeSlots.map((time, index) => {
+              const hour = index;
+              const isDragOver = dragOverTimeSlot && dragOverTimeSlot.hour === hour;
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`calendar-time-slot ${isDragOver ? 'drag-over' : ''}`}
+                >
+                  <div className="calendar-time-label">{time}</div>
+                  <div className="calendar-time-line"></div>
+                </div>
+              );
+            })}
             
             {/* Render timed events */}
             <div className="calendar-events-container">
@@ -203,7 +363,47 @@ const CalendarView = ({ onClose }) => {
                   </div>
                 </div>
               ))}
+              
+              {/* Current time indicator - only show for today */}
+              {isToday(selectedDate) && (() => {
+                const currentTimePos = getCurrentTimePosition();
+                if (currentTimePos === null) return null;
+                
+                return (
+                  <div 
+                    className="calendar-current-time-line"
+                    style={{
+                      top: `${currentTimePos}px`,
+                    }}
+                  >
+                    <div className="calendar-current-time-dot" />
+                  </div>
+                );
+              })()}
+              
+              {/* Drop indicator - positioned absolutely based on drag position */}
+              {dragOverTimeSlot && (() => {
+                // Calculate top position: hour * 60px + minutes in pixels
+                // Note: all-day section is handled separately in the container
+                const topPosition = (dragOverTimeSlot.hour * 60) + (dragOverTimeSlot.minutes / 60 * 60);
+                return (
+                  <div 
+                    className="calendar-drop-indicator"
+                    style={{
+                      top: `${topPosition}px`,
+                    }}
+                    data-time={`${String(dragOverTimeSlot.hour).padStart(2, '0')}:${String(dragOverTimeSlot.minutes).padStart(2, '0')}`}
+                  />
+                );
+              })()}
             </div>
+            
+            {/* Creating event overlay */}
+            {isCreatingEvent && (
+              <div className="calendar-creating-overlay">
+                <div className="calendar-creating-message">Creating event...</div>
+              </div>
+            )}
           </div>
         )}
       </div>

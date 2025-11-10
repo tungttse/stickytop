@@ -562,10 +562,12 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
                 }
                 dragImageTimeoutRef.current = null;
               }, 0)
-              e.dataTransfer.effectAllowed = 'move'
+              e.dataTransfer.effectAllowed = 'move copy' // Allow both move (within editor) and copy (to calendar)
 
               // Store the index using custom data type to avoid conflict with text/plain
               e.dataTransfer.setData('application/x-todo-index', currentIndex.toString())
+              // Store todo text for calendar drop functionality
+              e.dataTransfer.setData('application/x-todo-text', todoText.trim())
               // Also set with prefix in text/plain as fallback
               e.dataTransfer.setData('text/plain', `TODO_INDEX_${currentIndex}`)
 

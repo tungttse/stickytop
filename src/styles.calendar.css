@@ -57,22 +57,11 @@
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
+  right: 300px; /* Không che sidebar (max-width của sidebar) */
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: transparent;
   z-index: 10001;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  animation: overlayFadeIn 0.2s ease;
-}
-
-@keyframes overlayFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  pointer-events: none; /* Cho phép hover và click events đi qua */
 }
 
 .floating-control-sidebar {
@@ -90,6 +79,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  pointer-events: auto;
 }
 
 @keyframes sidebarSlideIn {
@@ -226,7 +216,7 @@
   background: var(--theme-bg);
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 15; /* Cao hơn events container (z-index: 10) để không bị che */
 }
 
 .calendar-all-day-label {
@@ -253,6 +243,12 @@
   display: flex;
   align-items: flex-start;
   border-bottom: 1px solid var(--theme-border);
+  transition: background-color 0.2s ease;
+}
+
+.calendar-time-slot.drag-over {
+  background-color: var(--theme-accent-light, rgba(0, 122, 255, 0.1));
+  border-bottom: 2px solid var(--theme-accent, #007AFF);
 }
 
 .calendar-time-label {
@@ -316,5 +312,100 @@
   font-size: 10px;
   opacity: 0.9;
   margin-top: 2px;
+}
+
+/* ===== CALENDAR CURRENT TIME LINE ===== */
+.calendar-current-time-line {
+  position: absolute;
+  left: 50px;
+  right: 0;
+  height: 2px;
+  background: #ea4335; /* Google Calendar red color */
+  z-index: 25;
+  pointer-events: none;
+}
+
+.calendar-current-time-dot {
+  position: absolute;
+  left: -6px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  background: #ea4335;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 4px rgba(234, 67, 53, 0.5);
+}
+
+/* ===== CALENDAR DROP INDICATOR ===== */
+.calendar-drop-indicator {
+  position: absolute;
+  left: 60px;
+  right: 8px;
+  height: 2px;
+  background: var(--theme-accent, #007AFF);
+  z-index: 20;
+  pointer-events: none;
+  box-shadow: 0 0 4px rgba(0, 122, 255, 0.5);
+}
+
+.calendar-drop-indicator::before {
+  content: attr(data-time);
+  position: absolute;
+  left: 8px;
+  top: -18px;
+  background: var(--theme-accent, #007AFF);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== CALENDAR CREATING OVERLAY ===== */
+.calendar-creating-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.calendar-creating-message {
+  background: var(--theme-bg);
+  color: var(--theme-text);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-creating-message::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--theme-accent, #007AFF);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
