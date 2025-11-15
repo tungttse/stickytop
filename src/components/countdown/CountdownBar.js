@@ -8,7 +8,62 @@ const CountdownBar = () => {
   const { scrollToTodo } = useEditorContext();
 
   // Get current state from activeCountdown (source of truth là CountdownTimerNode)
-  const seconds = activeCountdown?.seconds || activeCountdown?.initialSeconds || 0;
+  // Use seconds directly if available, otherwise fallback to initialSeconds
+  const seconds = activeCountdown?.seconds !== undefined && activeCountdown?.seconds !== null
+    ? activeCountdown.seconds
+    : (activeCountdown?.initialSeconds || 0);
+  const initialSeconds = activeCountdown?.initialSeconds || 0;
+
+  // Calculate progress percentage (0 = start, 100 = completed)
+  const progress = initialSeconds > 0 
+    ? Math.max(0, Math.min(100, ((initialSeconds - seconds) / initialSeconds) * 100))
+    : 0;
+
+  // Convert hex color to RGB
+  const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  };
+
+  // Convert RGB to hex
+  const rgbToHex = (r, g, b) => {
+    return "#" + [r, g, b].map(x => {
+      const hex = Math.round(x).toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    }).join("");
+  };
+
+  // Interpolate between two colors
+  const interpolateColor = (color1, color2, progress) => {
+    const rgb1 = hexToRgb(color1);
+    const rgb2 = hexToRgb(color2);
+    if (!rgb1 || !rgb2) return color1;
+
+    const r = rgb1.r + (rgb2.r - rgb1.r) * (progress / 100);
+    const g = rgb1.g + (rgb2.g - rgb1.g) * (progress / 100);
+    const b = rgb1.b + (rgb2.b - rgb1.b) * (progress / 100);
+
+    return rgbToHex(r, g, b);
+  };
+
+  // Interpolate gradient from purple to light red
+  const interpolateGradient = (progress) => {
+    // Start gradient: #667eea → #764ba2 (purple)
+    // End gradient: #FF4D4D → #DC2626 (light red)
+    const startColor1 = "#667eea";
+    const startColor2 = "#764ba2";
+    const endColor1 = "#FF4D4D";
+    const endColor2 = "#DC2626";
+
+    const color1 = interpolateColor(startColor1, endColor1, progress);
+    const color2 = interpolateColor(startColor2, endColor2, progress);
+
+    return `linear-gradient(135deg, ${color1} 0%, ${color2} 100%)`;
+  };
 
   const formatTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
@@ -41,8 +96,15 @@ const CountdownBar = () => {
     return null;
   }
 
+  // Check completed state: either seconds is 0 OR isCompleted flag is true
+  const isCompleted = seconds === 0 || activeCountdown.isCompleted === true;
+  
+  const gradientStyle = {
+    background: interpolateGradient(progress)
+  };
+
   return (
-    <div className="countdown-bar">
+    <div className={`countdown-bar ${isCompleted ? 'countdown-bar-completed' : ''}`} style={gradientStyle}>
       <div className="countdown-bar-content">
         <div 
           className="countdown-bar-info"

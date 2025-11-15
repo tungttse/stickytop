@@ -430,6 +430,7 @@ ol {
 
 /* ===== COUNTDOWN BAR (TOP) ===== */
 .countdown-bar {
+  /* background will be set via inline style for dynamic gradient */
   background: var(--theme-countdown-bar-bg);
   color: var(--theme-countdown-bar-text);
   padding: 12px 20px;
@@ -448,6 +449,11 @@ ol {
   margin-top: 10px;
 }
 
+/* When completed, override animation to only blink */
+.countdown-bar.countdown-bar-completed {
+  animation: blink 1s ease-in-out infinite !important;
+}
+
 .countdown-bar::before {
   content: '';
   position: absolute;
@@ -455,7 +461,8 @@ ol {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--theme-countdown-bar-bg);
+  /* Use same background as parent (will inherit from inline style) */
+  background: inherit;
   opacity: 1;
   z-index: -1;
 }
@@ -560,6 +567,17 @@ ol {
 .countdown-bar-btn.cancel:hover {
   background: rgba(255, 77, 77, 0.8);
   border-color: rgba(255, 77, 77, 1);
+}
+
+@keyframes blink {
+  0%, 100% {
+    filter: brightness(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    filter: brightness(1.4);
+    box-shadow: 0 4px 20px rgba(255, 77, 77, 0.8);
+  }
 }
 
 /* ===== COUNTDOWN DIALOG ===== */

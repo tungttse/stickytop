@@ -88,6 +88,40 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
             setIsActive(false);
             setIsCompleted(true);
             
+            // Auto-check task item when countdown completes
+            if (editor && todoPosition !== null && todoPosition !== undefined) {
+              try {
+                const { state } = editor;
+                const tr = state.tr;
+                
+                // Find task item at todoPosition
+                let taskItemPos = null;
+                state.doc.descendants((node, pos) => {
+                  if (node.type.name === 'taskItem' && 
+                      pos === todoPosition &&
+                      !node.attrs.checked) {
+                    taskItemPos = pos;
+                    return false; // Stop searching
+                  }
+                  return true;
+                });
+                
+                if (taskItemPos !== null) {
+                  // Check task item
+                  const taskItemNode = state.doc.nodeAt(taskItemPos);
+                  if (taskItemNode && !taskItemNode.attrs.checked) {
+                    tr.setNodeMarkup(taskItemPos, null, {
+                      ...taskItemNode.attrs,
+                      checked: true,
+                    });
+                    editor.view.dispatch(tr);
+                  }
+                }
+              } catch (error) {
+                console.warn('Error auto-checking task item:', error);
+              }
+            }
+            
             // Show notification
             if (window.electronAPI && window.electronAPI.showNotification) {
               window.electronAPI.showNotification({
