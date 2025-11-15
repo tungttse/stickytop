@@ -49,6 +49,9 @@ export const ThemeProvider = ({ children }) => {
     root.style.setProperty('--theme-font-size', theme.typography.fontSize);
     root.style.setProperty('--theme-line-height', theme.typography.lineHeight);
     root.style.setProperty('--theme-icon-color', theme.colors.iconColor);
+    root.style.setProperty('--theme-link-color', theme.colors.linkColor || theme.colors.accent);
+    root.style.setProperty('--theme-link-hover-color', theme.colors.linkHoverColor || theme.colors.accent);
+    root.style.setProperty('--theme-link-visited-color', theme.colors.linkVisitedColor || theme.colors.linkColor || theme.colors.accent);
   };
 
   const setTheme = (themeId) => {

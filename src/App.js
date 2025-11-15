@@ -4,10 +4,10 @@ import CountdownBar from './components/countdown/CountdownBar';
 import ThemeSelector from './components/ThemeSelector';
 import GoogleLogin from './components/GoogleLogin';
 import FloatingControlBar from './components/FloatingControlBar';
+import UserMenu from './components/UserMenu';
 import { CountdownProvider } from './contexts/CountdownContext';
 import { EditorProvider } from './contexts/EditorContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import DashIcon from './assets/icons/dash.svg';
 
 function App() {
   const [content, setContent] = useState('');
@@ -196,7 +196,9 @@ function App() {
   };
 
   const handleThemeClick = (e) => {
-    e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+    }
     setIsThemeSelectorVisible(true);
   };
 
@@ -206,35 +208,39 @@ function App() {
         <EditorProvider>
           <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`}>
             <div className="drag-area"  onClick={handleDragAreaClick}>
-              <button 
-                className="theme-button"
-                onClick={handleThemeClick}
-                title="Theme"
-              >
-                🎨
-              </button>
-              <button 
+              {/* <button 
                 className="export-button"
                 onClick={handleExportClick}
                 title="Export"
               >
                 📤
-              </button>
-              <div className="google-login-wrapper">
+              </button> */}
+              {/* GoogleLogin component is now integrated into UserMenu */}
+              <div className="google-login-wrapper" style={{ display: 'none' }}>
                 <GoogleLogin onLoginSuccess={setCurrentUser} />
               </div>
             </div>
             <div className="top-right-actions">
-              <button 
-                className="minimize-button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  alert('minimize');
+              <UserMenu 
+                currentUser={currentUser}
+                onThemeClick={handleThemeClick}
+                onLogin={async () => {
+                  // Trigger GoogleLogin component to login
+                  // Since GoogleLogin is hidden, we'll call the API directly
+                  if (window.electronAPI && window.electronAPI.googleLogin) {
+                    const result = await window.electronAPI.googleLogin();
+                    if (result.success && result.user) {
+                      setCurrentUser(result.user);
+                    }
+                  }
                 }}
-                title="Minimize"
-              >
-                <DashIcon className="minimize-icon" />
-              </button>
+                onLogout={async () => {
+                  if (window.electronAPI && window.electronAPI.googleLogout) {
+                    await window.electronAPI.googleLogout();
+                    setCurrentUser(null);
+                  }
+                }}
+              />
             </div>
             <ThemeSelector 
               isVisible={isThemeSelectorVisible}

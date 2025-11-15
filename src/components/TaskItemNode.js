@@ -89,10 +89,13 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
 
   // Check xem todo này có phải là todo đang có countdown active không
   // Ẩn icon nếu todo này có countdown và đang active
+  // Nhưng không hiển thị "Running" nếu countdown đã completed hoặc task đã checked
   const taskText = getNodeText(node)
   const isActiveCountdownTodo = activeCountdown &&
     activeCountdown.taskDescription === taskText &&
-    hasCountdown
+    hasCountdown &&
+    !activeCountdown.isCompleted && // Không hiển thị nếu đã completed
+    !node.attrs.checked // Không hiển thị nếu task đã checked
 
   console.log('isActiveCountdownTodo', isActiveCountdownTodo)
   // Chỉ hiển thị icon khi todo có ít nhất 1 ký tự
@@ -181,10 +184,21 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
 
   const { clearActiveCountdown } = useCountdown()
 
+  const handleCancelCountdown = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (activeCountdown && activeCountdown.onCancel) {
+      activeCountdown.onCancel()
+    }
+  }
+
   const handleSelectDuration = (seconds) => {
     if (!editor) return
 
     setShowDialog(false)
+    
+    // Hardcode 30 seconds for testing
+    seconds = 10
 
     // Step 1: Clear active countdown trong context TRƯỚC KHI xóa nodes
     // Điều này đảm bảo top bar ẩn ngay lập tức
@@ -542,7 +556,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
 
   return (
     <NodeViewWrapper
-      className={`task-item-with-timer ${isDragging ? 'is-dragging' : ''} ${dragOverPosition ? 'drag-over' : ''} ${dragOverPosition === 'before' ? 'drop-before' : ''} ${dragOverPosition === 'after' ? 'drop-after' : ''}`}
+      className={`task-item-with-timer ${isDragging ? 'is-dragging' : ''} ${dragOverPosition ? 'drag-over' : ''} ${dragOverPosition === 'before' ? 'drop-before' : ''} ${dragOverPosition === 'after' ? 'drop-after' : ''} ${isActiveCountdownTodo ? 'countdown-running' : ''}`}
       data-type="taskItem"
       data-checked={node.attrs.checked}
       onDragOver={handleWrapperDragOver}
@@ -580,9 +594,18 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
                </button>
              )}
              {isActiveCountdownTodo && countdownSeconds !== null && (
-               <>
-                 <StopwatchIcon className="timer-icon" /> {formatTime(countdownSeconds)}
-               </>
+               <span className="countdown-running-status">
+                 <StopwatchIcon className="timer-icon" /> Running
+                 <button
+                   className="countdown-cancel-icon"
+                   onClick={handleCancelCountdown}
+                   onMouseDown={(e) => e.stopPropagation()}
+                   title="Cancel countdown"
+                   type="button"
+                 >
+                   ✕
+                 </button>
+               </span>
              )}
              {node.attrs.calendarEvent && node.attrs.calendarEvent.date && node.attrs.calendarEvent.time && (
                <span className="calendar-event-badge" title="Scheduled in calendar">

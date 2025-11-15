@@ -18,6 +18,9 @@
   --theme-countdown-badge-bg: #ffeb3b;
   --theme-countdown-badge-border: #fdd835;
   --theme-app-bg: #94a4b4;
+  --theme-link-color: #007AFF;
+  --theme-link-hover-color: #0051D5;
+  --theme-link-visited-color: #5856D6;
   --theme-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --theme-font-size: 14px;
   --theme-line-height: 1.6;
@@ -206,40 +209,6 @@ body,
   gap: 8px;
 }
 
-.minimize-button {
-  -webkit-app-region: no-drag;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-  color: var(--theme-icon-color);
-}
-
-.minimize-button:hover {
-  background: var(--theme-drag-area-hover);
-}
-
-.minimize-button:active {
-  background: var(--theme-export-button-active);
-}
-
-.minimize-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--theme-icon-color);
-}
-
-.minimize-icon svg {
-  width: 100%;
-  height: 100%;
-  fill: currentColor;
-}
-
 /* ===== TIPTAP EDITOR STYLES ===== */
 .tiptap-editor {
   flex: 1;
@@ -282,6 +251,32 @@ ol {
 
 .tiptap-editor:focus {
   outline: none;
+}
+
+/* ===== HYPERLINK STYLES ===== */
+.tiptap-editor a {
+  color: var(--theme-link-color, var(--theme-accent));
+  text-decoration: underline;
+  text-decoration-color: var(--theme-link-color, var(--theme-accent));
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+  cursor: pointer;
+}
+
+.tiptap-editor a:hover {
+  color: var(--theme-link-hover-color, var(--theme-accent));
+  text-decoration-color: var(--theme-link-hover-color, var(--theme-accent));
+  text-decoration-thickness: 2px;
+}
+
+.tiptap-editor a:visited {
+  color: var(--theme-link-visited-color, var(--theme-link-color, var(--theme-accent)));
+  text-decoration-color: var(--theme-link-visited-color, var(--theme-link-color, var(--theme-accent)));
+}
+
+.tiptap-editor a:active {
+  opacity: 0.8;
 }
 
 .tiptap-editor ul.tiptap-list {
@@ -428,25 +423,92 @@ ol {
   text-decoration: line-through;
 }
 
+/* Task item with active countdown - border style */
+.task-item-with-timer.countdown-running {
+  border-left: 3px solid #9333ea; /* purple */
+  border-radius: 4px;
+  padding-left: 8px;
+  margin-left: -8px;
+  background-color: #f8eaff23; /* purple tint with opacity */
+  outline: 1px solid rgba(147, 51, 234, 0.1); /* subtle outline */
+  transition: border-color 0.2s ease, background-color 0.2s ease, outline 0.2s ease;
+}
+
+.countdown-running-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px; /* Increased from 4px to 5px for better spacing */
+  margin-left: 8px;
+  color: #9333ea; /* purple to match border */
+  font-weight: 500;
+  font-size: 0.9em;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.countdown-running-status .timer-icon {
+  width: 15px; /* Reduced from 18px (16.7% smaller) */
+  height: 15px; /* Reduced from 18px (16.7% smaller) */
+  animation: pulse-clock 2s ease-in-out infinite;
+}
+
+.countdown-cancel-icon {
+  background: none;
+  border: none;
+  color: #9333ea;
+  cursor: pointer;
+  padding: 2px 4px;
+  margin-left: 4px;
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.countdown-cancel-icon:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.countdown-cancel-icon:active {
+  transform: scale(0.95);
+}
+
+@keyframes pulse-clock {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
 /* ===== COUNTDOWN BAR (TOP) ===== */
 .countdown-bar {
   /* background will be set via inline style for dynamic gradient */
   background: var(--theme-countdown-bar-bg);
   color: var(--theme-countdown-bar-text);
-  padding: 12px 20px;
+  padding: 9px 20px; /* Reduced from 12px to 9px (25% reduction for vertical padding) */
+  padding-right: 60px; /* Extra padding to avoid overlap with user avatar (40px + 16px padding) */
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 100;
-  animation: slideDown 0.3s ease;
+  animation: slideDown 0.5s ease-in-out;
   /* Ensure countdown bar is not transparent even when window is transparent */
   opacity: 1 !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   /* Add solid background overlay to prevent transparency */
   position: relative;
-  margin-top: 10px;
+  margin-top: 9px; /* Adjusted to align close button with user avatar (8px padding + 20px avatar center = 28px, countdown bar padding 9px + button center ≈ 19px, so 28px - 19px = 9px) */
 }
 
 /* When completed, override animation to only blink */
@@ -511,19 +573,27 @@ ol {
 }
 
 .countdown-bar-task {
-  font-size: 14px;
+  font-size: 13px; /* Reduced from 14px */
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 2px;
+  margin-bottom: 1px; /* Reduced from 2px */
 }
 
 .countdown-bar-time {
-  font-size: 20px;
+  font-size: 18px; /* Reduced from 20px (10% reduction) */
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.5px;
+}
+
+.countdown-bar-completed-text {
+  font-size: 12px;
+  opacity: 0.7;
+  font-weight: 400;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .countdown-bar-controls {
@@ -538,9 +608,9 @@ ol {
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 6px 12px; /* Reduced vertical padding from 8px to 6px */
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px; /* Reduced from 14px */
   font-weight: 500;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
@@ -806,7 +876,7 @@ ol {
   border-radius: 8px;
   font-size: 12px;
   overflow: hidden;
-  animation: minimapSlideIn 0.2s ease-out;
+  animation: minimapSlideIn 0.4s ease-in-out;
 }
 
 @keyframes minimapSlideIn {
@@ -1445,17 +1515,39 @@ ol {
   position: fixed;
   bottom: 20px;
   right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--theme-bg);
+  border: 2px solid var(--theme-border);
+  color: var(--theme-icon-color);
   cursor: pointer;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--theme-icon-color); /* Icon sẽ inherit màu này */
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  -webkit-app-region: no-drag;
 }
 
-.scroll-to-top-button svg {
-  color: var(--theme-icon-color);
-  fill: currentColor; /* Đảm bảo SVG sử dụng currentColor */
+.scroll-to-top-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  background: var(--theme-bg-hover, var(--theme-bg));
+}
+
+.scroll-to-top-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.scroll-to-top-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
 }
 
 /* ===== TIPTAP IMAGE STYLES ===== */

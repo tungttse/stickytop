@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import CalendarIcon from '../assets/icons/calendar.svg';
 import CalendarView from './CalendarView';
 import MusicControl from './MusicControl';
+import { useEditorContext } from '../contexts/EditorContext';
 
 const FloatingControlBar = ({ currentUser }) => {
   const [activeControl, setActiveControl] = useState(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const hideTimeoutRef = useRef(null);
+  const [todoStats, setTodoStats] = useState({ total: 0, completed: 0 });
+  const { editor } = useEditorContext();
 
   // Define controls - extensible structure
   const controls = [
@@ -39,6 +44,105 @@ const FloatingControlBar = ({ currentUser }) => {
     setActiveControl(null);
   };
 
+  // Auto hide/show logic
+  const showBar = useCallback(() => {
+    setIsVisible(true);
+    // Clear existing timeout
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+    }
+    // Don't hide if sidebar is open
+    if (activeControl) {
+      return;
+    }
+    // Hide after 3 seconds of inactivity
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsVisible(false);
+    }, 3000);
+  }, [activeControl]);
+
+  const handleMouseEnter = () => {
+    showBar();
+  };
+
+  const handleMouseLeave = () => {
+    // Start hide timer when mouse leaves
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+    }
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsVisible(false);
+    }, 3000);
+  };
+
+  // Keep bar visible when sidebar is open
+  useEffect(() => {
+    if (activeControl) {
+      setIsVisible(true);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    }
+  }, [activeControl]);
+
+  // Count todo items from editor
+  useEffect(() => {
+    if (!editor) return;
+
+    const updateTodoStats = () => {
+      const { state } = editor;
+      let total = 0;
+      let completed = 0;
+
+      state.doc.descendants((node) => {
+        if (node.type.name === 'taskItem') {
+          total++;
+          if (node.attrs.checked) {
+            completed++;
+          }
+        }
+        return true;
+      });
+
+      setTodoStats({ total, completed });
+    };
+
+    // Initial count
+    updateTodoStats();
+
+    // Listen to editor updates
+    editor.on('update', updateTodoStats);
+
+    return () => {
+      editor.off('update', updateTodoStats);
+    };
+  }, [editor]);
+
+  // Detect mouse movement in bottom area (hover zone)
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const windowHeight = window.innerHeight;
+      const mouseY = e.clientY;
+      const hoverZoneHeight = 100; // Show bar when mouse is within 100px from bottom
+
+      if (windowHeight - mouseY <= hoverZoneHeight) {
+        showBar();
+      }
+    };
+
+    // Show bar initially
+    showBar();
+
+    // Add mouse move listener
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, [showBar]);
 
   // Get the active control config
   const activeControlConfig = controls.find(c => c.id === activeControl);
@@ -46,7 +150,20 @@ const FloatingControlBar = ({ currentUser }) => {
 
   return (
     <>
-      <div className="floating-control-bar">
+      <div 
+        className={`floating-control-bar ${isVisible ? 'visible' : 'hidden'}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Todo Stats - Left side */}
+        {todoStats.total > 0 && (
+          <div className="floating-control-stats">
+            <span className="floating-control-stats-text">
+              Completed: {todoStats.completed}/{todoStats.total} Tasks
+            </span>
+          </div>
+        )}
+
         {controls.map((control) => {
           if (!control.enabled) return null;
           

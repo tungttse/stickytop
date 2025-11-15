@@ -77,12 +77,6 @@ const CountdownBar = () => {
     }
   };
 
-  const handleCancel = () => {
-    if (activeCountdown?.onCancel) {
-      activeCountdown.onCancel();
-    }
-  };
-
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -117,17 +111,10 @@ const CountdownBar = () => {
               {activeCountdown.taskDescription}
             </div>
             <div className="countdown-bar-time">{formatTime(seconds)}</div>
+            {isCompleted && (
+              <div className="countdown-bar-completed-text">Time's up</div>
+            )}
           </div>
-        </div>
-        
-        <div className="countdown-bar-controls">
-          <button 
-            className="countdown-bar-btn cancel" 
-            onClick={handleCancel}
-            title="Cancel"
-          >
-            ✕
-          </button>
         </div>
       </div>
     </div>

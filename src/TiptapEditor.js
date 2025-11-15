@@ -791,7 +791,9 @@ const TiptapEditor = (
             searchQuery={searchQuery}
           />
           {showScrollToTop && hasScrollbar && (
-            <UpIcon width={50} height={50} className="scroll-to-top-button" onClick={handleScrollToTop} />
+            <button className="scroll-to-top-button" onClick={handleScrollToTop} title="Scroll to top">
+              <UpIcon className="scroll-to-top-icon" />
+            </button>
           )}
         </div>
       )}
