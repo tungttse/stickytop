@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useCountdown } from '../../contexts/CountdownContext';
 import { useEditorContext } from '../../contexts/EditorContext';
 import StopwatchIcon from '../../assets/icons/stopwatch.svg';
 
 const CountdownBar = () => {
-  const { activeCountdown } = useCountdown();
+  const { activeCountdown, clearActiveCountdown } = useCountdown();
   const { scrollToTodo } = useEditorContext();
+  const autoHideTimeoutRef = useRef(null);
 
   // Get current state from activeCountdown (source of truth là CountdownTimerNode)
   // Use seconds directly if available, otherwise fallback to initialSeconds
@@ -86,12 +87,35 @@ const CountdownBar = () => {
     }
   };
 
+  // Check completed state: either seconds is 0 OR isCompleted flag is true
+  const isCompleted = activeCountdown ? (seconds === 0 || activeCountdown.isCompleted === true) : false;
+  
+  // Auto-hide countdown bar after 1 minute when completed
+  useEffect(() => {
+    if (isCompleted && activeCountdown) {
+      // Clear any existing timeout
+      if (autoHideTimeoutRef.current) {
+        clearTimeout(autoHideTimeoutRef.current);
+      }
+      
+      // Set timeout to clear countdown after 1 minute (60 seconds)
+      autoHideTimeoutRef.current = setTimeout(() => {
+        clearActiveCountdown();
+      }, 10000); // 30 seconds = 0.5 minute
+    }
+    
+    // Cleanup timeout on unmount or when countdown changes
+    return () => {
+      if (autoHideTimeoutRef.current) {
+        clearTimeout(autoHideTimeoutRef.current);
+        autoHideTimeoutRef.current = null;
+      }
+    };
+  }, [isCompleted, activeCountdown, clearActiveCountdown]);
+
   if (!activeCountdown) {
     return null;
   }
-
-  // Check completed state: either seconds is 0 OR isCompleted flag is true
-  const isCompleted = seconds === 0 || activeCountdown.isCompleted === true;
   
   const gradientStyle = {
     background: interpolateGradient(progress)
