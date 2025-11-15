@@ -21,15 +21,29 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const { activeCountdown } = useCountdown()
 
   // Helper function để extract text từ ProseMirror node
+  // Chỉ lấy text từ paragraph, không bao gồm nested taskList
   const getNodeText = (node) => {
-    let text = ''
-    node.descendants((n) => {
-      if (n.isText) {
-        text += n.text
+    if (!node.content) return '';
+    
+    let text = '';
+    // Duyệt qua content để chỉ lấy text từ paragraph
+    for (let i = 0; i < node.content.childCount; i++) {
+      const child = node.content.child(i);
+      // Chỉ lấy text từ paragraph, bỏ qua taskList
+      if (child.type.name === 'paragraph') {
+        child.descendants((n) => {
+          if (n.isText) {
+            text += n.text;
+          }
+          return true;
+        });
+        // Thêm space giữa các paragraph
+        if (i < node.content.childCount - 1 && node.content.child(i + 1).type.name === 'paragraph') {
+          text += ' ';
+        }
       }
-      return true
-    })
-    return text.trim()
+    }
+    return text.trim();
   }
 
   // Format calendar event time for display
@@ -227,15 +241,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     // 4d: Insert countdown timer node mới
     // Tính toán insert position sau khi đã delete (positions đã được adjust trong tr)
     if (pos !== undefined) {
-      // Extract text từ todo node
-      let taskText = ''
-      node.descendants((n) => {
-        if (n.isText) {
-          taskText += n.text
-        }
-        return true
-      })
-      taskText = taskText.trim()
+      // Extract text từ todo node - chỉ lấy text từ paragraph, không bao gồm nested taskList
+      const taskText = getNodeText(node)
 
       // Tính toán insertPos ban đầu (trước khi delete)
       let insertPos = pos + currentTodoSize
