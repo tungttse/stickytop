@@ -84,6 +84,40 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   // Chỉ hiển thị icon khi todo có ít nhất 1 ký tự
   const shouldShowTimerIcon = !node.attrs.checked && !isActiveCountdownTodo && taskText.length > 0
 
+  // Check if this task item has nested taskList - nếu có thì ẩn controls
+  // NHƯNG nếu tất cả child items đã checked thì vẫn hiển thị controls
+  // node.content là Fragment, không phải array, nên cần dùng forEach hoặc check trực tiếp
+  const hasNestedTaskList = (() => {
+    if (!node.content || node.content.childCount === 0) return false;
+    
+    // Duyệt qua các child nodes để tìm taskList
+    for (let i = 0; i < node.content.childCount; i++) {
+      const child = node.content.child(i);
+      if (child.type.name === 'taskList') {
+        // Nếu tìm thấy taskList, check xem tất cả child items đã checked chưa
+        if (!child.content || child.content.childCount === 0) {
+          // Nested taskList rỗng, không ẩn controls
+          return false;
+        }
+        
+        // Check xem tất cả child taskItems có checked không
+        let allChecked = true;
+        for (let j = 0; j < child.content.childCount; j++) {
+          const taskItem = child.content.child(j);
+          if (taskItem.type.name === 'taskItem' && !taskItem.attrs.checked) {
+            allChecked = false;
+            break;
+          }
+        }
+        
+        // Nếu tất cả đã checked, không ẩn controls (return false)
+        // Nếu còn item chưa checked, ẩn controls (return true)
+        return !allChecked;
+      }
+    }
+    return false;
+  })()
+
   // Format time function (same as CountdownTimerNode)
   const formatTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600)
@@ -522,30 +556,35 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
         />
       </label>
       <div className="task-item-content">
-        <NodeViewContent className="content" />
-        <div className="countdown-inline-badge">
-        {shouldShowTimerIcon && (
-          <button
-            className="timer-icon-button"
-            onClick={handleTimerClick}
-            onMouseDown={(e) => e.stopPropagation()}
-            title="Set countdown timer"
-            type="button"
-          >
-            <StopwatchIcon className="timer-icon" />
-          </button>
-        )}
-        {isActiveCountdownTodo && countdownSeconds !== null && (
-          <>
-            <StopwatchIcon className="timer-icon" /> {formatTime(countdownSeconds)}
-          </>
-        )}
-        {node.attrs.calendarEvent && node.attrs.calendarEvent.date && node.attrs.calendarEvent.time && (
-          <div className="calendar-event-badge" title="Scheduled in calendar">
-            📅 {formatCalendarEventTime(node.attrs.calendarEvent.date, node.attrs.calendarEvent.time)}
-          </div>
-        )}
-        </div>
+        
+          <NodeViewContent className="content" />
+          {/* Chỉ hiển thị controls nếu KHÔNG có nested taskList */}
+          {!hasNestedTaskList && (
+             <span className="countdown-inline-badge">
+             {shouldShowTimerIcon && (
+               <button
+                 className="timer-icon-button"
+                 onClick={handleTimerClick}
+                 onMouseDown={(e) => e.stopPropagation()}
+                 title="Set countdown timer"
+                 type="button"
+               >
+                 <StopwatchIcon className="timer-icon" />
+               </button>
+             )}
+             {isActiveCountdownTodo && countdownSeconds !== null && (
+               <>
+                 <StopwatchIcon className="timer-icon" /> {formatTime(countdownSeconds)}
+               </>
+             )}
+             {node.attrs.calendarEvent && node.attrs.calendarEvent.date && node.attrs.calendarEvent.time && (
+               <span className="calendar-event-badge" title="Scheduled in calendar">
+                 📅 {formatCalendarEventTime(node.attrs.calendarEvent.date, node.attrs.calendarEvent.time)}
+               </span>
+             )}
+           </span>
+          )}
+       
       </div>
       {/* Drop indicator line - AFTER */}
       {enableDrag && dragOverPosition === 'after' && draggedSourceIndex !== null && (

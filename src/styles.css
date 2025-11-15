@@ -373,7 +373,7 @@ ol {
 .task-item-content {
   flex: 1 1 auto;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   min-height: 1.6em;
   line-height: 1.6;
 }
