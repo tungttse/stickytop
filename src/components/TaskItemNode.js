@@ -511,127 +511,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       {/* Drop indicator line - BEFORE */}
       {enableDrag && dragOverPosition === 'before' && draggedSourceIndex !== null && (
         <div className="drop-indicator drop-indicator-before" />
-      )}
-      {enableDrag && (
-        <div
-          ref={dragHandleRef}
-          className="drag-handle"
-          draggable={true}
-          onMouseDown={(e) => {
-            // Ngăn ProseMirror intercept mousedown event
-            e.stopPropagation()
-            // Cho phép drag bắt đầu
-          }}
-          onDragStart={(e) => {
-            // Ngăn event bubble lên ProseMirror để tránh conflict
-            e.stopPropagation()
-
-            console.log('Drag start')
-            if (!editor || !getPos) {
-              e.preventDefault()
-              return
-            }
-
-            setIsDragging(true)
-            const pos = getPos()
-            if (pos === undefined) {
-              e.preventDefault()
-              return
-            }
-
-            // Find index of this todo item in all todos
-            const { state } = editor
-            const todos = []
-            state.doc.descendants((node, nodePos) => {
-              if (node.type.name === 'taskItem') {
-                todos.push({ node, pos: nodePos })
-              }
-            })
-
-            // Find the index of current todo
-            const currentIndex = todos.findIndex(t => t.pos === pos)
-
-            if (currentIndex === -1) {
-              console.error('Drag: Could not find todo index')
-              e.preventDefault()
-              return
-            }
-
-            console.log('Drag: Todo index', currentIndex, 'of', todos.length)
-
-            // LƯU VÀO MODULE-LEVEL VARIABLE (primary method - đáng tin cậy nhất)
-            draggedSourceIndex = currentIndex
-
-            // Set drag image and data
-            if (e.dataTransfer) {
-              // Tạo custom drag preview đẹp hơn
-              const dragImage = document.createElement('div')
-              dragImage.style.cssText = `
-              position: absolute;
-              top: -1000px;
-              left: -1000px;
-              padding: 8px 12px;
-              background: white;
-              border: 2px solid #3b82f6;
-              border-radius: 6px;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-              font-size: 14px;
-              color: #333;
-              max-width: 300px;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            `
-              // Extract text từ todo node
-              let todoText = ''
-              node.descendants((n) => {
-                if (n.isText) {
-                  todoText += n.text
-                }
-                return true
-              })
-              dragImage.textContent = todoText.trim() || 'Todo item'
-              document.body.appendChild(dragImage)
-              e.dataTransfer.setDragImage(dragImage, 10, 10)
-              // Clear previous timeout if exists
-              if (dragImageTimeoutRef.current) {
-                clearTimeout(dragImageTimeoutRef.current);
-              }
-              dragImageTimeoutRef.current = setTimeout(() => {
-                if (document.body.contains(dragImage)) {
-                  document.body.removeChild(dragImage);
-                }
-                dragImageTimeoutRef.current = null;
-              }, 0)
-              e.dataTransfer.effectAllowed = 'move copy' // Allow both move (within editor) and copy (to calendar)
-
-              // Store the index using custom data type to avoid conflict with text/plain
-              e.dataTransfer.setData('application/x-todo-index', currentIndex.toString())
-              // Store todo text for calendar drop functionality
-              e.dataTransfer.setData('application/x-todo-text', todoText.trim())
-              // Also set with prefix in text/plain as fallback
-              e.dataTransfer.setData('text/plain', `TODO_INDEX_${currentIndex}`)
-
-              // VERIFY: Log để check data đã được set chưa (chỉ có thể đọc trong cùng event handler)
-              console.log('Drag: Set data', {
-                index: currentIndex,
-                moduleVar: draggedSourceIndex,
-                customType: e.dataTransfer.getData('application/x-todo-index'),
-                textPlain: e.dataTransfer.getData('text/plain'),
-                types: Array.from(e.dataTransfer.types)
-              })
-            }
-          }}
-          onDragEnd={(e) => {
-            setIsDragging(false)
-            // CLEAR module-level variable khi drag kết thúc
-            draggedSourceIndex = null
-          }}
-          title="Drag to reorder"
-        >
-          <span className="drag-handle-icon">⋮⋮</span>
-        </div>
-      )}
+      )}    
       <label>
         <input
           type="checkbox"
@@ -643,7 +523,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       </label>
       <div className="task-item-content">
         <NodeViewContent className="content" />
-        <span className="countdown-inline-badge">
+        <div className="countdown-inline-badge">
         {shouldShowTimerIcon && (
           <button
             className="timer-icon-button"
@@ -661,11 +541,11 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           </>
         )}
         {node.attrs.calendarEvent && node.attrs.calendarEvent.date && node.attrs.calendarEvent.time && (
-          <span className="calendar-event-badge" title="Scheduled in calendar">
+          <div className="calendar-event-badge" title="Scheduled in calendar">
             📅 {formatCalendarEventTime(node.attrs.calendarEvent.date, node.attrs.calendarEvent.time)}
-          </span>
+          </div>
         )}
-        </span>
+        </div>
       </div>
       {/* Drop indicator line - AFTER */}
       {enableDrag && dragOverPosition === 'after' && draggedSourceIndex !== null && (

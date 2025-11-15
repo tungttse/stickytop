@@ -345,7 +345,6 @@ ol {
 /* ===== TASK ITEM WITH TIMER ===== */
 .task-item-with-timer {
   display: flex;
-  align-items: start;
   gap: 0.5rem;
   position: relative; /* For drop indicator positioning */
 }
@@ -366,121 +365,23 @@ ol {
   transition: background-color 0.15s ease;
 }
 
-/* Cải thiện drag handle khi dragging */
-.task-item-with-timer.is-dragging .drag-handle {
-  opacity: 1;
-  cursor: grabbing;
-}
-
-/* ===== DRAG HANDLE ===== */
-.drag-handle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  padding: 4px 6px;
-  margin-right: 4px;
-  margin-left: -2px;
-  user-select: none;
-  flex-shrink: 0;
-  min-width: 20px;
-  min-height: 20px;
-  pointer-events: auto;
-  touch-action: none;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.drag-handle:hover,
-.drag-handle:active {
-  opacity: 1 !important;
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.drag-handle-icon {
-  font-size: 16px;
-  color: #666;
-  line-height: 1;
-  letter-spacing: -2px;
-  pointer-events: none;
-}
-
-.drag-handle:hover .drag-handle-icon,
-.drag-handle:active .drag-handle-icon {
-  color: #333;
-}
-
-/* ===== DROP INDICATOR ===== */
-.drop-indicator {
-  height: 2px;
-  background: #3b82f6;
-  border-radius: 2px;
-  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  right: 0;
-  z-index: 10;
-}
-
-.drop-indicator-before {
-  top: -1px;
-}
-
-.drop-indicator-after {
-  bottom: -1px;
-}
-
-.drop-indicator::before {
-  content: '';
-  position: absolute;
-  left: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  border-left: 6px solid #3b82f6;
-}
-
-.drop-indicator::after {
-  content: '';
-  position: absolute;
-  right: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
-  border-right: 6px solid #3b82f6;
-}
-
 .task-item-with-timer > label {
   margin-right: 0.5rem;
-  margin-top: 0.1rem;
   flex-shrink: 0;
 }
 
 .task-item-content {
   flex: 1 1 auto;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   min-height: 1.6em;
   line-height: 1.6;
 }
 
 .task-item-content .content {
   display: inline;
-  flex: 0 1 auto;
-  max-width: fit-content;
+  /* flex: 0 1 auto;
+  max-width: fit-content; */
 }
 
 .timer-icon {
@@ -499,12 +400,13 @@ ol {
   cursor: pointer;
   background-color: inherit;
   border: none;
+  vertical-align: middle;
 }
 
 .countdown-inline-badge {
-  display: inline-flex;
-  align-items: center;
+  display: flex;
   gap: 4px;
+  margin-left: 20px;
   /* background: var(--theme-countdown-badge-bg); */
   /* border: 1px solid var(--theme-countdown-badge-border); */
 }
@@ -514,13 +416,10 @@ ol {
   align-items: center;
   gap: 4px;
   margin-left: 8px;
-  font-size: 0.85em;
   color: var(--theme-accent, #007AFF);
   opacity: 0.8;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
-  line-height: 1;
   vertical-align: middle;
 }
 

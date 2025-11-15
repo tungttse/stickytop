@@ -242,7 +242,9 @@ function createWindow() {
     
     // Open developer tools automatically for debugging
     // process.env.ENV ==='dev' && mainWindow.webContents.openDevTools();
-    // mainWindow.webContents.openDevTools();
+    if (process.env.ENV === 'dev') {
+      mainWindow.webContents.openDevTools();
+    }
   });
 
   // Save window state on resize/move
@@ -304,7 +306,8 @@ function createWindow() {
 
   // Create application menu
   // Menu disabled - completely hide application menu
-  Menu.setApplicationMenu(null);
+  // Menu.setApplicationMenu(null);
+  createMenu(isDev);
 }
 
 function createMenu(isDev = false) {
