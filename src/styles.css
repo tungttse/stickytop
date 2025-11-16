@@ -44,10 +44,6 @@ body,
   background: var(--theme-app-bg, inherit);
 }
 
-.app-container.auto-minimized {
-  transition: all 0.3s ease;
-}
-
 /* ===== EDITOR CONTAINER ===== */
 .editor-container {
   flex: 1;
@@ -56,74 +52,6 @@ body,
   flex-direction: column;
   background: inherit;
   position: relative;
-}
-
-.editor-container.auto-minimized {
-  height: 60px;
-  overflow: hidden;
-}
-
-.first-todo-preview {
-  padding: 8px 12px;
-  background: #f8f9fa;
-  border: 1px solid #04325f;
-  border-radius: 6px;
-  margin: 8px;
-  font-size: 14px;
-  line-height: 1.4;
-  max-height: 40px;
-  overflow: hidden;
-}
-
-.first-todo-preview p {
-  margin: 0;
-  padding: 0;
-  font-size: 14px;
-  color: #333;
-}
-
-.first-todo-preview ul[data-type="taskList"] {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.first-todo-preview ul[data-type="taskList"] li {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-}
-
-.first-todo-preview ul[data-type="taskList"] li>label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  margin: 0;
-  padding: 0;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.first-todo-preview ul[data-type="taskList"] li>div {
-  margin-left: 8px;
-  flex: 1;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.first-todo-preview ul[data-type="taskList"] input[type="checkbox"] {
-  margin: 0;
-  margin-right: 8px;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.first-todo-preview ul[data-type="taskList"] li[data-checked="true"]>div {
-  text-decoration: line-through;
-  opacity: 0.6;
 }
 
 /* ===== DRAG AREA ===== */

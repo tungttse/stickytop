@@ -225,6 +225,59 @@
   flex: 1;
   overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Calendar drag tip */
+.calendar-drag-tip {
+  padding: 12px 16px;
+  margin: 12px;
+  background: var(--theme-bg);
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.calendar-drag-tip-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.calendar-drag-tip-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.calendar-drag-tip-text {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--theme-text);
+}
+
+.calendar-drag-tip-text strong {
+  color: var(--theme-accent, #007AFF);
+}
+
+.calendar-drag-tip-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.calendar-drag-tip-checkbox input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--theme-accent, #007AFF);
 }
 
 .calendar-loading,
@@ -241,9 +294,10 @@
 
 .calendar-time-slots {
   position: relative;
-  height: 100%;
+  flex: 1;
   overflow-y: auto;
   padding: 0;
+  min-height: 0; /* Allow flex item to shrink */
 }
 
 .calendar-all-day-section {

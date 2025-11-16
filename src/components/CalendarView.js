@@ -13,6 +13,12 @@ const CalendarView = ({ onClose }) => {
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const timeSlotsContainerRef = useRef(null);
+  
+  // Check if drag tip has been dismissed
+  const [showDragTip, setShowDragTip] = useState(() => {
+    const dismissed = localStorage.getItem('calendar-drag-tip-dismissed');
+    return dismissed !== 'true';
+  });
 
   // Format date to YYYY-MM-DD
   const formatDateString = (date) => {
@@ -399,6 +405,31 @@ const CalendarView = ({ onClose }) => {
       </div>
 
       <div className="calendar-view-content">
+        {/* Drag and Drop Tip */}
+        {showDragTip && (
+          <div className="calendar-drag-tip">
+            <div className="calendar-drag-tip-content">
+              <div className="calendar-drag-tip-icon">📅</div>
+              <div className="calendar-drag-tip-text">
+                <strong>Drag & Drop:</strong> Drag todo items from the editor into time slots to create events in Google Calendar.
+              </div>
+            </div>
+            <label className="calendar-drag-tip-checkbox">
+              <input
+                type="checkbox"
+                checked={false}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    localStorage.setItem('calendar-drag-tip-dismissed', 'true');
+                    setShowDragTip(false);
+                  }
+                }}
+              />
+              <span>Don't show this again</span>
+            </label>
+          </div>
+        )}
+
         {loading && (
           <div className="calendar-loading">
             Loading events...

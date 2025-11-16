@@ -5,18 +5,18 @@ import ThemeSelector from './components/ThemeSelector';
 import GoogleLogin from './components/GoogleLogin';
 import FloatingControlBar from './components/FloatingControlBar';
 import UserMenu from './components/UserMenu';
+import CalendarView from './components/CalendarView';
 import { CountdownProvider } from './contexts/CountdownContext';
 import { EditorProvider } from './contexts/EditorContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
   const [content, setContent] = useState('');
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isAutoMinimized, setIsAutoMinimized] = useState(false);
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
   
   const [isThemeSelectorVisible, setIsThemeSelectorVisible] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
@@ -40,31 +40,6 @@ function App() {
     
     loadAutoSaved();
   }, []);
-
-
-  // Listen for auto-minimize events
-  // useEffect(() => {
-  //   if (window.electronAPI && window.electronAPI.onAutoMinimizeActivated) {
-  //     const handleAutoMinimizeActivated = () => {
-  //       setIsAutoMinimized(true);
-  //     };
-      
-  //     const handleAutoMinimizeDeactivated = () => {
-  //       setIsAutoMinimized(false);
-  //     };
-      
-  //     window.electronAPI.onAutoMinimizeActivated(handleAutoMinimizeActivated);
-  //     window.electronAPI.onAutoMinimizeDeactivated(handleAutoMinimizeDeactivated);
-      
-  //     // Cleanup listeners on unmount
-  //     return () => {
-  //       if (window.electronAPI && window.electronAPI.removeAutoMinimizeListeners) {
-  //         window.electronAPI.removeAutoMinimizeListeners();
-  //       }
-  //     };
-  //   }
-  // }, []);
-
 
   // Auto-save when content changes
   useEffect(() => {
@@ -165,8 +140,6 @@ function App() {
       clickCountRef.current = 0;
       console.log('Double click detected!');
       
-      setIsMinimized(!isMinimized);
-      
       // Send IPC message to main process to resize window
       try {
         if (window.electronAPI && window.electronAPI.toggleMinimize) {
@@ -206,15 +179,8 @@ function App() {
     <ThemeProvider>
       <CountdownProvider>
         <EditorProvider>
-          <div className={`app-container ${isAutoMinimized ? 'auto-minimized' : ''}`}>
+          <div className="app-container">
             <div className="drag-area"  onClick={handleDragAreaClick}>
-              {/* <button 
-                className="export-button"
-                onClick={handleExportClick}
-                title="Export"
-              >
-                📤
-              </button> */}
               {/* GoogleLogin component is now integrated into UserMenu */}
               <div className="google-login-wrapper" style={{ display: 'none' }}>
                 <GoogleLogin onLoginSuccess={setCurrentUser} />
@@ -242,17 +208,30 @@ function App() {
                 }}
               />
             </div>
+
             <ThemeSelector 
               isVisible={isThemeSelectorVisible}
               onClose={() => setIsThemeSelectorVisible(false)}
             />
-            <CountdownBar />
-            <TiptapEditor 
-                content={content}
-                onContentChange={setContent}
-                isAutoMinimized={isAutoMinimized}
+
+            <div className="editor-section-container">
+              <CountdownBar />
+              <TiptapEditor 
+                  content={content}
+                  onContentChange={setContent}
+                />
+              <FloatingControlBar 
+                currentUser={currentUser}
+                showCalendar={showCalendar}
+                onToggleCalendar={setShowCalendar}
               />
-            <FloatingControlBar currentUser={currentUser} />
+            </div>
+            {showCalendar && currentUser && (
+              <div className="calendar-section-container">
+                <CalendarView onClose={() => setShowCalendar(false)} />
+              </div>
+            )}
+
           </div>
         </EditorProvider>
       </CountdownProvider>

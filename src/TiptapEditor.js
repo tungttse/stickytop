@@ -35,7 +35,6 @@ const TiptapEditor = (
   {
     content,
     onContentChange,
-    isAutoMinimized = false,
   }
 ) => {
   const [lineCount, setLineCount] = useState(0);
@@ -568,7 +567,7 @@ const TiptapEditor = (
 
   // Scroll detection for scroll-to-top button
   useEffect(() => {
-    if (!editor || isAutoMinimized) return;
+    if (!editor) return;
 
     const findScrollableElement = () => {
       // Try to find the element with .tiptap-editor class
@@ -640,7 +639,7 @@ const TiptapEditor = (
         checkScrollTimeoutRef.current = null;
       }
     };
-  }, [editor, isAutoMinimized]);
+  }, [editor]);
 
   // Handle scroll to top
   const handleScrollToTop = () => {
@@ -675,25 +674,6 @@ const TiptapEditor = (
     }
   };
 
-  // Function to get first todo or first line
-  const getFirstTodo = () => {
-    if (!editor) return '';
-    
-    const html = editor.getHTML();
-    // Look for first task item or first paragraph
-    const taskMatch = html.match(/<li[^>]*data-type="taskItem"[^>]*>.*?<\/li>/);
-    if (taskMatch) {
-      return taskMatch[0];
-    }
-    
-    // If no task found, get first paragraph
-    const paragraphMatch = html.match(/<p[^>]*>.*?<\/p>/);
-    if (paragraphMatch) {
-      return paragraphMatch[0];
-    }
-    
-    return html;
-  };
 
   // Function để scroll đến todo item
   const scrollToTodo = useCallback((todoPosition) => {
@@ -762,41 +742,34 @@ const TiptapEditor = (
   }, [scrollToTodo, setScrollToTodoContext]);
 
   return (
-    <div className={`editor-container ${isAutoMinimized ? 'auto-minimized' : ''}`}>
-      {isAutoMinimized ? (
-        <div 
-          className="first-todo-preview"
-          dangerouslySetInnerHTML={{ __html: getFirstTodo() }}
-        />
-      ) : (
-        <div 
-          style={{ height: '100%', width: '100%', position: 'relative' }}
-        >
-          <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
-          {headingCount >= 2 && (
-            <MiniMap
-              editor={editor}
-              isVisible={showMiniMap}
-              onToggle={() => setShowMiniMap(false)}
-            />
-          )}
-          <SearchBar
-            isVisible={showSearchBar}
-            onClose={clearSearch}
-            onSearch={performSearch}
-            onNext={() => navigateToMatch('next')}
-            onPrevious={() => navigateToMatch('previous')}
-            currentMatch={currentMatchIndex + 1}
-            totalMatches={searchMatches.length}
-            searchQuery={searchQuery}
+    <div className="editor-container">
+      <div 
+        style={{ height: '100%', width: '100%', position: 'relative' }}
+      >
+        <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
+        {headingCount >= 2 && (
+          <MiniMap
+            editor={editor}
+            isVisible={showMiniMap}
+            onToggle={() => setShowMiniMap(false)}
           />
-          {showScrollToTop && hasScrollbar && (
-            <button className="scroll-to-top-button" onClick={handleScrollToTop} title="Scroll to top">
-              <UpIcon className="scroll-to-top-icon" />
-            </button>
-          )}
-        </div>
-      )}
+        )}
+        <SearchBar
+          isVisible={showSearchBar}
+          onClose={clearSearch}
+          onSearch={performSearch}
+          onNext={() => navigateToMatch('next')}
+          onPrevious={() => navigateToMatch('previous')}
+          currentMatch={currentMatchIndex + 1}
+          totalMatches={searchMatches.length}
+          searchQuery={searchQuery}
+        />
+        {showScrollToTop && hasScrollbar && (
+          <button className="scroll-to-top-button" onClick={handleScrollToTop} title="Scroll to top">
+            <UpIcon className="scroll-to-top-icon" />
+          </button>
+        )}
+      </div>
     </div>
   );
 };
