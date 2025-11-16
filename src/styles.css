@@ -52,6 +52,18 @@ body,
   flex-direction: column;
   background: inherit;
   position: relative;
+  min-height: 0; /* Quan trọng cho flex child */
+  overflow: hidden; /* Container không scroll */
+}
+
+.editor-section-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  height: 100%;
+  overflow: hidden; /* Quan trọng: container không scroll, chỉ editor scroll */
 }
 
 /* ===== DRAG AREA ===== */
