@@ -13,6 +13,7 @@ const CalendarView = ({ onClose }) => {
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const timeSlotsContainerRef = useRef(null);
+  const [monthViewDate, setMonthViewDate] = useState(new Date()); // For month view navigation
   
   // Check if drag tip has been dismissed
   const [showDragTip, setShowDragTip] = useState(() => {
@@ -368,6 +369,111 @@ const CalendarView = ({ onClose }) => {
     timeSlots.push(`${String(hour).padStart(2, '0')}:00`);
   }
 
+  // Month view functions
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    return new Date(year, month + 1, 0).getDate();
+  };
+
+  const getFirstDayOfMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    return new Date(year, month, 1).getDay();
+  };
+
+  const goToPreviousMonth = () => {
+    const newDate = new Date(monthViewDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setMonthViewDate(newDate);
+  };
+
+  const goToNextMonth = () => {
+    const newDate = new Date(monthViewDate);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setMonthViewDate(newDate);
+  };
+
+  const goToTodayMonth = () => {
+    setMonthViewDate(new Date());
+  };
+
+  const handleMonthViewDateClick = (dateObj) => {
+    const newDate = new Date(dateObj.year, dateObj.month, dateObj.day);
+    setSelectedDate(newDate);
+    // If clicking on a date from previous/next month, update month view
+    if (!dateObj.isCurrentMonth) {
+      setMonthViewDate(newDate);
+    }
+  };
+
+  // Generate month view calendar (always 6 weeks = 42 days)
+  const generateMonthView = () => {
+    const daysInMonth = getDaysInMonth(monthViewDate);
+    const firstDay = getFirstDayOfMonth(monthViewDate);
+    const year = monthViewDate.getFullYear();
+    const month = monthViewDate.getMonth();
+    const days = [];
+    
+    // Get days in previous month
+    const prevMonth = month === 0 ? 11 : month - 1;
+    const prevYear = month === 0 ? year - 1 : year;
+    const daysInPrevMonth = getDaysInMonth(new Date(prevYear, prevMonth, 1));
+    
+    // Add days from previous month (leading days)
+    const startDay = daysInPrevMonth - firstDay + 1;
+    for (let day = startDay; day <= daysInPrevMonth; day++) {
+      days.push({ day, month: prevMonth, year: prevYear, isCurrentMonth: false });
+    }
+    
+    // Add all days of current month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push({ day, month, year, isCurrentMonth: true });
+    }
+    
+    // Add days from next month (trailing days) to fill 42 days total
+    const remainingDays = 42 - days.length;
+    const nextMonth = month === 11 ? 0 : month + 1;
+    const nextYear = month === 11 ? year + 1 : year;
+    for (let day = 1; day <= remainingDays; day++) {
+      days.push({ day, month: nextMonth, year: nextYear, isCurrentMonth: false });
+    }
+    
+    return days;
+  };
+
+  // Check if a date has events
+  const hasEventsOnDate = useCallback((dateObj) => {
+    if (!dateObj) return false;
+    const checkDate = new Date(dateObj.year, dateObj.month, dateObj.day);
+    const dateString = formatDateString(checkDate);
+    
+    // Check if any event matches this date
+    return events.some(event => {
+      const eventDate = new Date(event.start);
+      return formatDateString(eventDate) === dateString;
+    });
+  }, [events]);
+
+  // Check if date is today
+  const isDateToday = (dateObj) => {
+    if (!dateObj) return false;
+    const checkDate = new Date(dateObj.year, dateObj.month, dateObj.day);
+    const today = new Date();
+    return checkDate.toDateString() === today.toDateString();
+  };
+
+  // Check if date is selected
+  const isDateSelected = (dateObj) => {
+    if (!dateObj) return false;
+    const checkDate = new Date(dateObj.year, dateObj.month, dateObj.day);
+    return checkDate.toDateString() === selectedDate.toDateString();
+  };
+
+  const monthViewDays = generateMonthView();
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
   return (
     <div className="calendar-view">
       <div className="calendar-view-header">
@@ -430,26 +536,19 @@ const CalendarView = ({ onClose }) => {
           </div>
         )}
 
-        {loading && (
-          <div className="calendar-loading">
-            Loading events...
-          </div>
-        )}
-
         {error && (
           <div className="calendar-error">
             {error}
           </div>
         )}
 
-        {!loading && !error && (
-          <div 
-            className="calendar-time-slots"
-            ref={timeSlotsContainerRef}
-            onDragOver={handleTimeSlotsDragOver}
-            onDragLeave={handleTimeSlotsDragLeave}
-            onDrop={handleTimeSlotsDrop}
-          >
+        <div 
+          className="calendar-time-slots"
+          ref={timeSlotsContainerRef}
+          onDragOver={handleTimeSlotsDragOver}
+          onDragLeave={handleTimeSlotsDragLeave}
+          onDrop={handleTimeSlotsDrop}
+        >
             {/* All-day events section */}
             {events.some(e => e.allDay) && (
               <div className="calendar-all-day-section">
@@ -560,8 +659,78 @@ const CalendarView = ({ onClose }) => {
                 <div className="calendar-creating-message">Creating event...</div>
               </div>
             )}
+            
+            {/* Loading indicator - subtle overlay */}
+            {loading && (
+              <div className="calendar-loading-overlay">
+                <div className="calendar-loading-spinner"></div>
+              </div>
+            )}
           </div>
-        )}
+
+        {/* Month View Calendar */}
+        <div className="calendar-month-view">
+          <div className="calendar-month-view-header">
+            <button 
+              className="calendar-month-nav-btn" 
+              onClick={goToPreviousMonth}
+              title="Previous month"
+            >
+              ‹
+            </button>
+            <button 
+              className="calendar-month-title-btn"
+              onClick={goToTodayMonth}
+              title="Go to current month"
+            >
+              {monthNames[monthViewDate.getMonth()]} {monthViewDate.getFullYear()}
+            </button>
+            <button 
+              className="calendar-month-nav-btn" 
+              onClick={goToNextMonth}
+              title="Next month"
+            >
+              ›
+            </button>
+          </div>
+          <div className="calendar-month-view-grid">
+            {/* Day names header */}
+            <div className="calendar-month-view-weekdays">
+              {dayNames.map((day, index) => (
+                <div key={index} className="calendar-month-view-weekday">
+                  {day}
+                </div>
+              ))}
+            </div>
+            {/* Calendar days */}
+            <div className="calendar-month-view-days">
+              {monthViewDays.map((dateObj, index) => (
+                <div
+                  key={index}
+                  className={`calendar-month-view-day ${
+                    !dateObj.isCurrentMonth ? 'other-month' : ''
+                  } ${
+                    dateObj && isDateToday(dateObj) ? 'today' : ''
+                  } ${
+                    dateObj && isDateSelected(dateObj) ? 'selected' : ''
+                  } ${
+                    dateObj && hasEventsOnDate(dateObj) ? 'has-events' : ''
+                  }`}
+                  onClick={() => dateObj && handleMonthViewDateClick(dateObj)}
+                >
+                  {dateObj && (
+                    <>
+                      <span className="calendar-month-view-day-number">{dateObj.day}</span>
+                      {hasEventsOnDate(dateObj) && (
+                        <div className="calendar-month-view-day-dot"></div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

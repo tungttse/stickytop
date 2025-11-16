@@ -280,16 +280,40 @@
   accent-color: var(--theme-accent, #007AFF);
 }
 
-.calendar-loading,
 .calendar-error {
-  padding: 20px;
+  padding: 12px 16px;
+  margin: 12px;
   text-align: center;
-  color: var(--theme-text-secondary);
+  color: #d32f2f;
   font-size: 14px;
+  background: rgba(211, 47, 47, 0.1);
+  border: 1px solid rgba(211, 47, 47, 0.3);
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
-.calendar-error {
-  color: #d32f2f;
+.calendar-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+}
+
+.calendar-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--theme-border, rgba(0, 0, 0, 0.1));
+  border-top-color: var(--theme-accent, #007AFF);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 .calendar-time-slots {
@@ -535,5 +559,155 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* ===== MONTH VIEW CALENDAR ===== */
+.calendar-month-view {
+  flex-shrink: 0;
+  padding: 16px;
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-bg);
+}
+
+.calendar-month-view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.calendar-month-nav-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--theme-text);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.calendar-month-nav-btn:hover {
+  background: var(--theme-bg-hover, rgba(0, 0, 0, 0.05));
+  color: var(--theme-accent, #007AFF);
+}
+
+.calendar-month-title-btn {
+  border: none;
+  background: transparent;
+  color: var(--theme-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.calendar-month-title-btn:hover {
+  background: var(--theme-bg-hover, rgba(0, 0, 0, 0.05));
+  color: var(--theme-accent, #007AFF);
+}
+
+.calendar-month-view-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-month-view-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.calendar-month-view-weekday {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--theme-text-secondary);
+  padding: 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.calendar-month-view-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-month-view-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 4px;
+}
+
+.calendar-month-view-day.other-month {
+  opacity: 0.3;
+  color: var(--theme-text-secondary);
+}
+
+.calendar-month-view-day.other-month.today,
+.calendar-month-view-day.other-month.selected {
+  opacity: 1;
+}
+
+.calendar-month-view-day:hover:not(.empty) {
+  background: var(--theme-bg-hover, rgba(0, 0, 0, 0.05));
+}
+
+.calendar-month-view-day.other-month:hover {
+  opacity: 0.5;
+}
+
+.calendar-month-view-day.today {
+  background: var(--theme-accent, #007AFF);
+  color: white;
+  font-weight: 600;
+}
+
+.calendar-month-view-day.today:hover {
+  background: var(--theme-accent-hover, #0051D5);
+}
+
+.calendar-month-view-day.selected:not(.today) {
+  background: var(--theme-bg-hover, rgba(0, 122, 255, 0.1));
+  color: var(--theme-accent, #007AFF);
+  font-weight: 600;
+}
+
+.calendar-month-view-day-number {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.calendar-month-view-day-dot {
+  position: absolute;
+  bottom: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--theme-accent, #007AFF);
+}
+
+.calendar-month-view-day.today .calendar-month-view-day-dot {
+  background: white;
+}
+
+.calendar-month-view-day.has-events:not(.today):not(.selected) .calendar-month-view-day-dot {
+  background: var(--theme-text-secondary);
 }
 
