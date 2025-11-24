@@ -4,7 +4,7 @@ import TaskItemNode from '../components/TaskItemNode'
 import { sinkListItem, liftListItem, splitListItem } from '@tiptap/pm/schema-list'
 
 export const CustomTaskItem = TaskItem.extend({
-  draggable: true,
+  draggable: false,
   
   // Override content để chỉ cho phép 1 level nesting, nhưng cho phép nhiều paragraphs
   content: 'paragraph+ (taskList)?',
