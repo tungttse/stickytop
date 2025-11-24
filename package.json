@@ -45,9 +45,13 @@
       "preload.js",
       "package.json"
     ],
+    "extraResources": [
+      "config.production.json"
+    ],
     "asar": true,
     "mac": {
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns"
     },
     "win": {
       "target": "nsis"

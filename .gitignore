@@ -36,6 +36,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# production config (contains sensitive data)
+config.production.json
+
 # vercel
 .vercel
 

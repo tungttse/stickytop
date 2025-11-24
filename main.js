@@ -1,23 +1,52 @@
 // Load environment variables
-require('dotenv').config();
-
 const { app, BrowserWindow, Menu, ipcMain, dialog, Notification, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
 const { google } = require('googleapis');
 
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URL = process.env.REDIRECT_URL;
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN;
+// Load config based on environment (dev vs production)
+const isDev = !app.isPackaged;
+let config = {};
+
+if (isDev) {
+  // Development: use dotenv
+  require('dotenv').config();
+  config = {
+    CLIENT_ID: process.env.CLIENT_ID,
+    CLIENT_SECRET: process.env.CLIENT_SECRET,
+    REDIRECT_URL: process.env.REDIRECT_URL,
+    REFRESH_TOKEN: process.env.REFRESH_TOKEN,
+    ENABLE_DRAG: process.env.ENABLE_DRAG,
+    PORT_START: process.env.PORT_START,
+    PORT_END: process.env.PORT_END,
+  };
+} else {
+  // Production: load from config file in extraResources
+  const configPath = path.join(process.resourcesPath, 'config.production.json');
+  if (fs.existsSync(configPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      console.log('[Config] Loaded config from:', configPath);
+    } catch (err) {
+      console.error('[Config] Error loading config file:', err.message);
+    }
+  } else {
+    console.warn('[Config] Config file not found at:', configPath);
+  }
+}
+
+const CLIENT_ID = config.CLIENT_ID || process.env.CLIENT_ID;
+const CLIENT_SECRET = config.CLIENT_SECRET || process.env.CLIENT_SECRET;
+const REDIRECT_URL = config.REDIRECT_URL || process.env.REDIRECT_URL;
+const REFRESH_TOKEN = config.REFRESH_TOKEN || process.env.REFRESH_TOKEN;
 
 // Load drag feature config
-const ENABLE_DRAG = process.env.ENABLE_DRAG === 'true';
+const ENABLE_DRAG = (config.ENABLE_DRAG || process.env.ENABLE_DRAG) === 'true';
 
 // OAuth port range
-const PORT_START = parseInt(process.env.PORT_START || '3000', 10);
-const PORT_END = parseInt(process.env.PORT_END || '3003', 10);
+const PORT_START = parseInt(config.PORT_START || process.env.PORT_START || '3000', 10);
+const PORT_END = parseInt(config.PORT_END || process.env.PORT_END || '3003', 10);
 
 console.log('CLIENT_ID', CLIENT_ID);
 console.log('CLIENT_SECRET', CLIENT_SECRET);
@@ -166,13 +195,27 @@ function createWindow() {
   // Load saved window state
   const savedState = loadWindowState();
   
+  // Debug: Check icon file
+  const iconPath = path.join(__dirname, 'assets', 'icon.icns');
+  const iconPathPng = path.join(__dirname, 'assets', 'icon.png');
+  console.log('[Icon Debug] __dirname:', __dirname);
+  console.log('[Icon Debug] Icon path (.icns):', iconPath);
+  console.log('[Icon Debug] Icon exists (.icns):', fs.existsSync(iconPath));
+  console.log('[Icon Debug] Icon path (.png):', iconPathPng);
+  console.log('[Icon Debug] Icon exists (.png):', fs.existsSync(iconPathPng));
+  
+  // Use .icns if exists, otherwise fallback to .png
+  const finalIconPath = fs.existsSync(iconPath) ? iconPath : (fs.existsSync(iconPathPng) ? iconPathPng : null);
+  console.log('[Icon Debug] Final icon path:', finalIconPath);
+  
   // Default window options
   const defaultOptions = {
     width: 800,
     height: process.env.ENV ==='dev' ? 800 : 600,
     minWidth: 300,
     minHeight: 20,
-    vibrancy: 'light',  
+    vibrancy: 'light',
+    ...(finalIconPath && { icon: finalIconPath }), // Set app icon only if file exists
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -978,7 +1021,7 @@ ipcMain.handle("show-notification", async (event, { title, body, sound = true })
       const notification = new Notification({
         title: title || "StickyTop Timer",
         body: body || "Countdown completed!",
-        icon: path.join(__dirname, "assets", "icon.png"),
+        icon: path.join(__dirname, "assets", "icon.icns"),
         sound: sound,
         urgency: "critical"
       });
@@ -1499,7 +1542,21 @@ ipcMain.handle('delete-calendar-event', async (event, eventId) => {
 });
 
 // App event handlers
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // Set app icon (for Mac dock)
+  if (process.platform === 'darwin') {
+    const iconPath = path.join(__dirname, 'assets', 'icon.png');
+    if (fs.existsSync(iconPath)) {
+      try {
+        app.dock.setIcon(iconPath);
+        console.log('[Icon Debug] Set dock icon:', iconPath);
+      } catch (err) {
+        console.error('[Icon Debug] Failed to set dock icon:', err.message);
+      }
+    }
+  }
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
