@@ -78,7 +78,7 @@ body,
 /* ===== DRAG AREA ===== */
 .drag-area {
   -webkit-app-region: drag;
-  height: 20px;
+  height: 25px;
   width: 100%;
   background: inherit;
   cursor: move;
@@ -349,7 +349,6 @@ ol {
 
 .countdown-inline-badge {
   display: flex;
-  gap: 4px;
   margin-left: 20px;
   /* background: var(--theme-countdown-badge-bg); */
   /* border: 1px solid var(--theme-countdown-badge-border); */
@@ -457,7 +456,6 @@ ol {
   -webkit-backdrop-filter: blur(20px);
   /* Add solid background overlay to prevent transparency */
   position: relative;
-  margin-top: 9px; /* Adjusted to align close button with user avatar (8px padding + 20px avatar center = 28px, countdown bar padding 9px + button center ≈ 19px, so 28px - 19px = 9px) */
 }
 
 /* When completed, override animation to only blink */
@@ -1636,11 +1634,33 @@ ol {
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   z-index: 9999;
-  min-width: 500px;
-  max-width: 90vw;
+  width: 600px;
+  min-width: 600px;
+  max-width: 600px;
   max-height: 80vh;
   overflow-y: auto;
   padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Settings panel scrollbar styles */
+.settings-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.settings-panel::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.settings-panel::-webkit-scrollbar-thumb {
+  background: var(--theme-border);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.settings-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-secondary);
 }
 
 .settings-header {
@@ -1985,7 +2005,7 @@ ol {
   transform: none !important;
 }
 
-.app-container > *:not(.top-right-actions):not(.user-menu-overlay):not(.settings-overlay):not(.settings-panel) {
+.app-container > *:not(.top-right-actions):not(.user-menu-overlay):not(.settings-overlay):not(.settings-panel):not(.scroll-to-top-button) {
   position: relative;
   z-index: 1;
 }
@@ -2002,6 +2022,7 @@ ol {
 @media (max-width: 768px) {
   .settings-panel {
     min-width: 90vw;
+    max-width: 90vw;
     padding: 16px;
   }
 
@@ -2019,9 +2040,9 @@ ol {
 
 /* ===== SCROLL TO TOP BUTTON ===== */
 .scroll-to-top-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -2030,7 +2051,7 @@ ol {
   border: 2px solid var(--theme-border);
   color: var(--theme-icon-color);
   cursor: pointer;
-  z-index: 1000;
+  z-index: 1001 !important;
   display: flex;
   align-items: center;
   justify-content: center;
