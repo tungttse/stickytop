@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSettingsClick }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [showExportSubmenu, setShowExportSubmenu] = useState(false);
   const menuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -62,7 +61,6 @@ const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSe
 
   const handleExportClick = (format) => {
     setIsOpen(false);
-    setShowExportSubmenu(false);
     if (onExport) {
       onExport(format);
     }
@@ -130,16 +128,11 @@ const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSe
                 <span>Login with Google</span>
               </button>
             )}
-            <div 
-              className="user-menu-item user-menu-item-with-submenu"
-              onMouseEnter={() => setShowExportSubmenu(true)}
-              onMouseLeave={() => setShowExportSubmenu(false)}
-            >
+            <div className="user-menu-item user-menu-item-with-submenu">
               <span className="user-menu-icon">📤</span>
               <span>Export</span>
               <span className="user-menu-arrow">›</span>
-              {showExportSubmenu && (
-                <div className="user-menu-submenu">
+              <div className="user-menu-submenu">
                   <button 
                     className="user-menu-submenu-item" 
                     onClick={() => handleExportClick('markdown')}
@@ -161,8 +154,7 @@ const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSe
                     <span className="user-menu-icon">🌐</span>
                     <span>HTML</span>
                   </button>
-                </div>
-              )}
+              </div>
             </div>
             <button className="user-menu-item" onClick={handleThemeClick}>
               <span className="user-menu-icon">🎨</span>

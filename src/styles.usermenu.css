@@ -230,7 +230,7 @@
   position: absolute;
   right: 100%;
   top: 0;
-  margin-right: 8px;
+  margin-right: 2px;
   min-width: 180px;
   background: var(--theme-bg);
   border: 1px solid var(--theme-border);
@@ -238,18 +238,30 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 10002;
   padding: 4px;
-  animation: submenuSlideIn 0.2s ease-out;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(8px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
 }
 
-@keyframes submenuSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.user-menu-item-with-submenu:hover .user-menu-submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Bridge area to prevent submenu from closing when mouse moves through gap */
+.user-menu-item-with-submenu::before {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  z-index: 10003;
+  pointer-events: none;
 }
 
 .user-menu-submenu-item {

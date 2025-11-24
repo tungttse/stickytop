@@ -30,6 +30,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getCalendarEvents: (date) => ipcRenderer.invoke('get-calendar-events', date),
   deleteCalendarEvent: (eventId) => ipcRenderer.invoke('delete-calendar-event', eventId),
   exportFile: (content, format, defaultFilename) => ipcRenderer.invoke('export-file', content, format, defaultFilename),
-  exportToPDF: (htmlContent, defaultFilename) => ipcRenderer.invoke('export-to-pdf', htmlContent, defaultFilename)
+  exportToPDF: (htmlContent, defaultFilename) => ipcRenderer.invoke('export-to-pdf', htmlContent, defaultFilename),
+  saveBackgroundImage: () => ipcRenderer.invoke('save-background-image'),
+  loadBackgroundImage: () => ipcRenderer.invoke('load-background-image'),
+  removeBackgroundImage: () => ipcRenderer.invoke('remove-background-image')
 });
 

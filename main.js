@@ -806,6 +806,140 @@ ipcMain.handle('get-transparency', async (event) => {
   }
 });
 
+// Background image handlers
+ipcMain.handle('save-background-image', async (event) => {
+  try {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      filters: [
+        { name: 'Image Files', extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'] },
+        { name: 'All Files', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return { success: false, error: 'No file selected' };
+    }
+
+    const sourcePath = result.filePaths[0];
+    const userDataPath = app.getPath('userData');
+    const backgroundsDir = path.join(userDataPath, 'backgrounds');
+    
+    // Create backgrounds directory if it doesn't exist
+    if (!fs.existsSync(backgroundsDir)) {
+      fs.mkdirSync(backgroundsDir, { recursive: true });
+    }
+
+    // Get file extension from source file
+    const sourceExt = path.extname(sourcePath).toLowerCase() || '.jpg';
+    
+    // Generate unique filename with timestamp
+    const timestamp = Date.now();
+    const backgroundFilename = `background-${timestamp}${sourceExt}`;
+    const backgroundPath = path.join(backgroundsDir, backgroundFilename);
+
+    // Delete old background files (keep only the latest)
+    try {
+      const files = fs.readdirSync(backgroundsDir);
+      files.forEach(file => {
+        if (file.startsWith('background-') && file !== backgroundFilename) {
+          const oldFilePath = path.join(backgroundsDir, file);
+          fs.unlinkSync(oldFilePath);
+        }
+      });
+    } catch (cleanupError) {
+      console.warn('Error cleaning up old background files:', cleanupError);
+    }
+
+    // Copy file to backgrounds directory
+    fs.copyFileSync(sourcePath, backgroundPath);
+
+    // Save current background path to a config file
+    const configPath = path.join(backgroundsDir, 'current-background.json');
+    fs.writeFileSync(configPath, JSON.stringify({ 
+      filename: backgroundFilename,
+      path: backgroundPath,
+      timestamp: timestamp
+    }));
+
+    // Return file:// path for use in renderer
+    const fileUrl = `file://${backgroundPath}`;
+    return { success: true, path: fileUrl, localPath: backgroundPath };
+  } catch (error) {
+    console.error('Error saving background image:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('load-background-image', async (event) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const backgroundsDir = path.join(userDataPath, 'backgrounds');
+    const configPath = path.join(backgroundsDir, 'current-background.json');
+
+    // Try to load from config file first
+    if (fs.existsSync(configPath)) {
+      try {
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        const backgroundPath = config.path || path.join(backgroundsDir, config.filename);
+        
+        if (fs.existsSync(backgroundPath)) {
+          const fileUrl = `file://${backgroundPath}`;
+          return { success: true, exists: true, path: fileUrl, localPath: backgroundPath };
+        }
+      } catch (configError) {
+        console.warn('Error reading background config:', configError);
+      }
+    }
+
+    // Fallback: look for any background-*.jpg file (backward compatibility)
+    if (fs.existsSync(backgroundsDir)) {
+      const files = fs.readdirSync(backgroundsDir);
+      const backgroundFile = files.find(file => file.startsWith('background-'));
+      
+      if (backgroundFile) {
+        const backgroundPath = path.join(backgroundsDir, backgroundFile);
+        const fileUrl = `file://${backgroundPath}`;
+        return { success: true, exists: true, path: fileUrl, localPath: backgroundPath };
+      }
+    }
+
+    return { success: false, exists: false };
+  } catch (error) {
+    console.error('Error loading background image:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('remove-background-image', async (event) => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const backgroundsDir = path.join(userDataPath, 'backgrounds');
+    const configPath = path.join(backgroundsDir, 'current-background.json');
+
+    // Remove config file
+    if (fs.existsSync(configPath)) {
+      fs.unlinkSync(configPath);
+    }
+
+    // Remove all background files
+    if (fs.existsSync(backgroundsDir)) {
+      const files = fs.readdirSync(backgroundsDir);
+      files.forEach(file => {
+        if (file.startsWith('background-')) {
+          const filePath = path.join(backgroundsDir, file);
+          fs.unlinkSync(filePath);
+        }
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error removing background image:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Handle toggle minimize
 ipcMain.handle("toggle-minimize", async (event) => {
   try {

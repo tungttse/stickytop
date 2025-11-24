@@ -53,6 +53,8 @@ function AppContent() {
     const savedHideFloatingBar = localStorage.getItem('settings-hide-floating-bar') === 'true';
     const savedAlwaysOnTop = localStorage.getItem('settings-always-on-top');
     const savedTextAreaWidth = localStorage.getItem('settings-text-area-width');
+    const savedFontName = localStorage.getItem('settings-font-name');
+    const savedFontSize = localStorage.getItem('settings-font-size');
     
     setHideOutline(savedHideOutline);
     setHideFloatingBar(savedHideFloatingBar);
@@ -62,12 +64,74 @@ function AppContent() {
       setTextAreaWidth(parseInt(savedTextAreaWidth, 10));
     }
     
+    // Load and apply font settings
+    if (savedFontName) {
+      document.documentElement.style.setProperty('--theme-font-family', savedFontName);
+    }
+    if (savedFontSize) {
+      document.documentElement.style.setProperty('--theme-font-size', `${savedFontSize}px`);
+    }
+    
     // Apply always-on-top setting
     if (window.electronAPI && window.electronAPI.setAlwaysOnTop) {
       const alwaysOnTopValue = savedAlwaysOnTop === null ? true : savedAlwaysOnTop === 'true';
       window.electronAPI.setAlwaysOnTop(alwaysOnTopValue);
     }
+    
+    // Load and apply background image (with small delay to ensure electronAPI is ready)
+    setTimeout(() => {
+      loadBackgroundImage();
+    }, 100);
   }, []);
+
+  const loadBackgroundImage = async () => {
+    try {
+      if (window.electronAPI && window.electronAPI.loadBackgroundImage) {
+        const result = await window.electronAPI.loadBackgroundImage();
+        console.log('App: Load background result:', result);
+        if (result.success && result.exists) {
+          const savedOpacity = localStorage.getItem('settings-background-opacity');
+          const savedPosition = localStorage.getItem('settings-background-position');
+          const opacity = savedOpacity ? parseInt(savedOpacity, 10) : 50;
+          const position = savedPosition || 'cover';
+          applyBackground(result.path, opacity, position);
+        } else {
+          console.log('App: No background image found or failed to load');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading background image:', error);
+    }
+  };
+
+  const applyBackground = (imagePath, opacity, position) => {
+    if (imagePath) {
+      // Encode path for file:// protocol in Electron
+      const encodedPath = imagePath.replace(/\\/g, '/');
+      const backgroundUrl = `url("${encodedPath}")`;
+      
+      console.log('App: Applying background:', {
+        originalPath: imagePath,
+        encodedPath: encodedPath,
+        backgroundUrl: backgroundUrl,
+        opacity: opacity,
+        position: position
+      });
+      
+      document.documentElement.style.setProperty('--app-background-image', backgroundUrl);
+      document.documentElement.style.setProperty('--app-background-opacity', opacity / 100);
+      document.documentElement.style.setProperty('--app-background-size', position === 'cover' ? 'cover' : position === 'contain' ? 'contain' : 'auto');
+      document.documentElement.style.setProperty('--app-background-repeat', position === 'repeat' ? 'repeat' : 'no-repeat');
+      
+      // Force reflow to ensure CSS is applied
+      document.documentElement.offsetHeight;
+    } else {
+      document.documentElement.style.removeProperty('--app-background-image');
+      document.documentElement.style.removeProperty('--app-background-opacity');
+      document.documentElement.style.removeProperty('--app-background-size');
+      document.documentElement.style.removeProperty('--app-background-repeat');
+    }
+  };
 
   // Auto-save when content changes
   useEffect(() => {
@@ -217,6 +281,12 @@ function AppContent() {
       setHideFloatingBar(value);
     } else if (settingName === 'textAreaWidth') {
       setTextAreaWidth(value);
+    } else if (settingName === 'backgroundImage') {
+      // Background image change is handled in Settings component
+      // Just reload to ensure consistency
+      loadBackgroundImage();
+    } else if (settingName === 'backgroundOpacity' || settingName === 'backgroundPosition') {
+      // These are handled directly in Settings component via CSS variables
     }
     // alwaysOnTop is handled directly in Settings component
   };
