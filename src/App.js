@@ -2,21 +2,29 @@ import React, { useState, useEffect, useRef } from 'react';
 import TiptapEditor from './TiptapEditor';
 import CountdownBar from './components/countdown/CountdownBar';
 import ThemeSelector from './components/ThemeSelector';
+import Settings from './components/Settings';
 import GoogleLogin from './components/GoogleLogin';
 import FloatingControlBar from './components/FloatingControlBar';
 import UserMenu from './components/UserMenu';
 import CalendarView from './components/CalendarView';
 import { CountdownProvider } from './contexts/CountdownContext';
-import { EditorProvider } from './contexts/EditorContext';
+import { EditorProvider, useEditorContext } from './contexts/EditorContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { UserProvider, useUserContext } from './contexts/UserContext';
+import TurndownService from 'turndown';
 
-function App() {
+function AppContent() {
+  const { editor } = useEditorContext();
+  const { currentUser, setCurrentUser } = useUserContext();
   const [content, setContent] = useState('');
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
   
   const [isThemeSelectorVisible, setIsThemeSelectorVisible] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [isSettingsVisible, setIsSettingsVisible] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [hideOutline, setHideOutline] = useState(false);
+  const [hideFloatingBar, setHideFloatingBar] = useState(false);
+  const [textAreaWidth, setTextAreaWidth] = useState(800);
   const autoSaveTimeoutRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
@@ -39,6 +47,26 @@ function App() {
     };
     
     loadAutoSaved();
+
+    // Load settings from localStorage
+    const savedHideOutline = localStorage.getItem('settings-hide-outline') === 'true';
+    const savedHideFloatingBar = localStorage.getItem('settings-hide-floating-bar') === 'true';
+    const savedAlwaysOnTop = localStorage.getItem('settings-always-on-top');
+    const savedTextAreaWidth = localStorage.getItem('settings-text-area-width');
+    
+    setHideOutline(savedHideOutline);
+    setHideFloatingBar(savedHideFloatingBar);
+    
+    // Load text area width (default 800px)
+    if (savedTextAreaWidth) {
+      setTextAreaWidth(parseInt(savedTextAreaWidth, 10));
+    }
+    
+    // Apply always-on-top setting
+    if (window.electronAPI && window.electronAPI.setAlwaysOnTop) {
+      const alwaysOnTopValue = savedAlwaysOnTop === null ? true : savedAlwaysOnTop === 'true';
+      window.electronAPI.setAlwaysOnTop(alwaysOnTopValue);
+    }
   }, []);
 
   // Auto-save when content changes
@@ -175,21 +203,116 @@ function App() {
     setIsThemeSelectorVisible(true);
   };
 
+  const handleSettingsClick = (e) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setIsSettingsVisible(true);
+  };
+
+  const handleSettingChange = (settingName, value) => {
+    if (settingName === 'hideOutline') {
+      setHideOutline(value);
+    } else if (settingName === 'hideFloatingBar') {
+      setHideFloatingBar(value);
+    } else if (settingName === 'textAreaWidth') {
+      setTextAreaWidth(value);
+    }
+    // alwaysOnTop is handled directly in Settings component
+  };
+
+  // Export handlers
+  const handleExport = async (format) => {
+    if (!editor) {
+      alert('Editor is not ready. Please try again.');
+      return;
+    }
+
+    const htmlContent = editor.getHTML();
+    if (!htmlContent || htmlContent.trim() === '' || htmlContent === '<p></p>') {
+      alert('No content to export.');
+      return;
+    }
+
+    try {
+      if (format === 'html') {
+        await handleExportHTML(htmlContent);
+      } else if (format === 'markdown') {
+        await handleExportMarkdown(htmlContent);
+      } else if (format === 'pdf') {
+        await handleExportPDF(htmlContent);
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      alert(`Failed to export: ${error.message}`);
+    }
+  };
+
+  const handleExportHTML = async (htmlContent) => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const defaultFilename = `sticky-note-${timestamp}.html`;
+    
+    if (window.electronAPI && window.electronAPI.exportFile) {
+      const result = await window.electronAPI.exportFile(htmlContent, 'html', defaultFilename);
+      if (result.success) {
+        // Success - could show a toast notification here
+        console.log('File exported successfully:', result.path);
+      } else if (result.error !== 'Save cancelled') {
+        alert(`Failed to export: ${result.error}`);
+      }
+    } else {
+      alert('Export functionality is not available.');
+    }
+  };
+
+  const handleExportMarkdown = async (htmlContent) => {
+    const turndownService = new TurndownService();
+    const markdownContent = turndownService.turndown(htmlContent);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const defaultFilename = `sticky-note-${timestamp}.md`;
+    
+    if (window.electronAPI && window.electronAPI.exportFile) {
+      const result = await window.electronAPI.exportFile(markdownContent, 'markdown', defaultFilename);
+      if (result.success) {
+        console.log('File exported successfully:', result.path);
+      } else if (result.error !== 'Save cancelled') {
+        alert(`Failed to export: ${result.error}`);
+      }
+    } else {
+      alert('Export functionality is not available.');
+    }
+  };
+
+  const handleExportPDF = async (htmlContent) => {
+    if (window.electronAPI && window.electronAPI.exportToPDF) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const defaultFilename = `sticky-note-${timestamp}.pdf`;
+      
+      const result = await window.electronAPI.exportToPDF(htmlContent, defaultFilename);
+      if (result.success) {
+        console.log('PDF exported successfully:', result.path);
+      } else if (result.error !== 'Save cancelled') {
+        alert(`Failed to export PDF: ${result.error}`);
+      }
+    } else {
+      alert('PDF export functionality is not available.');
+    }
+  };
+
   return (
-    <ThemeProvider>
-      <CountdownProvider>
-        <EditorProvider>
-          <div className="app-container">
-            <div className="drag-area"  onClick={handleDragAreaClick}>
-              {/* GoogleLogin component is now integrated into UserMenu */}
-              <div className="google-login-wrapper" style={{ display: 'none' }}>
-                <GoogleLogin onLoginSuccess={setCurrentUser} />
-              </div>
-            </div>
+    <div className="app-container">
+      <div className="drag-area" onClick={handleDragAreaClick}>
+        {/* GoogleLogin component is now integrated into UserMenu */}
+        <div className="google-login-wrapper" style={{ display: 'none' }}>
+          <GoogleLogin onLoginSuccess={setCurrentUser} />
+        </div>
+      </div>
             <div className="top-right-actions">
               <UserMenu 
                 currentUser={currentUser}
                 onThemeClick={handleThemeClick}
+                onSettingsClick={handleSettingsClick}
+                onExport={handleExport}
                 onLogin={async () => {
                   // Trigger GoogleLogin component to login
                   // Since GoogleLogin is hidden, we'll call the API directly
@@ -214,25 +337,45 @@ function App() {
               onClose={() => setIsThemeSelectorVisible(false)}
             />
 
+            <Settings 
+              isVisible={isSettingsVisible}
+              onClose={() => setIsSettingsVisible(false)}
+              onSettingChange={handleSettingChange}
+            />
+
             <div className="editor-section-container">
               <CountdownBar />
               <TiptapEditor 
-                  content={content}
-                  onContentChange={setContent}
-                />
-              <FloatingControlBar 
-                currentUser={currentUser}
-                showCalendar={showCalendar}
-                onToggleCalendar={setShowCalendar}
+                content={content}
+                onContentChange={setContent}
+                hideOutline={hideOutline}
+                textAreaWidth={textAreaWidth}
               />
+              {!hideFloatingBar && (
+                <FloatingControlBar 
+                  currentUser={currentUser}
+                  showCalendar={showCalendar}
+                  onToggleCalendar={setShowCalendar}
+                />
+              )}
             </div>
-            {showCalendar && currentUser && (
-              <div className="calendar-section-container">
-                <CalendarView onClose={() => setShowCalendar(false)} />
-              </div>
-            )}
+      {showCalendar && currentUser && (
+        <div className="calendar-section-container">
+          <CalendarView onClose={() => setShowCalendar(false)} />
+        </div>
+      )}
+    </div>
+  );
+}
 
-          </div>
+function App() {
+  return (
+    <ThemeProvider>
+      <CountdownProvider>
+        <EditorProvider>
+          <UserProvider>
+            <AppContent />
+          </UserProvider>
         </EditorProvider>
       </CountdownProvider>
     </ThemeProvider>

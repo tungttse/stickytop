@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin }) => {
+const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSettingsClick }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showExportSubmenu, setShowExportSubmenu] = useState(false);
   const menuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -56,6 +57,21 @@ const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin }) => {
     setIsOpen(false);
     if (onLogin) {
       await onLogin();
+    }
+  };
+
+  const handleExportClick = (format) => {
+    setIsOpen(false);
+    setShowExportSubmenu(false);
+    if (onExport) {
+      onExport(format);
+    }
+  };
+
+  const handleSettingsClick = () => {
+    setIsOpen(false);
+    if (onSettingsClick) {
+      onSettingsClick();
     }
   };
 
@@ -114,9 +130,47 @@ const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin }) => {
                 <span>Login with Google</span>
               </button>
             )}
+            <div 
+              className="user-menu-item user-menu-item-with-submenu"
+              onMouseEnter={() => setShowExportSubmenu(true)}
+              onMouseLeave={() => setShowExportSubmenu(false)}
+            >
+              <span className="user-menu-icon">📤</span>
+              <span>Export</span>
+              <span className="user-menu-arrow">›</span>
+              {showExportSubmenu && (
+                <div className="user-menu-submenu">
+                  <button 
+                    className="user-menu-submenu-item" 
+                    onClick={() => handleExportClick('markdown')}
+                  >
+                    <span className="user-menu-icon">📝</span>
+                    <span>Markdown</span>
+                  </button>
+                  <button 
+                    className="user-menu-submenu-item" 
+                    onClick={() => handleExportClick('pdf')}
+                  >
+                    <span className="user-menu-icon">📄</span>
+                    <span>PDF</span>
+                  </button>
+                  <button 
+                    className="user-menu-submenu-item" 
+                    onClick={() => handleExportClick('html')}
+                  >
+                    <span className="user-menu-icon">🌐</span>
+                    <span>HTML</span>
+                  </button>
+                </div>
+              )}
+            </div>
             <button className="user-menu-item" onClick={handleThemeClick}>
               <span className="user-menu-icon">🎨</span>
               <span>Theme</span>
+            </button>
+            <button className="user-menu-item" onClick={handleSettingsClick}>
+              <span className="user-menu-icon">⚙️</span>
+              <span>Settings</span>
             </button>
             <button className="user-menu-item" onClick={handleAbout}>
               <span className="user-menu-icon">ℹ️</span>

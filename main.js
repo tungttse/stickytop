@@ -622,6 +622,143 @@ ipcMain.handle('save-file', async (event, content) => {
   return { success: false, error: 'Save cancelled' };
 });
 
+// Export file handler with format support
+ipcMain.handle('export-file', async (event, content, format, defaultFilename) => {
+  const filters = [];
+  
+  if (format === 'html') {
+    filters.push({ name: 'HTML Files', extensions: ['html'] });
+  } else if (format === 'markdown') {
+    filters.push({ name: 'Markdown Files', extensions: ['md'] });
+  } else {
+    filters.push({ name: 'All Files', extensions: ['*'] });
+  }
+  
+  filters.push({ name: 'All Files', extensions: ['*'] });
+
+  const result = await dialog.showSaveDialog(mainWindow, {
+    filters: filters,
+    defaultPath: defaultFilename
+  });
+
+  if (!result.canceled) {
+    try {
+      fs.writeFileSync(result.filePath, content, 'utf8');
+      return { success: true, path: result.filePath };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+  return { success: false, error: 'Save cancelled' };
+});
+
+// Export to PDF handler
+ipcMain.handle('export-to-pdf', async (event, htmlContent, defaultFilename) => {
+  const result = await dialog.showSaveDialog(mainWindow, {
+    filters: [
+      { name: 'PDF Files', extensions: ['pdf'] },
+      { name: 'All Files', extensions: ['*'] }
+    ],
+    defaultPath: defaultFilename
+  });
+
+  if (result.canceled) {
+    return { success: false, error: 'Save cancelled' };
+  }
+
+  try {
+    // Create a temporary HTML file
+    const tempDir = app.getPath('temp');
+    const tempHtmlPath = path.join(tempDir, `export-${Date.now()}.html`);
+    
+    // Wrap HTML content with proper structure for PDF generation
+    const fullHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      color: #333;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    p {
+      margin: 0.5em 0;
+    }
+    ul, ol {
+      margin: 0.5em 0;
+      padding-left: 2em;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 16px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  ${htmlContent}
+</body>
+</html>`;
+    
+    fs.writeFileSync(tempHtmlPath, fullHtml, 'utf8');
+    
+    // Load the HTML file in a hidden window and print to PDF
+    const pdfWindow = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+    
+    await pdfWindow.loadFile(tempHtmlPath);
+    
+    // Wait for content to load
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Generate PDF
+    const pdfData = await pdfWindow.webContents.printToPDF({
+      marginsType: 1,
+      pageSize: 'A4',
+      printBackground: true,
+      preferCSSPageSize: false
+    });
+    
+    // Write PDF file
+    fs.writeFileSync(result.filePath, pdfData);
+    
+    // Clean up
+    pdfWindow.close();
+    fs.unlinkSync(tempHtmlPath);
+    
+    return { success: true, path: result.filePath };
+  } catch (error) {
+    console.error('PDF export error:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('load-file', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {
     filters: [

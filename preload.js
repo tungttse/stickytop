@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
   googleLogout: () => ipcRenderer.invoke('google-logout'),
   getCalendarEvents: (date) => ipcRenderer.invoke('get-calendar-events', date),
-  deleteCalendarEvent: (eventId) => ipcRenderer.invoke('delete-calendar-event', eventId)
+  deleteCalendarEvent: (eventId) => ipcRenderer.invoke('delete-calendar-event', eventId),
+  exportFile: (content, format, defaultFilename) => ipcRenderer.invoke('export-file', content, format, defaultFilename),
+  exportToPDF: (htmlContent, defaultFilename) => ipcRenderer.invoke('export-to-pdf', htmlContent, defaultFilename)
 });
 

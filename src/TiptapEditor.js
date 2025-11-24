@@ -35,6 +35,8 @@ const TiptapEditor = (
   {
     content,
     onContentChange,
+    hideOutline = false,
+    textAreaWidth = 800,
   }
 ) => {
   const [lineCount, setLineCount] = useState(0);
@@ -214,22 +216,23 @@ const TiptapEditor = (
           const lines = text.split('\n');
           
           // Code detection patterns
-          const codePatterns = [
-            /^(function|const|let|var|class|import|export|if|for|while|return|async|await|try|catch|finally|switch|case|default)\s/,
-            /[{}();=]/, // Common code characters
-            /^\s{2,}/, // Indentation (2+ spaces)
-            /^\t/, // Tab indentation
-            /^\s*\/\//, // Comments
-            /^\s*\/\*/, // Block comments
-            /=>\s*/, // Arrow functions
-            /console\.(log|error|warn|info)/, // Console statements
-          ];
+          // const codePatterns = [
+          //   /^(function|const|let|var|class|import|export|if|for|while|return|async|await|try|catch|finally|switch|case|default)\s/,
+          //   /[{}();=]/, // Common code characters
+          //   /^\s{2,}/, // Indentation (2+ spaces)
+          //   /^\t/, // Tab indentation
+          //   /^\s*\/\//, // Comments
+          //   /^\s*\/\*/, // Block comments
+          //   /=>\s*/, // Arrow functions
+          //   /console\.(log|error|warn|info)/, // Console statements
+          // ];
           
-          const hasCodePattern = codePatterns.some(pattern => 
-            lines.some(line => pattern.test(line.trim()))
-          );
+          // const hasCodePattern = codePatterns.some(pattern => 
+          //   lines.some(line => pattern.test(line.trim()))
+          // );
           
           // Nếu detect là code, format thành code block
+          let hasCodePattern = isProbablyCode(text);
           if (hasCodePattern) {
             event.preventDefault();
             
@@ -254,6 +257,12 @@ const TiptapEditor = (
       },
     },
   });
+
+  function isProbablyCode(text) {
+    if (/;|\{|\}|\(|\)|=>|const|let|var|function/.test(text)) return true
+    if (/^```/.test(text.trim())) return true
+    return false
+  }
 
   // Set editor in context when ready
   useEffect(() => {
@@ -744,10 +753,15 @@ const TiptapEditor = (
   return (
     <div className="editor-container">
       <div 
-        style={{ height: '100%', width: '100%', position: 'relative' }}
+        style={{ 
+          height: '100%', 
+          width: '100%', 
+          position: 'relative',
+          '--text-area-width': `${textAreaWidth}px`
+        }}
       >
         <EditorContent editor={editor} style={{ height: '100%', width: '100%' }} />
-        {headingCount >= 2 && (
+        {!hideOutline && headingCount >= 2 && (
           <MiniMap
             editor={editor}
             isVisible={showMiniMap}

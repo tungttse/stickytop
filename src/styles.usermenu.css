@@ -98,7 +98,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 10001;
   animation: menuSlideDown 0.2s ease-out;
-  overflow: hidden;
+  overflow: visible;
 }
 
 @keyframes menuSlideDown {
@@ -208,5 +208,71 @@
 .user-menu-item-logout:hover {
   background: rgba(220, 38, 38, 0.1);
   color: #b91c1c;
+}
+
+/* Export submenu styles */
+.user-menu-item-with-submenu {
+  position: relative;
+}
+
+.user-menu-arrow {
+  margin-left: auto;
+  font-size: 16px;
+  color: var(--theme-text-secondary);
+  transition: transform 0.2s ease;
+}
+
+.user-menu-item-with-submenu:hover .user-menu-arrow {
+  transform: translateX(4px);
+}
+
+.user-menu-submenu {
+  position: absolute;
+  right: 100%;
+  top: 0;
+  margin-right: 8px;
+  min-width: 180px;
+  background: var(--theme-bg);
+  border: 1px solid var(--theme-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10002;
+  padding: 4px;
+  animation: submenuSlideIn 0.2s ease-out;
+}
+
+@keyframes submenuSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.user-menu-submenu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--theme-text);
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.user-menu-submenu-item:hover {
+  background: var(--theme-drag-area-hover);
+}
+
+.user-menu-submenu-item:active {
+  background: var(--theme-export-button-active);
 }
 
