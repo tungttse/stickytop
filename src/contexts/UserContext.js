@@ -50,6 +50,12 @@ export const UserProvider = ({ children, initialUser = null }) => {
   // Load tier từ localStorage khi có user
   useEffect(() => {
     if (currentUser?.email) {
+      // Hardcode premium for specific email
+      if (currentUser.email === 'truongthanhtungitvn@gmail.com1') {
+        setUserTierState('premium');
+        return;
+      }
+
       const savedTier = localStorage.getItem(`user-tier-${currentUser.email}`);
       console.log('savedTier', savedTier);
       if (savedTier === 'premium' || savedTier === 'free') {

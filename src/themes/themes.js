@@ -1,6 +1,7 @@
 export const themes = {
   'default': {
     name: 'Default',
+    tier: 'free',
     colors: {
       appBackground: '#94a4b4', // Default sticky note color
       background: '#ffffff',
@@ -37,6 +38,7 @@ export const themes = {
   },
   'dark': {
     name: 'Dark',
+    tier: 'free',
     colors: {
       appBackground: '#2a2a2a',
       background: '#1e1e1e',
@@ -73,6 +75,7 @@ export const themes = {
   },
   'sepia': {
     name: 'Sepia',
+    tier: 'premium',
     colors: {
       appBackground: '#d4c4a8',
       background: '#f4ecd8',
@@ -105,6 +108,7 @@ export const themes = {
   },
   'minimal': {
     name: 'Minimal',
+    tier: 'premium',
     colors: {
       appBackground: '#f5f5f5',
       background: '#fafafa',
@@ -137,6 +141,7 @@ export const themes = {
   },
   'dark-graphite': {
     name: 'Dark Graphite',
+    tier: 'free',
     colors: {
       appBackground: '#1a1a1a',
       background: '#1e1e1e',
@@ -169,6 +174,7 @@ export const themes = {
   },
   'red-graphite': {
     name: 'Red Graphite',
+    tier: 'free',
     colors: {
       appBackground: '#2a1a1a',
       background: '#2e1e1e',
@@ -201,6 +207,7 @@ export const themes = {
   },
   'green-graphite': {
     name: 'Green Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#1a2a1a',
       background: '#1e2e1e',
@@ -233,6 +240,7 @@ export const themes = {
   },
   'blue-graphite': {
     name: 'Blue Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#1a1a2a',
       background: '#1e1e2e',
@@ -265,6 +273,7 @@ export const themes = {
   },
   'yellow-graphite': {
     name: 'Yellow Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#2a2a1a',
       background: '#2e2e1e',
@@ -297,6 +306,7 @@ export const themes = {
   },
   'purple-graphite': {
     name: 'Purple Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#2a1a2a',
       background: '#2e1e2e',
@@ -329,6 +339,7 @@ export const themes = {
   },
   'orange-graphite': {
     name: 'Orange Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#2a1f1a',
       background: '#2e231e',
@@ -361,6 +372,7 @@ export const themes = {
   },
   'pink-graphite': {
     name: 'Pink Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#2a1a22',
       background: '#2e1e26',
@@ -393,6 +405,7 @@ export const themes = {
   },
   'white-graphite': {
     name: 'White Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#f5f5f5',
       background: '#ffffff',
@@ -425,6 +438,7 @@ export const themes = {
   },
   'black-graphite': {
     name: 'Black Graphite',
+    tier: 'premium',
     colors: {
       appBackground: '#0a0a0a',
       background: '#0e0e0e',
@@ -457,6 +471,7 @@ export const themes = {
   },
   'classic': {
     name: 'Classic',
+    tier: 'premium',
     colors: {
       appBackground: '#fef9e7',
       background: '#fffef7',
@@ -489,6 +504,7 @@ export const themes = {
   },
   'ocean': {
     name: 'Ocean',
+    tier: 'premium',
     colors: {
       appBackground: '#e0f2f5',
       background: '#f0f9fa',
@@ -521,6 +537,7 @@ export const themes = {
   },
   'forest': {
     name: 'Forest',
+    tier: 'premium',
     colors: {
       appBackground: '#e8f5e9',
       background: '#f1f8f4',
@@ -553,6 +570,7 @@ export const themes = {
   },
   'sunset': {
     name: 'Sunset',
+    tier: 'premium',
     colors: {
       appBackground: '#fff4e6',
       background: '#fffaf0',
@@ -585,6 +603,7 @@ export const themes = {
   },
   'lavender': {
     name: 'Lavender',
+    tier: 'premium',
     colors: {
       appBackground: '#f3e8ff',
       background: '#faf5ff',

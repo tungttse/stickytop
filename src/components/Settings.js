@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useUserContext } from '../contexts/UserContext';
 
 const Settings = ({ isVisible, onClose, onSettingChange }) => {
+  const { isPremium } = useUserContext();
   const [hideOutline, setHideOutline] = useState(false);
   const [hideFloatingBar, setHideFloatingBar] = useState(false);
   const [alwaysOnTop, setAlwaysOnTop] = useState(true);
@@ -357,77 +359,95 @@ const Settings = ({ isVisible, onClose, onSettingChange }) => {
           <div className="settings-item settings-item-background">
             <div className="settings-item-info">
               <div className="settings-item-label">Background</div>
-              <div className="settings-item-description">Upload a custom background image for the app</div>
-            </div>
-            <div className="settings-background-container">
-              <div className="settings-background-preview">
-                {backgroundImage ? (
-                  <img 
-                    src={backgroundImage} 
-                    alt="Background preview" 
-                    className="settings-background-preview-image"
-                  />
-                ) : (
-                  <div className="settings-background-preview-placeholder">
-                    <span>No background</span>
-                  </div>
-                )}
+              <div className="settings-item-description">
+                {isPremium() ? 'Upload a custom background image for the app' : 'Customize your app background (Premium feature)'}
               </div>
-              <div className="settings-background-controls">
-                <button 
-                  className="settings-background-btn settings-background-btn-upload"
-                  onClick={handleUploadBackground}
-                >
-                  Upload Image
-                </button>
-                {backgroundImage && (
+            </div>
+            {isPremium() ? (
+              <div className="settings-background-container">
+                <div className="settings-background-preview">
+                  {backgroundImage ? (
+                    <img 
+                      src={backgroundImage} 
+                      alt="Background preview" 
+                      className="settings-background-preview-image"
+                    />
+                  ) : (
+                    <div className="settings-background-preview-placeholder">
+                      <span>No background</span>
+                    </div>
+                  )}
+                </div>
+                <div className="settings-background-controls">
                   <button 
-                    className="settings-background-btn settings-background-btn-remove"
-                    onClick={handleRemoveBackground}
+                    className="settings-background-btn settings-background-btn-upload"
+                    onClick={handleUploadBackground}
                   >
-                    Remove
+                    Upload Image
                   </button>
+                  {backgroundImage && (
+                    <button 
+                      className="settings-background-btn settings-background-btn-remove"
+                      onClick={handleRemoveBackground}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                {backgroundImage && (
+                  <>
+                    <div className="settings-item settings-item-range" style={{ marginTop: '16px', padding: '12px' }}>
+                      <div className="settings-item-info">
+                        <div className="settings-item-label">Opacity</div>
+                        <div className="settings-item-description">Adjust background opacity (0% - 100%)</div>
+                      </div>
+                      <div className="settings-range-container">
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value={backgroundOpacity}
+                          onChange={(e) => handleBackgroundOpacityChange(e.target.value)}
+                          className="settings-range-input"
+                        />
+                        <div className="settings-range-value">{backgroundOpacity}%</div>
+                      </div>
+                    </div>
+                    <div className="settings-item" style={{ marginTop: '12px', padding: '12px' }}>
+                      <div className="settings-item-info">
+                        <div className="settings-item-label">Position</div>
+                        <div className="settings-item-description">How the background image is displayed</div>
+                      </div>
+                      <select
+                        className="settings-select"
+                        value={backgroundPosition}
+                        onChange={(e) => handleBackgroundPositionChange(e.target.value)}
+                      >
+                        <option value="cover">Cover (fill entire area)</option>
+                        <option value="contain">Contain (fit within area)</option>
+                        <option value="repeat">Repeat (tile)</option>
+                        <option value="no-repeat">No Repeat (single image)</option>
+                      </select>
+                    </div>
+                  </>
                 )}
               </div>
-              {backgroundImage && (
-                <>
-                  <div className="settings-item settings-item-range" style={{ marginTop: '16px', padding: '12px' }}>
-                    <div className="settings-item-info">
-                      <div className="settings-item-label">Opacity</div>
-                      <div className="settings-item-description">Adjust background opacity (0% - 100%)</div>
-                    </div>
-                    <div className="settings-range-container">
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="5"
-                        value={backgroundOpacity}
-                        onChange={(e) => handleBackgroundOpacityChange(e.target.value)}
-                        className="settings-range-input"
-                      />
-                      <div className="settings-range-value">{backgroundOpacity}%</div>
-                    </div>
-                  </div>
-                  <div className="settings-item" style={{ marginTop: '12px', padding: '12px' }}>
-                    <div className="settings-item-info">
-                      <div className="settings-item-label">Position</div>
-                      <div className="settings-item-description">How the background image is displayed</div>
-                    </div>
-                    <select
-                      className="settings-select"
-                      value={backgroundPosition}
-                      onChange={(e) => handleBackgroundPositionChange(e.target.value)}
-                    >
-                      <option value="cover">Cover (fill entire area)</option>
-                      <option value="contain">Contain (fit within area)</option>
-                      <option value="repeat">Repeat (tile)</option>
-                      <option value="no-repeat">No Repeat (single image)</option>
-                    </select>
-                  </div>
-                </>
-              )}
-            </div>
+            ) : (
+              <div className="countdown-dialog-upgrade-hint">
+                <div className="upgrade-hint-icon">✨</div>
+                <div className="upgrade-hint-text">
+                  <strong>Upgrade to Premium</strong>
+                  <span>Unlock custom background images and personalize your workspace</span>
+                </div>
+                <button className="upgrade-hint-btn" onClick={() => {
+                  // TODO: Add upgrade functionality
+                  alert('Upgrade to Premium to unlock this feature!');
+                }}>
+                  Upgrade
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

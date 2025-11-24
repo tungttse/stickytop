@@ -15,7 +15,7 @@ import TurndownService from 'turndown';
 
 function AppContent() {
   const { editor } = useEditorContext();
-  const { currentUser, setCurrentUser } = useUserContext();
+  const { currentUser, setCurrentUser, isPremium, userTier } = useUserContext();
   const [content, setContent] = useState('');
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
   
@@ -29,6 +29,7 @@ function AppContent() {
   const clickTimeoutRef = useRef(null);
   const clickCountRef = useRef(0);
   const saveStatusTimeoutRef = useRef(null);
+  const loadBackgroundTimeoutRef = useRef(null);
 
   useEffect(() => {
     // Load auto-saved content
@@ -79,12 +80,30 @@ function AppContent() {
     }
     
     // Load and apply background image (with small delay to ensure electronAPI is ready)
-    setTimeout(() => {
+    // Only load if premium user
+    loadBackgroundTimeoutRef.current = setTimeout(() => {
       loadBackgroundImage();
     }, 100);
-  }, []);
+
+    return () => {
+      if (loadBackgroundTimeoutRef.current) {
+        clearTimeout(loadBackgroundTimeoutRef.current);
+        loadBackgroundTimeoutRef.current = null;
+      }
+    };
+  }, [userTier]);
 
   const loadBackgroundImage = async () => {
+    // Only load background for premium users
+    if (!isPremium()) {
+      // Remove any existing background for free users
+      document.documentElement.style.removeProperty('--app-background-image');
+      document.documentElement.style.removeProperty('--app-background-opacity');
+      document.documentElement.style.removeProperty('--app-background-size');
+      document.documentElement.style.removeProperty('--app-background-repeat');
+      return;
+    }
+
     try {
       if (window.electronAPI && window.electronAPI.loadBackgroundImage) {
         const result = await window.electronAPI.loadBackgroundImage();
@@ -283,10 +302,26 @@ function AppContent() {
       setTextAreaWidth(value);
     } else if (settingName === 'backgroundImage') {
       // Background image change is handled in Settings component
-      // Just reload to ensure consistency
-      loadBackgroundImage();
+      // Just reload to ensure consistency (only for premium users)
+      if (isPremium()) {
+        loadBackgroundImage();
+      } else {
+        // Remove background if user is not premium
+        document.documentElement.style.removeProperty('--app-background-image');
+        document.documentElement.style.removeProperty('--app-background-opacity');
+        document.documentElement.style.removeProperty('--app-background-size');
+        document.documentElement.style.removeProperty('--app-background-repeat');
+      }
     } else if (settingName === 'backgroundOpacity' || settingName === 'backgroundPosition') {
       // These are handled directly in Settings component via CSS variables
+      // Only apply if premium user
+      if (!isPremium()) {
+        // Remove background if user is not premium
+        document.documentElement.style.removeProperty('--app-background-image');
+        document.documentElement.style.removeProperty('--app-background-opacity');
+        document.documentElement.style.removeProperty('--app-background-size');
+        document.documentElement.style.removeProperty('--app-background-repeat');
+      }
     }
     // alwaysOnTop is handled directly in Settings component
   };
