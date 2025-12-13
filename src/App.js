@@ -14,7 +14,7 @@ import { UserProvider, useUserContext } from './contexts/UserContext';
 import TurndownService from 'turndown';
 
 function AppContent() {
-  const { editor } = useEditorContext();
+  const { editor, isLocked, lockEditor, unlockEditor } = useEditorContext();
   const { currentUser, setCurrentUser, isPremium, userTier } = useUserContext();
   const [content, setContent] = useState('');
   const [saveStatus, setSaveStatus] = useState(''); // 'saving', 'saved', 'error'
@@ -418,13 +418,30 @@ function AppContent() {
                 onThemeClick={handleThemeClick}
                 onSettingsClick={handleSettingsClick}
                 onExport={handleExport}
+                onLockToggle={() => {
+                  if (isLocked) {
+                    unlockEditor();
+                  } else {
+                    lockEditor();
+                  }
+                }}
+                isLocked={isLocked}
                 onLogin={async () => {
                   // Trigger GoogleLogin component to login
                   // Since GoogleLogin is hidden, we'll call the API directly
                   if (window.electronAPI && window.electronAPI.googleLogin) {
-                    const result = await window.electronAPI.googleLogin();
-                    if (result.success && result.user) {
-                      setCurrentUser(result.user);
+                    console.log('[App] Calling googleLogin...');
+                    try {
+                      const result = await window.electronAPI.googleLogin();
+                      console.log('[App] googleLogin result:', result);
+                      if (result && result.success && result.user) {
+                        console.log('[App] Login successful, setting user:', result.user.email);
+                        setCurrentUser(result.user);
+                      } else {
+                        console.error('[App] Login failed:', result?.error || 'Unknown error');
+                      }
+                    } catch (error) {
+                      console.error('[App] Error calling googleLogin:', error);
                     }
                   }
                 }}

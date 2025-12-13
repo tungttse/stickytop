@@ -54,7 +54,7 @@ const TiptapEditor = (
   const [searchMatches, setSearchMatches] = useState([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
-  const { setEditor: setEditorContext, setScrollToTodo: setScrollToTodoContext } = useEditorContext();
+  const { setEditor: setEditorContext, setScrollToTodo: setScrollToTodoContext, isLocked } = useEditorContext();
   
   // Track xem đã clear countdown khi load content lần đầu chưa
   const hasClearedCountdownRef = useRef(false);
@@ -111,6 +111,7 @@ const TiptapEditor = (
       }),
     ],
     content : content,
+    editable: !isLocked,
     onUpdate: ({ editor }) => {
       onContentChange(editor.getHTML())
       
@@ -270,6 +271,13 @@ const TiptapEditor = (
       setEditorContext(editor);
     }
   }, [editor, setEditorContext]);
+
+  // Update editor editable state when lock state changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!isLocked);
+    }
+  }, [editor, isLocked]);
 
   useEffect(() => {
     if (content !== editor.getHTML()) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSettingsClick }) => {
+const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSettingsClick, onLockToggle, isLocked }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -70,6 +70,13 @@ const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSe
     setIsOpen(false);
     if (onSettingsClick) {
       onSettingsClick();
+    }
+  };
+
+  const handleLockToggle = () => {
+    setIsOpen(false);
+    if (onLockToggle) {
+      onLockToggle();
     }
   };
 
@@ -163,6 +170,10 @@ const UserMenu = ({ currentUser, onThemeClick, onLogout, onLogin, onExport, onSe
             <button className="user-menu-item" onClick={handleSettingsClick}>
               <span className="user-menu-icon">⚙️</span>
               <span>Settings</span>
+            </button>
+            <button className="user-menu-item" onClick={handleLockToggle}>
+              <span className="user-menu-icon">{isLocked ? '🔓' : '🔒'}</span>
+              <span>{isLocked ? 'Unlock Editor' : 'Lock Editor'}</span>
             </button>
             <button className="user-menu-item" onClick={handleAbout}>
               <span className="user-menu-icon">ℹ️</span>

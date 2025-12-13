@@ -9,8 +9,13 @@ const { google } = require('googleapis');
 const isDev = !app.isPackaged;
 let config = {};
 
+console.log('[Config] App is packaged:', app.isPackaged);
+console.log('[Config] isDev:', isDev);
+console.log('[Config] process.resourcesPath:', process.resourcesPath);
+
 if (isDev) {
   // Development: use dotenv
+  console.log('[Config] Loading from .env file...');
   require('dotenv').config();
   config = {
     CLIENT_ID: process.env.CLIENT_ID,
@@ -21,18 +26,27 @@ if (isDev) {
     PORT_START: process.env.PORT_START,
     PORT_END: process.env.PORT_END,
   };
+  console.log('[Config] Loaded from .env - CLIENT_ID:', config.CLIENT_ID ? 'SET' : 'MISSING');
 } else {
   // Production: load from config file in extraResources
   const configPath = path.join(process.resourcesPath, 'config.production.json');
+  console.log('[Config] Looking for config file at:', configPath);
   if (fs.existsSync(configPath)) {
     try {
       config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
       console.log('[Config] Loaded config from:', configPath);
+      console.log('[Config] CLIENT_ID:', config.CLIENT_ID ? 'SET' : 'MISSING');
+      console.log('[Config] CLIENT_SECRET:', config.CLIENT_SECRET ? 'SET' : 'MISSING');
     } catch (err) {
       console.error('[Config] Error loading config file:', err.message);
     }
   } else {
     console.warn('[Config] Config file not found at:', configPath);
+    // Try alternative paths
+    const altPath1 = path.join(__dirname, 'config.production.json');
+    const altPath2 = path.join(process.cwd(), 'config.production.json');
+    console.log('[Config] Trying alternative path 1:', altPath1, 'exists:', fs.existsSync(altPath1));
+    console.log('[Config] Trying alternative path 2:', altPath2, 'exists:', fs.existsSync(altPath2));
   }
 }
 
@@ -1198,9 +1212,19 @@ function findAvailablePort(startPort, endPort) {
 // OAuth Login Handler
 ipcMain.handle('google-login', async (event) => {
   try {
+    console.log('[OAuth] Starting Google login...');
+    console.log('[OAuth] CLIENT_ID:', CLIENT_ID ? 'SET' : 'MISSING');
+    console.log('[OAuth] CLIENT_SECRET:', CLIENT_SECRET ? 'SET' : 'MISSING');
+    
+    if (!CLIENT_ID || !CLIENT_SECRET) {
+      console.error('[OAuth] CLIENT_ID or CLIENT_SECRET is missing!');
+      return { success: false, error: 'OAuth credentials not configured. Please check config.production.json' };
+    }
+
     // Find available port from PORT_START to PORT_END
     const port = await findAvailablePort(PORT_START, PORT_END);
     const redirectUri = `http://127.0.0.1:${port}/callback`;
+    console.log('[OAuth] Using redirect URI:', redirectUri);
 
     const oauth2Client = new google.auth.OAuth2(
       CLIENT_ID,
@@ -1237,6 +1261,8 @@ ipcMain.handle('google-login', async (event) => {
       let server;
       let serverResolve;
       let serverReject;
+      let codeReceived = false; // Track if we've received the authorization code
+      let isProcessing = false; // Track if we're currently processing the code
 
       const cleanup = () => {
         if (server) {
@@ -1245,6 +1271,27 @@ ipcMain.handle('google-login', async (event) => {
         }
         if (authWindow && !authWindow.isDestroyed()) {
           authWindow.close();
+        }
+      };
+
+      // Helper to safely reject with proper format
+      const safeReject = (errorObj) => {
+        const errorMessage = typeof errorObj === 'string' 
+          ? errorObj 
+          : (errorObj?.error || errorObj?.message || JSON.stringify(errorObj));
+        if (serverReject) {
+          serverReject({ success: false, error: errorMessage });
+        } else {
+          reject(new Error(errorMessage));
+        }
+      };
+
+      // Helper to safely resolve
+      const safeResolve = (data) => {
+        if (serverResolve) {
+          serverResolve(data);
+        } else {
+          resolve(data);
         }
       };
 
@@ -1258,51 +1305,54 @@ ipcMain.handle('google-login', async (event) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end('<html><body><h1>Authorization failed</h1><p>You can close this window.</p></body></html>');
             cleanup();
-            if (serverReject) {
-              serverReject({ success: false, error: error });
-            }
+            safeReject(error);
             return;
           }
 
           if (code) {
+            console.log('[OAuth] Authorization code received');
+            codeReceived = true;
+            isProcessing = true;
             res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end('<html><body><h1>Authorization successful!</h1><p>You can close this window.</p></body></html>');
+            res.end('<html><body><h1>Authorization successful!</h1><p>Processing... Please wait.</p></body></html>');
             
             (async () => {
               try {
+                console.log('[OAuth] Exchanging code for tokens...');
                 const { tokens } = await oauth2Client.getToken(code);
+                console.log('[OAuth] Tokens received, saving...');
                 saveUserTokens(tokens);
                 
                 oauth2Client.setCredentials(tokens);
+                console.log('[OAuth] Getting user info...');
                 const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
                 const userInfo = await oauth2.userinfo.get();
+                console.log('[OAuth] User info received:', userInfo.data.email);
                 
+                isProcessing = false;
                 cleanup();
                 
-                if (serverResolve) {
-                  serverResolve({
-                    success: true,
-                    user: {
-                      email: userInfo.data.email,
-                      name: userInfo.data.name,
-                      picture: userInfo.data.picture
-                    }
-                  });
-                }
+                console.log('[OAuth] Resolving promise with user data');
+                safeResolve({
+                  success: true,
+                  user: {
+                    email: userInfo.data.email,
+                    name: userInfo.data.name,
+                    picture: userInfo.data.picture
+                  }
+                });
               } catch (error) {
+                console.error('[OAuth] Error processing tokens:', error);
+                isProcessing = false;
                 cleanup();
-                if (serverReject) {
-                  serverReject({ success: false, error: error.message });
-                }
+                safeReject(error);
               }
             })();
           } else {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end('<html><body><h1>No authorization code</h1><p>You can close this window.</p></body></html>');
             cleanup();
-            if (serverReject) {
-              serverReject({ success: false, error: 'No authorization code received' });
-            }
+            safeReject('No authorization code received');
           }
         } else {
           res.writeHead(404);
@@ -1311,25 +1361,45 @@ ipcMain.handle('google-login', async (event) => {
       });
 
       server.listen(port, '127.0.0.1', () => {
-        serverResolve = resolve;
-        serverReject = reject;
+        console.log('[OAuth] Server listening on port', port);
+        // Wrap resolve/reject to ensure proper format
+        serverResolve = (data) => {
+          console.log('[OAuth] Resolving with data:', data);
+          resolve(data);
+        };
+        serverReject = (errorObj) => {
+          const errorMessage = typeof errorObj === 'string' 
+            ? errorObj 
+            : (errorObj?.error || errorObj?.message || JSON.stringify(errorObj));
+          console.log('[OAuth] Rejecting with error:', errorMessage);
+          // Don't reject the promise, instead resolve with error format
+          // This ensures IPC can properly serialize the response
+          resolve({ success: false, error: errorMessage });
+        };
       });
 
       server.on('error', (err) => {
         cleanup();
-        if (serverReject) {
-          serverReject({ success: false, error: err.message });
-        }
+        safeReject(err);
       });
 
       authWindow.on('closed', () => {
-        cleanup();
-        if (serverReject) {
-          serverReject({ success: false, error: 'Auth window closed' });
+        console.log('[OAuth] Auth window closed. codeReceived:', codeReceived, 'isProcessing:', isProcessing);
+        // Only reject if we haven't received the authorization code yet
+        // If code was received, the async handler will resolve/reject, so don't interfere
+        if (!codeReceived) {
+          console.log('[OAuth] Window closed before receiving code, rejecting...');
+          cleanup();
+          safeReject('Auth window closed');
+        } else {
+          console.log('[OAuth] Code already received, waiting for async handler to complete...');
         }
+        // If codeReceived is true, don't reject - let the async handler complete
+        // The cleanup() will be called by the async handler after processing
       });
     });
   } catch (error) {
+    console.error('[OAuth] Error in google-login handler:', error);
     return { success: false, error: error.message };
   }
 });

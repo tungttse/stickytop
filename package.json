@@ -43,12 +43,21 @@
       "dist/**/*",
       "main.js",
       "preload.js",
-      "package.json"
+      "package.json",
+      "node_modules/**/*"
     ],
     "extraResources": [
       "config.production.json"
     ],
     "asar": true,
+    "asarUnpack": [
+      "**/node_modules/googleapis/**",
+      "**/node_modules/gaxios/**",
+      "**/node_modules/googleapis-common/**",
+      "**/node_modules/node-fetch/**",
+      "**/node_modules/https-proxy-agent/**",
+      "**/node_modules/agent-base/**"
+    ],
     "mac": {
       "category": "public.app-category.productivity",
       "icon": "assets/icon.icns"
