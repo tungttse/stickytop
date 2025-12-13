@@ -2,6 +2,8 @@
 
 A beautiful Electron application for creating rich text sticky notes that stay on top of other windows.
 
+![Homepage](./screenshot.png)
+
 ## Features
 
 v1
