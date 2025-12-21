@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 
 const CountdownContext = createContext({
   activeCountdown: null,
-  setActiveCountdown: () => {},
-  clearActiveCountdown: () => {},
+  startCountdown: () => {},
+  cancelCountdown: () => {},
 });
 
 export const useCountdown = () => {
@@ -15,32 +15,108 @@ export const useCountdown = () => {
 };
 
 export const CountdownProvider = ({ children }) => {
-  const [activeCountdown, setActiveCountdownState] = useState(null);
+  const [activeCountdown, setActiveCountdown] = useState(null);
+  const intervalRef = useRef(null);
 
-  const setActiveCountdown = useCallback((countdownData) => {
-    // If countdownData is a function (update function), handle it
-    if (typeof countdownData === 'function') {
-      setActiveCountdownState(countdownData);
-    } else {
-      setActiveCountdownState(countdownData);
+  // Clear interval helper
+  const clearTimer = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
   }, []);
 
-  const clearActiveCountdown = useCallback(() => {
-    setActiveCountdownState(null);
-  }, []);
+  // Start a new countdown
+  const startCountdown = useCallback(({ initialSeconds, taskDescription, todoPosition, onComplete, onCancel }) => {
+    // Clear any existing countdown
+    clearTimer();
 
-  // Initialize CountdownProvider
+    // Set new countdown state
+    setActiveCountdown({
+      initialSeconds,
+      seconds: initialSeconds,
+      taskDescription,
+      todoPosition,
+      isActive: true,
+      isCompleted: false,
+      onComplete,
+      onCancel,
+    });
+
+    // Start interval
+    intervalRef.current = setInterval(() => {
+      setActiveCountdown(prev => {
+        if (!prev || !prev.isActive) {
+          clearTimer();
+          return prev;
+        }
+
+        if (prev.seconds <= 1) {
+          // Timer completed
+          clearTimer();
+          
+          // Show notification
+          window.electronAPI?.showNotification?.({
+            title: "⏰ StickyTop Timer",
+            body: prev.taskDescription ? `Task completed: ${prev.taskDescription}` : "Countdown completed!",
+            sound: true
+          });
+          
+          // Play system sound (3 times for emphasis)
+          if (window.electronAPI?.playSystemSound) {
+            window.electronAPI.playSystemSound('Glass');
+            window.electronAPI.playSystemSound('Glass');
+            window.electronAPI.playSystemSound('Glass');
+          }
+
+          // Call onComplete callback if provided
+          prev.onComplete?.();
+
+          return {
+            ...prev,
+            seconds: 0,
+            isActive: false,
+            isCompleted: true,
+          };
+        }
+
+        return {
+          ...prev,
+          seconds: prev.seconds - 1,
+        };
+      });
+    }, 1000);
+  }, [clearTimer]);
+
+  // Cancel the current countdown
+  const cancelCountdown = useCallback(() => {
+    clearTimer();
+    
+    // Call onCancel callback if provided
+    if (activeCountdown?.onCancel) {
+      activeCountdown.onCancel();
+    }
+    
+    setActiveCountdown(null);
+  }, [clearTimer, activeCountdown]);
+
+  // Clear countdown (without calling onCancel)
+  const clearActiveCountdown = useCallback(() => {
+    clearTimer();
+    setActiveCountdown(null);
+  }, [clearTimer]);
+
+  // Cleanup on unmount
   useEffect(() => {
-    // Clear any active countdown when app loads
-    setActiveCountdownState(null);
-  }, []);
+    return () => clearTimer();
+  }, [clearTimer]);
 
   return (
     <CountdownContext.Provider
       value={{
         activeCountdown,
-        setActiveCountdown,
+        startCountdown,
+        cancelCountdown,
         clearActiveCountdown,
       }}
     >

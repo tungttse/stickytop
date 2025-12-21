@@ -13,7 +13,6 @@ import Suggestion from '@tiptap/suggestion'
 import { ReactRenderer } from '@tiptap/react';
 import tippy from 'tippy.js';
 import { Extension } from '@tiptap/core'
-import { CountdownTimerExtension } from './components/countdown/CountdownTimerExtension'
 import { CalendarTask } from './extentions/CalendarTask'
 // import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -87,7 +86,6 @@ const TiptapEditor = (
         nested: true, // Allow nested task lists
       }),
       // TodoDragHandle,
-      CountdownTimerExtension,
       SearchHighlight,
       Image.configure({
         inline: true,
