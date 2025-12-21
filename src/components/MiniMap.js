@@ -72,8 +72,6 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
   
   // Handle click to scroll to heading
   const handleHeadingClick = useCallback((headingId) => {
-    console.log('Clicking heading:', headingId);
-    
     // Try multiple methods to find the element
     let element = document.getElementById(headingId);
     
@@ -90,20 +88,11 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
     }
     
     if (element) {
-      console.log('Found element, scrolling to:', element);
-      // Scroll the editor container, not the element itself
-      const editorContainer = editor.view.dom;
-      const elementRect = element.getBoundingClientRect();
-      const containerRect = editorContainer.getBoundingClientRect();
-      
-      const scrollTop = editorContainer.scrollTop + elementRect.top - containerRect.top - 20;
-      
-      editorContainer.scrollTo({
-        top: scrollTop,
-        behavior: 'smooth'
+      // Use scrollIntoView - works regardless of scroll container structure
+      element.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start'
       });
-    } else {
-      console.log('Element not found for heading:', headingId);
     }
   }, [editor, headings]);
 
