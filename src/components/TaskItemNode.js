@@ -5,8 +5,8 @@ import CountdownDialog from './countdown/CountdownDialog'
 import { useCountdown } from '../contexts/CountdownContext'
 import StopwatchIcon from '../assets/icons/stopwatch.svg'
 
-// Module-level variable để lưu source index - shared giữa tất cả TaskItemNode instances
-// Đảm bảo source index luôn có, không phụ thuộc vào dataTransfer có thể bị override
+// Module-level variable to store source index - shared between all TaskItemNode instances
+// Ensures source index is always available, not dependent on dataTransfer which can be overridden
 let draggedSourceIndex = null
 
 export default function TaskItemNode({ node, updateAttributes, editor, getPos, deleteNode }) {
@@ -20,16 +20,16 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   const dragImageTimeoutRef = useRef(null)
   const { activeCountdown } = useCountdown()
 
-  // Helper function để extract text từ ProseMirror node
-  // Chỉ lấy text từ paragraph, không bao gồm nested taskList
+  // Helper function to extract text from ProseMirror node
+  // Only get text from paragraph, excluding nested taskList
   const getNodeText = (node) => {
     if (!node.content) return '';
     
     let text = '';
-    // Duyệt qua content để chỉ lấy text từ paragraph
+    // Iterate through content to only get text from paragraph
     for (let i = 0; i < node.content.childCount; i++) {
       const child = node.content.child(i);
-      // Chỉ lấy text từ paragraph, bỏ qua taskList
+      // Only get text from paragraph, skip taskList
       if (child.type.name === 'paragraph') {
         child.descendants((n) => {
           if (n.isText) {
@@ -37,7 +37,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           }
           return true;
         });
-        // Thêm space giữa các paragraph
+        // Add space between paragraphs
         if (i < node.content.childCount - 1 && node.content.child(i + 1).type.name === 'paragraph') {
           text += ' ';
         }
@@ -87,37 +87,37 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     }
   }
 
-  // Check xem todo này có phải là todo đang có countdown active không
-  // Ẩn icon nếu todo này có countdown và đang active
-  // Nhưng không hiển thị "Running" nếu countdown đã completed hoặc task đã checked
+  // Check if this todo is the one with active countdown
+  // Hide icon if this todo has countdown and is active
+  // But don't display "Running" if countdown is completed or task is checked
   const taskText = getNodeText(node)
   const isActiveCountdownTodo = activeCountdown &&
     activeCountdown.taskDescription === taskText &&
     hasCountdown &&
-    !activeCountdown.isCompleted && // Không hiển thị nếu đã completed
-    !node.attrs.checked // Không hiển thị nếu task đã checked
+    !activeCountdown.isCompleted && // Don't display if already completed
+    !node.attrs.checked // Don't display if task is checked
 
   console.log('isActiveCountdownTodo', isActiveCountdownTodo)
-  // Chỉ hiển thị icon khi todo có ít nhất 1 ký tự
+  // Only display icon when todo has at least 1 character
   const shouldShowTimerIcon = !node.attrs.checked && !isActiveCountdownTodo && taskText.length > 0
 
-  // Check if this task item has nested taskList - nếu có thì ẩn controls
-  // NHƯNG nếu tất cả child items đã checked thì vẫn hiển thị controls
-  // node.content là Fragment, không phải array, nên cần dùng forEach hoặc check trực tiếp
+  // Check if this task item has nested taskList - if yes then hide controls
+  // BUT if all child items are checked then still display controls
+  // node.content is Fragment, not array, so need to use forEach or check directly
   const hasNestedTaskList = (() => {
     if (!node.content || node.content.childCount === 0) return false;
     
-    // Duyệt qua các child nodes để tìm taskList
+    // Iterate through child nodes to find taskList
     for (let i = 0; i < node.content.childCount; i++) {
       const child = node.content.child(i);
       if (child.type.name === 'taskList') {
-        // Nếu tìm thấy taskList, check xem tất cả child items đã checked chưa
+        // If taskList found, check if all child items are checked
         if (!child.content || child.content.childCount === 0) {
-          // Nested taskList rỗng, không ẩn controls
+          // Empty nested taskList, don't hide controls
           return false;
         }
         
-        // Check xem tất cả child taskItems có checked không
+        // Check if all child taskItems are checked
         let allChecked = true;
         for (let j = 0; j < child.content.childCount; j++) {
           const taskItem = child.content.child(j);
@@ -127,8 +127,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           }
         }
         
-        // Nếu tất cả đã checked, không ẩn controls (return false)
-        // Nếu còn item chưa checked, ẩn controls (return true)
+        // If all are checked, don't hide controls (return false)
+        // If there are unchecked items, hide controls (return true)
         return !allChecked;
       }
     }
@@ -200,15 +200,15 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     // Hardcode 30 seconds for testing
     seconds = 10
 
-    // Step 1: Clear active countdown trong context TRƯỚC KHI xóa nodes
-    // Điều này đảm bảo top bar ẩn ngay lập tức
+    // Step 1: Clear active countdown in context BEFORE deleting nodes
+    // This ensures top bar hides immediately
     clearActiveCountdown()
 
     const { state } = editor
     const countdownNodes = []
     const todoNodesToUpdate = []
 
-    // Step 2: Tìm tất cả countdown timer nodes và todos có countdown
+    // Step 2: Find all countdown timer nodes and todos with countdown
     state.doc.descendants((node, nodePos) => {
       if (node.type.name === 'countdownTimer') {
         countdownNodes.push({ node, pos: nodePos })
@@ -218,14 +218,14 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       }
     })
 
-    // Step 3: Tính toán insert position TRƯỚC KHI tạo transaction
+    // Step 3: Calculate insert position BEFORE creating transaction
     const pos = getPos()
     const currentTodoSize = node.nodeSize
 
-    // Step 4: Tạo MỘT transaction duy nhất cho tất cả thay đổi
+    // Step 4: Create ONE single transaction for all changes
     const tr = state.tr
 
-    // 4a: Update countdownSeconds của todo hiện tại
+    // 4a: Update countdownSeconds of current todo
     if (pos !== undefined) {
       tr.setNodeMarkup(pos, null, {
         ...node.attrs,
@@ -233,7 +233,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       })
     }
 
-    // 4b: Clear countdownSeconds của todos cũ (trừ todo hiện tại)
+    // 4b: Clear countdownSeconds of old todos (except current todo)
     todoNodesToUpdate.forEach(({ node: todoNode, pos: todoPos }) => {
       if (todoPos !== pos) {
         tr.setNodeMarkup(todoPos, null, {
@@ -243,8 +243,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       }
     })
 
-    // 4c: Xóa tất cả countdown timer nodes (sort descending để xóa từ cuối lên đầu)
-    // ProseMirror sẽ tự động adjust positions khi delete, nên delete từ cuối lên đầu
+    // 4c: Delete all countdown timer nodes (sort descending to delete from end to start)
+    // ProseMirror will automatically adjust positions when deleting, so delete from end to start
     if (countdownNodes.length > 0) {
       countdownNodes.sort((a, b) => b.pos - a.pos)
       countdownNodes.forEach(({ node: delNode, pos: delPos }) => {
@@ -252,24 +252,24 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       })
     }
 
-    // 4d: Insert countdown timer node mới
-    // Tính toán insert position sau khi đã delete (positions đã được adjust trong tr)
+    // 4d: Insert new countdown timer node
+    // Calculate insert position after deletion (positions have been adjusted in tr)
     if (pos !== undefined) {
-      // Extract text từ todo node - chỉ lấy text từ paragraph, không bao gồm nested taskList
+      // Extract text from todo node - only get text from paragraph, excluding nested taskList
       const taskText = getNodeText(node)
 
-      // Tính toán insertPos ban đầu (trước khi delete)
+      // Calculate initial insertPos (before deletion)
       let insertPos = pos + currentTodoSize
 
-      // Adjust cho các nodes sẽ bị xóa trước insertPos
+      // Adjust for nodes that will be deleted before insertPos
       countdownNodes.forEach(({ node: delNode, pos: delPos }) => {
         if (delPos < insertPos) {
           insertPos -= delNode.nodeSize
         }
       })
 
-      // Sau khi đã delete trong transaction, resolve position mới từ tr.doc
-      // và insert node mới
+      // After deletion in transaction, resolve new position from tr.doc
+      // and insert new node
       try {
         const $insertPos = tr.doc.resolve(insertPos)
         if ($insertPos.parent && $insertPos.parent.type.name === 'taskList') {
@@ -285,10 +285,10 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       }
     }
 
-    // Step 5: Dispatch TẤT CẢ thay đổi trong MỘT transaction duy nhất
+    // Step 5: Dispatch ALL changes in ONE single transaction
     editor.view.dispatch(tr)
 
-    // Step 6: Focus lại editor
+    // Step 6: Focus editor again
     // Clear previous timeout if exists
     if (focusTimeoutRef.current) {
       clearTimeout(focusTimeoutRef.current);
@@ -310,7 +310,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       e.stopPropagation()
       e.dataTransfer.dropEffect = 'move'
 
-      // Calculate drop position để hiển thị indicator
+      // Calculate drop position to display indicator
       if (!editor || !getPos) return
 
       const { view } = editor
@@ -325,7 +325,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
           const todoStart = pos
           const todoEnd = pos + node.nodeSize
 
-          // Determine if drop sẽ xảy ra before hay after todo này
+          // Determine if drop will occur before or after this todo
           if (dropPos < todoStart) {
             setDragOverPosition('before')
           } else if (dropPos > todoEnd) {
@@ -343,8 +343,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
   }
 
   const handleWrapperDragLeave = (e) => {
-    // Clear indicator khi rời khỏi todo item
-    // Chỉ clear nếu không có todo item nào khác ở trong
+    // Clear indicator when leaving todo item
+    // Only clear if there are no other todo items inside
     const relatedTarget = e.relatedTarget
     if (!relatedTarget || !relatedTarget.closest || !relatedTarget.closest('.task-item-with-timer')) {
       setDragOverPosition(null)
@@ -361,14 +361,14 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       return
     }
 
-    // ƯU TIÊN: Đọc từ module-level variable (đáng tin cậy nhất)
+    // PRIORITY: Read from module-level variable (most reliable)
     let sourceIndex = draggedSourceIndex
 
-    // FALLBACK: Nếu module variable null, thử đọc từ dataTransfer
+    // FALLBACK: If module variable is null, try reading from dataTransfer
     if (sourceIndex === null) {
       let sourceIndexStr = e.dataTransfer.getData('application/x-todo-index')
 
-      // Nếu custom type không có, thử parse từ text/plain với prefix
+      // If custom type doesn't exist, try parsing from text/plain with prefix
       if (!sourceIndexStr || sourceIndexStr === '') {
         const textPlain = e.dataTransfer.getData('text/plain')
         if (textPlain && textPlain.startsWith('TODO_INDEX_')) {
@@ -399,7 +399,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
 
     const { view, state } = editor
 
-    // ✅ Detect drop position từ mouse coordinates thay vì getPos()
+    // ✅ Detect drop position from mouse coordinates instead of getPos()
     const coords = {
       left: e.clientX,
       top: e.clientY
@@ -499,7 +499,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     const sourceNodePos = sourceTodo.pos
 
     // Calculate insert position based on adjustedDropIndex
-    // adjustedDropIndex là index mục tiêu sau khi đã điều chỉnh cho deletion
+    // adjustedDropIndex is the target index after adjusting for deletion
     let insertPos
 
     if (adjustedDropIndex >= todos.length) {
@@ -514,8 +514,8 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       console.log('Drop: Insert at beginning, pos', insertPos)
     } else {
       // Insert before the todo at adjustedDropIndex
-      // adjustedDropIndex là index mục tiêu trong danh sách sau khi đã xóa source
-      // Vậy trong danh sách hiện tại (trước khi xóa), todo tại adjustedDropIndex sẽ là todos[adjustedDropIndex]
+      // adjustedDropIndex is the target index in the list after source deletion
+      // So in the current list (before deletion), the todo at adjustedDropIndex will be todos[adjustedDropIndex]
 
       if (adjustedDropIndex >= 0 && adjustedDropIndex < todos.length) {
         const targetTodo = todos[adjustedDropIndex]
@@ -579,7 +579,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
       <div className="task-item-content">
         
           <NodeViewContent className="content" />
-          {/* Chỉ hiển thị controls nếu KHÔNG có nested taskList */}
+          {/* Only display controls if there is NO nested taskList */}
           {!hasNestedTaskList && (
              <span className="countdown-inline-badge">
              {shouldShowTimerIcon && (

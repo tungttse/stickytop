@@ -8,7 +8,7 @@ const CountdownBar = () => {
   const { scrollToTodo } = useEditorContext();
   const autoHideTimeoutRef = useRef(null);
 
-  // Get current state from activeCountdown (source of truth là CountdownTimerNode)
+  // Get current state from activeCountdown (source of truth is CountdownTimerNode)
   // Use seconds directly if available, otherwise fallback to initialSeconds
   const seconds = activeCountdown?.seconds !== undefined && activeCountdown?.seconds !== null
     ? activeCountdown.seconds
@@ -113,7 +113,7 @@ const CountdownBar = () => {
     };
   }, [isCompleted, activeCountdown, clearActiveCountdown]);
 
-  if (!activeCountdown) {
+  if (!activeCountdown || !activeCountdown.isActive) {
     return null;
   }
   

@@ -55,7 +55,7 @@ const MusicControl = () => {
     setShowMenu(false);
     
     if (audioRef.current) {
-      // Nếu chọn lại cùng sound đang pause, chỉ cần play lại
+      // If selecting the same sound that is paused, just play again
       if (selectedSound === soundKey && !isPlaying) {
         audioRef.current.play().catch(err => {
           console.error('Error playing audio:', err);
@@ -64,7 +64,7 @@ const MusicControl = () => {
         return;
       }
       
-      // Chọn sound mới hoặc sound khác
+      // Select new sound or different sound
       setSelectedSound(soundKey);
       audioRef.current.src = SOUND_SOURCES[soundKey].url;
       audioRef.current.play().catch(err => {
@@ -76,12 +76,12 @@ const MusicControl = () => {
 
   const handlePlayPause = () => {
     if (isPlaying) {
-      // Đang playing -> pause
+      // Currently playing -> pause
       if (audioRef.current) {
         audioRef.current.pause();
       }
     } else {
-      // Không playing -> show menu để chọn nhạc (dù đã có selectedSound hay chưa)
+      // Not playing -> show menu to select music (whether selectedSound exists or not)
       setShowMenu(true);
     }
   };

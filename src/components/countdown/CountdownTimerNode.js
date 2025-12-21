@@ -4,7 +4,7 @@ import { useCountdown } from '../../contexts/CountdownContext';
 
 const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos }) => {
   const [seconds, setSeconds] = useState(node.attrs.initialSeconds || 300);
-  const [isActive, setIsActive] = useState(true); // Auto-start
+  const [isActive, setIsActive] = useState(false); // Auto-start
   const [isPaused, setIsPaused] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const intervalRef = useRef(null);
@@ -14,8 +14,13 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
   const nodeIdRef = useRef(`countdown-${Date.now()}-${Math.random()}`);
   const isMountedRef = useRef(true);
 
-  // Register với context khi mount
+  // Register with context when mount - only when isActive = true
   useEffect(() => {
+    // Only register if countdown is active
+    if (!isActive) {
+      return;
+    }
+    
     isMountedRef.current = true;
     const currentNodeId = nodeIdRef.current;
     
@@ -37,17 +42,17 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
         }
       },
       onCancel: () => {
-        // Clear countdownSeconds của todo parent khi cancel
+        // Clear countdownSeconds of todo parent when cancel
         if (editor && getPos) {
           const pos = getPos()
           if (pos !== undefined) {
             const { state } = editor
-            // Tìm todo item parent có countdownSeconds
+            // Find todo item parent that has countdownSeconds
             state.doc.descendants((todoNode, todoPos) => {
               if (todoNode.type.name === 'taskItem' && 
                   todoNode.attrs.countdownSeconds !== null &&
                   todoNode.content.textContent === taskDescription) {
-                // Clear countdownSeconds của todo
+                // Clear countdownSeconds of todo
                 const tr = state.tr
                 tr.setNodeMarkup(todoPos, null, {
                   ...todoNode.attrs,
@@ -58,7 +63,7 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
             })
           }
         }
-        // Xóa countdown timer node
+        // Delete countdown timer node
         if (deleteNode) {
           deleteNode();
         }
@@ -69,16 +74,14 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
 
     return () => {
       isMountedRef.current = false;
-      // Clear khi unmount - chỉ clear nếu đây vẫn là active countdown
-      // Sử dụng updater function pattern
       setActiveCountdown((prev) => {
         if (prev?.nodeId === currentNodeId) {
-          return null; // Clear nếu đây là active countdown
+          return null;
         }
-        return prev; // Giữ nguyên nếu không phải
+        return prev;
       });
     };
-  }, []);
+  }, [isActive]); // Add isActive as dependency
 
   useEffect(() => {
     if (isActive && !isPaused && seconds > 0) {
@@ -157,9 +160,11 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
     };
   }, [isActive, isPaused, seconds, taskDescription]);
 
-  // Update context khi state thay đổi (chỉ update nếu đây là active countdown)
+  // Update context when state changes (only update if this is the active countdown)
   useEffect(() => {
-    // Chỉ update nếu nodeId khớp hoặc activeCountdown là null (đây là countdown đầu tiên)
+    // Only update if countdown is active
+  
+    // Only update if nodeId matches or activeCountdown is null (this is the first countdown)
     const isThisActive = !activeCountdown || activeCountdown.nodeId === nodeIdRef.current;
     
     if (isThisActive) {
@@ -190,10 +195,10 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seconds, isActive, isPaused, isCompleted]);
 
-  // Minimal indicator - chỉ hiển thị badge nhỏ
+  // Minimal indicator - only display small badge
   return (
     <NodeViewWrapper>
-      {/* Empty - UI hiển thị inline trong todo item thay vì ở đây */}
+      {/* Empty - UI displays inline in todo item instead of here */}
     </NodeViewWrapper>
   );
 };

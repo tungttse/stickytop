@@ -25,7 +25,7 @@ export const themes = {
       codeText: '#d4d4d4',
       codeInlineBg: 'rgba(0, 0, 0, 0.1)',
       codeInlineText: '#e83e8c',
-      iconColor: '#333333', // Đen cho theme sáng
+      iconColor: '#333333', // Black for light theme
       linkColor: '#007AFF',
       linkHoverColor: '#0051D5',
       linkVisitedColor: '#5856D6',
@@ -62,7 +62,7 @@ export const themes = {
       codeText: '#e0e0e0',
       codeInlineBg: 'rgba(255, 255, 255, 0.1)',
       codeInlineText: '#ff6b9d',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#4A9EFF',
       linkHoverColor: '#2E7FFF',
       linkVisitedColor: '#7C3AED',
@@ -95,7 +95,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#d4a574',
       countdownBadgeBorder: '#b8864a',
-      iconColor: '#5c4b37', // Màu nâu đậm cho sepia
+      iconColor: '#5c4b37', // Dark brown for sepia
       linkColor: '#8b6f47',
       linkHoverColor: '#6b4f27',
       linkVisitedColor: '#a68b5b',
@@ -128,7 +128,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#e0e0e0',
       countdownBadgeBorder: '#c0c0c0',
-      iconColor: '#2c2c2c', // Đen cho theme sáng
+      iconColor: '#2c2c2c', // Black for light theme
       linkColor: '#000000',
       linkHoverColor: '#333333',
       linkVisitedColor: '#666666',
@@ -161,7 +161,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#4a5568',
       countdownBadgeBorder: '#2d3748',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#4A9EFF',
       linkHoverColor: '#2E7FFF',
       linkVisitedColor: '#7C3AED',
@@ -194,7 +194,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ff8787',
       countdownBadgeBorder: '#fa5252',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#ff6b6b',
       linkHoverColor: '#ff5252',
       linkVisitedColor: '#ff8787',
@@ -227,7 +227,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#69db7c',
       countdownBadgeBorder: '#51cf66',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#51cf66',
       linkHoverColor: '#40c057',
       linkVisitedColor: '#69db7c',
@@ -260,7 +260,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#74c0fc',
       countdownBadgeBorder: '#4dabf7',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#4dabf7',
       linkHoverColor: '#339af0',
       linkVisitedColor: '#74c0fc',
@@ -293,7 +293,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ffec99',
       countdownBadgeBorder: '#ffd43b',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#ffd43b',
       linkHoverColor: '#fcc419',
       linkVisitedColor: '#ffec99',
@@ -326,7 +326,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#d0bfff',
       countdownBadgeBorder: '#b197fc',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#b197fc',
       linkHoverColor: '#9775fa',
       linkVisitedColor: '#d0bfff',
@@ -359,7 +359,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ffb84d',
       countdownBadgeBorder: '#ff922b',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#ff922b',
       linkHoverColor: '#fd7e14',
       linkVisitedColor: '#ffb84d',
@@ -392,7 +392,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#ff8cc8',
       countdownBadgeBorder: '#f06595',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#f06595',
       linkHoverColor: '#e64980',
       linkVisitedColor: '#ff8cc8',
@@ -425,7 +425,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#dee2e6',
       countdownBadgeBorder: '#adb5bd',
-      iconColor: '#1a1a1a', // Đen cho theme sáng
+      iconColor: '#1a1a1a', // Black for light theme
       linkColor: '#495057',
       linkHoverColor: '#343a40',
       linkVisitedColor: '#6c757d',
@@ -458,7 +458,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#2a2a2a',
       countdownBadgeBorder: '#1a1a1a',
-      iconColor: '#ffffff', // Trắng cho theme tối
+      iconColor: '#ffffff', // White for dark theme
       linkColor: '#ffffff',
       linkHoverColor: '#e0e0e0',
       linkVisitedColor: '#b0b0b0',
@@ -491,7 +491,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#f4d4a0',
       countdownBadgeBorder: '#d4a574',
-      iconColor: '#2c2c2c', // Đen cho theme sáng
+      iconColor: '#2c2c2c', // Black for light theme
       linkColor: '#d4a574',
       linkHoverColor: '#b8864a',
       linkVisitedColor: '#f4d4a0',
@@ -524,7 +524,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#7dd3fc',
       countdownBadgeBorder: '#38bdf8',
-      iconColor: '#1a3a4a', // Đen cho theme sáng
+      iconColor: '#1a3a4a', // Black for light theme
       linkColor: '#0ea5e9',
       linkHoverColor: '#0284c7',
       linkVisitedColor: '#7dd3fc',
@@ -557,7 +557,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#86efac',
       countdownBadgeBorder: '#4ade80',
-      iconColor: '#1a3a2a', // Đen cho theme sáng
+      iconColor: '#1a3a2a', // Black for light theme
       linkColor: '#22c55e',
       linkHoverColor: '#16a34a',
       linkVisitedColor: '#86efac',
@@ -590,7 +590,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#fdba74',
       countdownBadgeBorder: '#fb923c',
-      iconColor: '#4a2a1a', // Đen cho theme sáng
+      iconColor: '#4a2a1a', // Black for light theme
       linkColor: '#f97316',
       linkHoverColor: '#ea580c',
       linkVisitedColor: '#fdba74',
@@ -623,7 +623,7 @@ export const themes = {
       countdownBarText: '#ffffff',
       countdownBadgeBg: '#c084fc',
       countdownBadgeBorder: '#a855f7',
-      iconColor: '#3a2a4a', // Đen cho theme sáng
+      iconColor: '#3a2a4a', // Black for light theme
       linkColor: '#a855f7',
       linkHoverColor: '#9333ea',
       linkVisitedColor: '#c084fc',

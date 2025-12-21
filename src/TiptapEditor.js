@@ -56,10 +56,10 @@ const TiptapEditor = (
 
   const { setEditor: setEditorContext, setScrollToTodo: setScrollToTodoContext, isLocked } = useEditorContext();
   
-  // Track xem đã clear countdown khi load content lần đầu chưa
+  // Track whether countdown has been cleared when loading content for the first time
   const hasClearedCountdownRef = useRef(false);
   
-  // Refs để store timeout IDs cho cleanup
+  // Refs to store timeout IDs for cleanup
   const clearCountdownTimeoutRef = useRef(null);
   const headingCountTimeoutRef = useRef(null);
   const searchScrollTimeoutRef = useRef(null);
@@ -89,10 +89,10 @@ const TiptapEditor = (
       }),
       TaskList,
       // TaskItem.configure({
-      //   nested: true, // Cho phép nested task lists
+      //   nested: true, // Allow nested task lists
       // }),
       CustomTaskItem.configure({
-        nested: true, // Cho phép nested task lists
+        nested: true, // Allow nested task lists
       }),
       // TodoDragHandle,
       CountdownTimerExtension,
@@ -152,10 +152,10 @@ const TiptapEditor = (
     editorProps: {
       attributes: { class: 'tiptap-editor' },
       handleDrop: (view, event, slice, moved) => {
-        // Chỉ xử lý khi không phải move node (moved = false)
+        // Only process when not moving node (moved = false)
         if (moved) return false;
         
-        // Kiểm tra xem có file image không
+        // Check if there are image files
         const files = Array.from(event.dataTransfer?.files || []);
         const imageFiles = files.filter(file => file.type.startsWith('image/'));
         
@@ -163,12 +163,12 @@ const TiptapEditor = (
         
         event.preventDefault();
         
-        // Xử lý từng image file
+        // Process each image file
         imageFiles.forEach((file) => {
           const reader = new FileReader();
           reader.onload = (e) => {
             const src = e.target.result;
-            // Insert image tại vị trí drop
+            // Insert image at drop position
             const { schema } = view.state;
             const coordinates = view.posAtCoords({
               left: event.clientX,
@@ -189,7 +189,7 @@ const TiptapEditor = (
       handlePaste: (view, event, slice) => {
         const items = Array.from(event.clipboardData?.items || []);
         
-        // 1. Xử lý paste image từ clipboard (ưu tiên cao nhất)
+        // 1. Process paste image from clipboard (highest priority)
         const imageItems = items.filter(item => item.type.startsWith('image/'));
         if (imageItems.length > 0) {
           event.preventDefault();
@@ -211,7 +211,7 @@ const TiptapEditor = (
           return true;
         }
         
-        // 2. Xử lý paste code - detect và format thành code block
+        // 2. Process paste code - detect and format into code block
         const text = event.clipboardData?.getData('text/plain') || '';
         if (text.trim()) {
           const lines = text.split('\n');
@@ -232,7 +232,7 @@ const TiptapEditor = (
           //   lines.some(line => pattern.test(line.trim()))
           // );
           
-          // Nếu detect là code, format thành code block
+          // If code is detected, format into code block
           let hasCodePattern = isProbablyCode(text);
           if (hasCodePattern) {
             event.preventDefault();
@@ -240,10 +240,10 @@ const TiptapEditor = (
             const { schema } = view.state;
             const { selection } = view.state;
             
-            // Kiểm tra xem có codeBlock node type không
+            // Check if codeBlock node type exists
             if (schema.nodes.codeBlock) {
-              // Tạo code block node với text content
-              // CodeBlock trong Tiptap chứa một text node với toàn bộ code (giữ nguyên newlines)
+              // Create code block node with text content
+              // CodeBlock in Tiptap contains a text node with all code (preserve newlines)
               const codeText = text.trim();
               const codeBlock = schema.nodes.codeBlock.create({}, schema.text(codeText));
               const transaction = view.state.tr.replaceSelectionWith(codeBlock);
@@ -253,7 +253,7 @@ const TiptapEditor = (
           }
         }
         
-        // 3. Không phải image cũng không phải code, để default handler xử lý
+        // 3. Not image and not code, let default handler process
         return false;
       },
     },
@@ -692,7 +692,7 @@ const TiptapEditor = (
   };
 
 
-  // Function để scroll đến todo item
+  // Function to scroll to todo item
   const scrollToTodo = useCallback((todoPosition) => {
     if (!editor || todoPosition === null || todoPosition === undefined) {
       return;

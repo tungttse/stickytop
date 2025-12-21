@@ -11,7 +11,7 @@ const UserContext = createContext({
 export const useUserContext = () => {
   const context = useContext(UserContext);
   if (!context) {
-    // Fallback nếu chưa có provider (backward compatible)
+    // Fallback if provider doesn't exist yet (backward compatible)
     return {
       currentUser: null,
       userTier: 'free',
@@ -47,7 +47,7 @@ export const UserProvider = ({ children, initialUser = null }) => {
     }
   }, []);
 
-  // Load tier từ localStorage khi có user
+  // Load tier from localStorage when user exists
   useEffect(() => {
     if (currentUser?.email) {
       // Hardcode premium for specific email

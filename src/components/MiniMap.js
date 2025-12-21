@@ -28,7 +28,7 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
     state.doc.descendants((node, pos) => {
       if (node.type.name === 'heading' && node.attrs.level) {
         const text = node.textContent;
-        // Chỉ thêm heading nếu có ít nhất 1 ký tự sau khi trim
+        // Only add heading if there is at least 1 character after trimming
         if (text && text.trim().length > 0) {
           const level = node.attrs.level;
           const slug = generateSlug(text);
@@ -37,7 +37,7 @@ const MiniMap = ({ editor, isVisible, onToggle }) => {
           headingsList.push({
             id: uniqueId,
             level: level,
-            text: text.trim(), // Trim text để loại bỏ khoảng trắng thừa
+            text: text.trim(), // Trim text to remove extra whitespace
             position: pos,
             element: null // Will be set when we find the DOM element
           });

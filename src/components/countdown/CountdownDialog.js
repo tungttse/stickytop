@@ -13,7 +13,7 @@ const PRESETS = [
 export default function CountdownDialog({ onSelectDuration, onClose }) {
   const { isPremium } = useUserContext()
   const [customTime, setCustomTime] = useState({ hours: 0, minutes: 0, seconds: 0 })
-  // Tạm thời set window opacity về 1.0 khi dialog mở
+  // Temporarily set window opacity to 1.0 when dialog opens
   useEffect(() => {
     let savedOpacity = 1.0
     
@@ -23,7 +23,7 @@ export default function CountdownDialog({ onSelectDuration, onClose }) {
           const result = await window.electronAPI.getTransparency()
           if (result.success) {
             savedOpacity = result.opacity
-            // Set opacity về 1.0 để dialog hiển thị rõ
+            // Set opacity to 1.0 so dialog displays clearly
             if (window.electronAPI && window.electronAPI.setTransparency) {
               await window.electronAPI.setTransparency(1.0)
             }
@@ -36,7 +36,7 @@ export default function CountdownDialog({ onSelectDuration, onClose }) {
     
     setFullOpacity()
     
-    // Restore opacity khi dialog đóng
+    // Restore opacity when dialog closes
     return () => {
       if (window.electronAPI && window.electronAPI.setTransparency) {
         window.electronAPI.setTransparency(savedOpacity).catch(error => {
