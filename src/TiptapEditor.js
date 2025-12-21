@@ -535,9 +535,15 @@ const TiptapEditor = (
     if (!editor) return;
 
     const findScrollableElement = () => {
-      // Try to find the element with .tiptap-editor class
+      // Try to find the editor-section-container which is the scrollable container
+      const editorSectionContainer = document.querySelector('.editor-section-container');
+      if (editorSectionContainer && editorSectionContainer.scrollHeight > editorSectionContainer.clientHeight) {
+        return editorSectionContainer;
+      }
+      
+      // Fallback: Try to find from editor element
       const editorElement = editor.view.dom;
-      if (!editorElement) return null;
+      if (!editorElement) return editorSectionContainer || null;
       
       // Check if the editor element itself is scrollable
       if (editorElement.scrollHeight > editorElement.clientHeight) {
@@ -548,7 +554,8 @@ const TiptapEditor = (
       let parent = editorElement.parentElement;
       while (parent) {
         if (parent.scrollHeight > parent.clientHeight && 
-            (parent.classList.contains('tiptap-editor') || 
+            (parent.classList.contains('editor-section-container') ||
+             parent.classList.contains('tiptap-editor') || 
              getComputedStyle(parent).overflowY === 'auto' ||
              getComputedStyle(parent).overflowY === 'scroll')) {
           return parent;
@@ -556,7 +563,7 @@ const TiptapEditor = (
         parent = parent.parentElement;
       }
       
-      return editorElement;
+      return editorSectionContainer || editorElement;
     };
 
     const scrollableElement = findScrollableElement();
@@ -608,21 +615,27 @@ const TiptapEditor = (
 
   // Handle scroll to top
   const handleScrollToTop = () => {
-    if (!editor) return;
+    // First try editor-section-container
+    const editorSectionContainer = document.querySelector('.editor-section-container');
+    if (editorSectionContainer) {
+      editorSectionContainer.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      return;
+    }
     
-    // Find the scrollable element
+    // Fallback to editor element
+    if (!editor) return;
     const editorElement = editor.view.dom;
     if (!editorElement) return;
     
-    // Check if the editor element itself is scrollable
     let scrollableElement = editorElement;
     if (editorElement.scrollHeight <= editorElement.clientHeight) {
-      // Check parent elements
       let parent = editorElement.parentElement;
       while (parent) {
         if (parent.scrollHeight > parent.clientHeight && 
-            (parent.classList.contains('tiptap-editor') || 
-             getComputedStyle(parent).overflowY === 'auto' ||
+            (getComputedStyle(parent).overflowY === 'auto' ||
              getComputedStyle(parent).overflowY === 'scroll')) {
           scrollableElement = parent;
           break;
