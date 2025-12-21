@@ -88,7 +88,6 @@ const TiptapEditor = (
       }),
       // TodoDragHandle,
       CountdownTimerExtension,
-      // SlashCommandsExtension,
       SearchHighlight,
       Image.configure({
         inline: true,
@@ -96,10 +95,7 @@ const TiptapEditor = (
         HTMLAttributes: {
           class: 'tiptap-image',
         },
-      }),
-      Placeholder.configure({
-        placeholder: 'Type / to see commands (e.g. /countdown 5m, /remind 10m, /use meeting)',
-      }),
+      })
     ],
     content : content,
     editable: !isLocked,
@@ -109,25 +105,13 @@ const TiptapEditor = (
       // Update line count - only count non-empty lines
       const text = editor.getText();
       const lines = text.split('\n').filter(line => line.trim().length > 0).length;
-      setLineCount(lines);
       
       // Update todo count and completed count
       const html = editor.getHTML();
-      const todoMatches = html.match(/<li[^>]*data-type="taskItem"[^>]*>/g);
-      const todoCount = todoMatches ? todoMatches.length : 0;
-      setTodoCount(todoCount);
       
       // Count completed todos (checked) - use DOM parsing for accuracy
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = html;
-      const taskItems = tempDiv.querySelectorAll('li[data-type="taskItem"]');
-      const completedTodoCount = Array.from(taskItems).filter(item => 
-        item.getAttribute('data-checked') === 'true'
-      ).length;
-      setCompletedTodoCount(completedTodoCount);
-      
-      // Update last edit time
-      setLastEditTime(new Date());
       
       // Count headings - only show minimap if there are at least 2 headings
       const { state } = editor;
@@ -315,21 +299,14 @@ const TiptapEditor = (
       // Update line count when content changes - only count non-empty lines
       const text = editor.getText();
       const lines = text.split('\n').filter(line => line.trim().length > 0).length;
-      setLineCount(lines);
       
       // Update todo count and completed count when content changes
       const todoMatches = content.match(/<li[^>]*data-type="taskItem"[^>]*>/g);
       const todoCount = todoMatches ? todoMatches.length : 0;
-      setTodoCount(todoCount);
       
       // Count completed todos (checked) - use DOM parsing for accuracy
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = content;
-      const taskItems = tempDiv.querySelectorAll('li[data-type="taskItem"]');
-      const completedTodoCount = Array.from(taskItems).filter(item => 
-        item.getAttribute('data-checked') === 'true'
-      ).length;
-      setCompletedTodoCount(completedTodoCount);
       
       // Count headings when content changes - wait for editor to update
       // Clear previous timeout if exists
