@@ -196,9 +196,6 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
     if (!editor) return
 
     setShowDialog(false)
-    
-    // Hardcode 30 seconds for testing
-    seconds = 10
 
     // Step 1: Clear active countdown in context BEFORE deleting nodes
     // This ensures top bar hides immediately
