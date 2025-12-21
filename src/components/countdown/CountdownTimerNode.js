@@ -42,25 +42,21 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
         }
       },
       onCancel: () => {
-        // Clear countdownSeconds of todo parent when cancel
-        if (editor && getPos) {
-          const pos = getPos()
-          if (pos !== undefined) {
+        // Clear countdownSeconds of todo parent using cached todoPosition
+        if (editor && todoPosition !== null && todoPosition !== undefined) {
+          try {
             const { state } = editor
-            // Find todo item parent that has countdownSeconds
-            state.doc.descendants((todoNode, todoPos) => {
-              if (todoNode.type.name === 'taskItem' && 
-                  todoNode.attrs.countdownSeconds !== null &&
-                  todoNode.content.textContent === taskDescription) {
-                // Clear countdownSeconds of todo
-                const tr = state.tr
-                tr.setNodeMarkup(todoPos, null, {
-                  ...todoNode.attrs,
-                  countdownSeconds: null,
-                })
-                editor.view.dispatch(tr)
-              }
-            })
+            const todoNode = state.doc.nodeAt(todoPosition)
+            if (todoNode && todoNode.type.name === 'taskItem' && todoNode.attrs.countdownSeconds !== null) {
+              const tr = state.tr
+              tr.setNodeMarkup(todoPosition, null, {
+                ...todoNode.attrs,
+                countdownSeconds: null,
+              })
+              editor.view.dispatch(tr)
+            }
+          } catch (error) {
+            console.warn('Error clearing todo countdownSeconds:', error)
           }
         }
         // Delete countdown timer node
@@ -91,34 +87,19 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
             setIsActive(false);
             setIsCompleted(true);
             
-            // Auto-check task item when countdown completes
+            // Auto-check task item when countdown completes using cached todoPosition
             if (editor && todoPosition !== null && todoPosition !== undefined) {
               try {
                 const { state } = editor;
-                const tr = state.tr;
+                const taskItemNode = state.doc.nodeAt(todoPosition);
                 
-                // Find task item at todoPosition
-                let taskItemPos = null;
-                state.doc.descendants((node, pos) => {
-                  if (node.type.name === 'taskItem' && 
-                      pos === todoPosition &&
-                      !node.attrs.checked) {
-                    taskItemPos = pos;
-                    return false; // Stop searching
-                  }
-                  return true;
-                });
-                
-                if (taskItemPos !== null) {
-                  // Check task item
-                  const taskItemNode = state.doc.nodeAt(taskItemPos);
-                  if (taskItemNode && !taskItemNode.attrs.checked) {
-                    tr.setNodeMarkup(taskItemPos, null, {
-                      ...taskItemNode.attrs,
-                      checked: true,
-                    });
-                    editor.view.dispatch(tr);
-                  }
+                if (taskItemNode && taskItemNode.type.name === 'taskItem' && !taskItemNode.attrs.checked) {
+                  const tr = state.tr;
+                  tr.setNodeMarkup(todoPosition, null, {
+                    ...taskItemNode.attrs,
+                    checked: true,
+                  });
+                  editor.view.dispatch(tr);
                 }
               } catch (error) {
                 console.warn('Error auto-checking task item:', error);
@@ -184,6 +165,24 @@ const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos
           setIsCompleted(newState.isCompleted);
         },
         onCancel: () => {
+          // Clear countdownSeconds of todo parent using cached todoPosition
+          if (editor && todoPosition !== null && todoPosition !== undefined) {
+            try {
+              const { state } = editor
+              const todoNode = state.doc.nodeAt(todoPosition)
+              if (todoNode && todoNode.type.name === 'taskItem' && todoNode.attrs.countdownSeconds !== null) {
+                const tr = state.tr
+                tr.setNodeMarkup(todoPosition, null, {
+                  ...todoNode.attrs,
+                  countdownSeconds: null,
+                })
+                editor.view.dispatch(tr)
+              }
+            } catch (error) {
+              console.warn('Error clearing todo countdownSeconds:', error)
+            }
+          }
+          // Delete countdown timer node
           if (deleteNode) {
             deleteNode();
           }

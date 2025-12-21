@@ -197,105 +197,57 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos, d
 
     setShowDialog(false)
 
-    // Step 1: Clear active countdown in context BEFORE deleting nodes
-    // This ensures top bar hides immediately
+    // Step 1: Cancel old countdown if exists (via context callback)
+    // This automatically deletes old countdown node and clears old todo's countdownSeconds
+    if (activeCountdown?.onCancel) {
+      activeCountdown.onCancel()
+    }
     clearActiveCountdown()
 
-    const { state } = editor
-    const countdownNodes = []
-    const todoNodesToUpdate = []
-
-    // Step 2: Find all countdown timer nodes and todos with countdown
-    state.doc.descendants((node, nodePos) => {
-      if (node.type.name === 'countdownTimer') {
-        countdownNodes.push({ node, pos: nodePos })
-      }
-      if (node.type.name === 'taskItem' && node.attrs.countdownSeconds !== null) {
-        todoNodesToUpdate.push({ node, pos: nodePos })
-      }
-    })
-
-    // Step 3: Calculate insert position BEFORE creating transaction
+    // Step 2: Get current position and create transaction
     const pos = getPos()
-    const currentTodoSize = node.nodeSize
+    if (pos === undefined) return
 
-    // Step 4: Create ONE single transaction for all changes
+    const { state } = editor
     const tr = state.tr
 
-    // 4a: Update countdownSeconds of current todo
-    if (pos !== undefined) {
-      tr.setNodeMarkup(pos, null, {
-        ...node.attrs,
-        countdownSeconds: seconds,
-      })
-    }
-
-    // 4b: Clear countdownSeconds of old todos (except current todo)
-    todoNodesToUpdate.forEach(({ node: todoNode, pos: todoPos }) => {
-      if (todoPos !== pos) {
-        tr.setNodeMarkup(todoPos, null, {
-          ...todoNode.attrs,
-          countdownSeconds: null,
-        })
-      }
+    // Step 3: Update current todo's countdownSeconds attribute
+    tr.setNodeMarkup(pos, null, {
+      ...node.attrs,
+      countdownSeconds: seconds,
     })
 
-    // 4c: Delete all countdown timer nodes (sort descending to delete from end to start)
-    // ProseMirror will automatically adjust positions when deleting, so delete from end to start
-    if (countdownNodes.length > 0) {
-      countdownNodes.sort((a, b) => b.pos - a.pos)
-      countdownNodes.forEach(({ node: delNode, pos: delPos }) => {
-        tr.delete(delPos, delPos + delNode.nodeSize)
-      })
-    }
+    // Step 4: Insert new countdown timer node after current todo
+    const taskText = getNodeText(node)
+    const insertPos = pos + node.nodeSize
 
-    // 4d: Insert new countdown timer node
-    // Calculate insert position after deletion (positions have been adjusted in tr)
-    if (pos !== undefined) {
-      // Extract text from todo node - only get text from paragraph, excluding nested taskList
-      const taskText = getNodeText(node)
-
-      // Calculate initial insertPos (before deletion)
-      let insertPos = pos + currentTodoSize
-
-      // Adjust for nodes that will be deleted before insertPos
-      countdownNodes.forEach(({ node: delNode, pos: delPos }) => {
-        if (delPos < insertPos) {
-          insertPos -= delNode.nodeSize
-        }
-      })
-
-      // After deletion in transaction, resolve new position from tr.doc
-      // and insert new node
-      try {
-        const $insertPos = tr.doc.resolve(insertPos)
-        if ($insertPos.parent && $insertPos.parent.type.name === 'taskList') {
-          const countdownTimerNode = editor.schema.nodes.countdownTimer.create({
-            initialSeconds: seconds,
-            taskDescription: taskText,
-            todoPosition: pos,
-          })
-          tr.insert(insertPos, countdownTimerNode)
-        }
-      } catch (error) {
-        console.warn('Error inserting countdown timer:', error)
+    try {
+      const $insertPos = tr.doc.resolve(insertPos)
+      if ($insertPos.parent && $insertPos.parent.type.name === 'taskList') {
+        const countdownTimerNode = editor.schema.nodes.countdownTimer.create({
+          initialSeconds: seconds,
+          taskDescription: taskText,
+          todoPosition: pos,
+        })
+        tr.insert(insertPos, countdownTimerNode)
       }
+    } catch (error) {
+      console.warn('Error inserting countdown timer:', error)
     }
 
-    // Step 5: Dispatch ALL changes in ONE single transaction
+    // Step 5: Dispatch transaction
     editor.view.dispatch(tr)
 
     // Step 6: Focus editor again
-    // Clear previous timeout if exists
     if (focusTimeoutRef.current) {
-      clearTimeout(focusTimeoutRef.current);
+      clearTimeout(focusTimeoutRef.current)
     }
     focusTimeoutRef.current = setTimeout(() => {
       if (editor) {
-        editor.commands.focus();
+        editor.commands.focus()
       }
-      focusTimeoutRef.current = null;
-    }, 0);
+      focusTimeoutRef.current = null
+    }, 0)
   }
 
   const handleWrapperDragOver = (e) => {

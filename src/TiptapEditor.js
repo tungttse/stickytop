@@ -7,20 +7,16 @@ import { CustomTaskItem } from './extensions/CustomTaskItem';
 import { BulletList, OrderedList, ListItem } from '@tiptap/extension-list';
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image';
-import CountdownTimer from './components/countdown/CountdownTimer';
 // import SystemClock from './components/SystemClock';
 import { debounce } from 'lodash';
 import Suggestion from '@tiptap/suggestion'
 import { ReactRenderer } from '@tiptap/react';
 import tippy from 'tippy.js';
 import { Extension } from '@tiptap/core'
-import { SlashCommandsExtension } from './components/SlashCommandsExtension'
-import { SlashCommands } from './components/SlashCommands'
 import { CountdownTimerExtension } from './components/countdown/CountdownTimerExtension'
 import { CalendarTask } from './extentions/CalendarTask'
 // import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Paragraph from '@tiptap/extension-paragraph'
-import { TimestampExtension } from './extensions/TimestampExtension.bk'
 import { TodoDragHandle } from './extensions/TodoDragHandle.bk'
 import FilterMenu from './components/FilterMenu.bk'
 import MiniMap from './components/MiniMap'
@@ -39,10 +35,6 @@ const TiptapEditor = (
     textAreaWidth = 800,
   }
 ) => {
-  const [lineCount, setLineCount] = useState(0);
-  const [todoCount, setTodoCount] = useState(0);
-  const [completedTodoCount, setCompletedTodoCount] = useState(0);
-  const [lastEditTime, setLastEditTime] = useState(null);
   const [showMiniMap, setShowMiniMap] = useState(true);
   const [headingCount, setHeadingCount] = useState(0);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
@@ -97,7 +89,6 @@ const TiptapEditor = (
       // TodoDragHandle,
       CountdownTimerExtension,
       // SlashCommandsExtension,
-      // TimestampExtension,
       SearchHighlight,
       Image.configure({
         inline: true,
@@ -214,24 +205,6 @@ const TiptapEditor = (
         // 2. Process paste code - detect and format into code block
         const text = event.clipboardData?.getData('text/plain') || '';
         if (text.trim()) {
-          const lines = text.split('\n');
-          
-          // Code detection patterns
-          // const codePatterns = [
-          //   /^(function|const|let|var|class|import|export|if|for|while|return|async|await|try|catch|finally|switch|case|default)\s/,
-          //   /[{}();=]/, // Common code characters
-          //   /^\s{2,}/, // Indentation (2+ spaces)
-          //   /^\t/, // Tab indentation
-          //   /^\s*\/\//, // Comments
-          //   /^\s*\/\*/, // Block comments
-          //   /=>\s*/, // Arrow functions
-          //   /console\.(log|error|warn|info)/, // Console statements
-          // ];
-          
-          // const hasCodePattern = codePatterns.some(pattern => 
-          //   lines.some(line => pattern.test(line.trim()))
-          // );
-          
           // If code is detected, format into code block
           let hasCodePattern = isProbablyCode(text);
           if (hasCodePattern) {
