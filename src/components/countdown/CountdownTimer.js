@@ -5,7 +5,16 @@ const CountdownTimer = ({ initialSeconds = 10, onComplete, onCancel }) => {
   const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const intervalRef = useRef(null);
-  const alertTimeoutRef = useRef(null);
+
+  const showNotification = () => {
+    if (window.electronAPI && window.electronAPI.showNotification) {
+      window.electronAPI.showNotification({
+        title: "⏰ StickyTop Timer",
+        body: "Countdown completed!",
+        sound: true
+      });
+    }
+  };
 
   useEffect(() => {
     if (isActive && seconds > 0) {
@@ -14,27 +23,11 @@ const CountdownTimer = ({ initialSeconds = 10, onComplete, onCancel }) => {
           if (seconds <= 1) {
             setIsActive(false);
             setIsCompleted(true);
-            setShowAlert(true);
             
             // Show notification
-            if (window.electronAPI && window.electronAPI.showNotification) {
-              window.electronAPI.showNotification({
-                title: "⏰ StickyTop Timer",
-                body: "Countdown completed!",
-                sound: true
-              });
-            }
-            
+            showNotification();
+
             // Visual alert
-            // Clear previous timeout if exists
-            if (alertTimeoutRef.current) {
-              clearTimeout(alertTimeoutRef.current);
-            }
-            alertTimeoutRef.current = setTimeout(() => {
-              setShowAlert(false);
-              alertTimeoutRef.current = null;
-            }, 5000);
-            
             onComplete && onComplete();
           }
           return seconds - 1;
@@ -46,10 +39,6 @@ const CountdownTimer = ({ initialSeconds = 10, onComplete, onCancel }) => {
 
     return () => {
       clearInterval(intervalRef.current);
-      if (alertTimeoutRef.current) {
-        clearTimeout(alertTimeoutRef.current);
-        alertTimeoutRef.current = null;
-      }
     };
   }, [isActive, seconds, onComplete]);
 
