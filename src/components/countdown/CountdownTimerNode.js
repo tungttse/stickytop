@@ -1,200 +1,154 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import { useCountdown } from '../../contexts/CountdownContext';
 
-const CountdownTimerNode = ({ node, updateAttributes, deleteNode, editor, getPos }) => {
-  const [seconds, setSeconds] = useState(node.attrs.initialSeconds || 300);
-  const [isActive, setIsActive] = useState(false); // Auto-start
-  const [isPaused, setIsPaused] = useState(false);
+const CountdownTimerNode = ({ node, deleteNode, editor }) => {
+  const { initialSeconds = 300, taskDescription = '', todoPosition = null } = node.attrs;
+  
+  const [seconds, setSeconds] = useState(initialSeconds);
+  const [isActive, setIsActive] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  
   const intervalRef = useRef(null);
-  const taskDescription = node.attrs.taskDescription || '';
-  const todoPosition = node.attrs.todoPosition || null;
-  const { setActiveCountdown, clearActiveCountdown, activeCountdown } = useCountdown();
   const nodeIdRef = useRef(`countdown-${Date.now()}-${Math.random()}`);
   const isMountedRef = useRef(true);
+  
+  const { setActiveCountdown, activeCountdown } = useCountdown();
 
-  // Register with context when mount - only when isActive = true
-  useEffect(() => {
-    // Only register if countdown is active
-    if (!isActive) {
-      return;
+  // Clear todo's countdownSeconds attribute
+  const clearTodoCountdown = useCallback(() => {
+    if (!editor || todoPosition === null) return;
+    
+    try {
+      const { state } = editor;
+      const todoNode = state.doc.nodeAt(todoPosition);
+      if (todoNode?.type.name === 'taskItem' && todoNode.attrs.countdownSeconds !== null) {
+        const tr = state.tr;
+        tr.setNodeMarkup(todoPosition, null, {
+          ...todoNode.attrs,
+          countdownSeconds: null,
+        });
+        editor.view.dispatch(tr);
+      }
+    } catch (error) {
+      console.warn('Error clearing todo countdownSeconds:', error);
     }
+  }, [editor, todoPosition]);
+
+  // Handle cancel - clears todo and deletes node
+  const handleCancel = useCallback(() => {
+    clearTodoCountdown();
+    deleteNode?.();
+  }, [clearTodoCountdown, deleteNode]);
+
+  // Handle timer completion - auto-check task, show notification, play sound
+  const handleComplete = useCallback(() => {
+    // Auto-check task item
+    if (editor && todoPosition !== null) {
+      try {
+        const { state } = editor;
+        const taskItemNode = state.doc.nodeAt(todoPosition);
+        
+        if (taskItemNode?.type.name === 'taskItem' && !taskItemNode.attrs.checked) {
+          const tr = state.tr;
+          tr.setNodeMarkup(todoPosition, null, {
+            ...taskItemNode.attrs,
+            checked: true,
+          });
+          editor.view.dispatch(tr);
+        }
+      } catch (error) {
+        console.warn('Error auto-checking task item:', error);
+      }
+    }
+    
+    // Show notification
+    window.electronAPI?.showNotification?.({
+      title: "⏰ StickyTop Timer",
+      body: taskDescription ? `Task completed: ${taskDescription}` : "Countdown completed!",
+      sound: true
+    });
+    
+    // Play system sound (3 times for emphasis)
+    if (window.electronAPI?.playSystemSound) {
+      window.electronAPI.playSystemSound('Glass');
+      window.electronAPI.playSystemSound('Glass');
+      window.electronAPI.playSystemSound('Glass');
+    }
+  }, [editor, todoPosition, taskDescription]);
+
+  // Build countdown data object for context
+  const buildCountdownData = useCallback(() => ({
+    nodeId: nodeIdRef.current,
+    initialSeconds,
+    taskDescription,
+    todoPosition,
+    seconds,
+    isActive,
+    isCompleted,
+    onStateUpdate: (newState) => {
+      if (isMountedRef.current) {
+        setSeconds(newState.seconds);
+        setIsActive(newState.isActive);
+        setIsCompleted(newState.isCompleted);
+      }
+    },
+    onCancel: handleCancel,
+  }), [initialSeconds, taskDescription, todoPosition, seconds, isActive, isCompleted, handleCancel]);
+
+  // Register with context when active
+  useEffect(() => {
+    if (!isActive) return;
     
     isMountedRef.current = true;
     const currentNodeId = nodeIdRef.current;
     
-    const countdownData = {
-      nodeId: currentNodeId,
-      initialSeconds: node.attrs.initialSeconds || 300,
-      taskDescription,
-      todoPosition,
-      seconds,
-      isActive,
-      isPaused,
-      isCompleted,
-      onStateUpdate: (newState) => {
-        if (isMountedRef.current) {
-          setSeconds(newState.seconds);
-          setIsActive(newState.isActive);
-          setIsPaused(newState.isPaused);
-          setIsCompleted(newState.isCompleted);
-        }
-      },
-      onCancel: () => {
-        // Clear countdownSeconds of todo parent using cached todoPosition
-        if (editor && todoPosition !== null && todoPosition !== undefined) {
-          try {
-            const { state } = editor
-            const todoNode = state.doc.nodeAt(todoPosition)
-            if (todoNode && todoNode.type.name === 'taskItem' && todoNode.attrs.countdownSeconds !== null) {
-              const tr = state.tr
-              tr.setNodeMarkup(todoPosition, null, {
-                ...todoNode.attrs,
-                countdownSeconds: null,
-              })
-              editor.view.dispatch(tr)
-            }
-          } catch (error) {
-            console.warn('Error clearing todo countdownSeconds:', error)
-          }
-        }
-        // Delete countdown timer node
-        if (deleteNode) {
-          deleteNode();
-        }
-      },
-    };
-    
-    setActiveCountdown(countdownData);
+    setActiveCountdown(buildCountdownData());
 
     return () => {
       isMountedRef.current = false;
-      setActiveCountdown((prev) => {
-        if (prev?.nodeId === currentNodeId) {
-          return null;
-        }
-        return prev;
-      });
+      setActiveCountdown(prev => prev?.nodeId === currentNodeId ? null : prev);
     };
-  }, [isActive]); // Add isActive as dependency
+  }, [isActive, buildCountdownData, setActiveCountdown]);
 
+  // Timer interval
   useEffect(() => {
-    if (isActive && !isPaused && seconds > 0) {
-      intervalRef.current = setInterval(() => {
-        setSeconds(prevSeconds => {
-          if (prevSeconds <= 1) {
-            setIsActive(false);
-            setIsCompleted(true);
-            
-            // Auto-check task item when countdown completes using cached todoPosition
-            if (editor && todoPosition !== null && todoPosition !== undefined) {
-              try {
-                const { state } = editor;
-                const taskItemNode = state.doc.nodeAt(todoPosition);
-                
-                if (taskItemNode && taskItemNode.type.name === 'taskItem' && !taskItemNode.attrs.checked) {
-                  const tr = state.tr;
-                  tr.setNodeMarkup(todoPosition, null, {
-                    ...taskItemNode.attrs,
-                    checked: true,
-                  });
-                  editor.view.dispatch(tr);
-                }
-              } catch (error) {
-                console.warn('Error auto-checking task item:', error);
-              }
-            }
-            
-            // Show notification
-            if (window.electronAPI && window.electronAPI.showNotification) {
-              window.electronAPI.showNotification({
-                title: "⏰ StickyTop Timer",
-                body: taskDescription ? `Task completed: ${taskDescription}` : "Countdown completed!",
-                sound: true
-              });
-            }
-            
-            // Play system sound
-            if (window.electronAPI && window.electronAPI.playSystemSound) {
-              window.electronAPI.playSystemSound('Glass');
-              window.electronAPI.playSystemSound('Glass');
-              window.electronAPI.playSystemSound('Glass');
-            }
-            
-            return 0;
-          }
-          return prevSeconds - 1;
-        });
-      }, 1000);
-    } else {
+    if (!isActive || isCompleted) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      return;
     }
+
+    intervalRef.current = setInterval(() => {
+      setSeconds(prev => {
+        if (prev <= 1) {
+          setIsActive(false);
+          setIsCompleted(true);
+          handleComplete();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, isPaused, seconds, taskDescription]);
+  }, [isActive, isCompleted, handleComplete]);
 
-  // Update context when state changes (only update if this is the active countdown)
+  // Update context when state changes
   useEffect(() => {
-    // Only update if countdown is active
-  
-    // Only update if nodeId matches or activeCountdown is null (this is the first countdown)
     const isThisActive = !activeCountdown || activeCountdown.nodeId === nodeIdRef.current;
     
-    if (isThisActive) {
-      const countdownData = {
-        nodeId: nodeIdRef.current,
-        initialSeconds: node.attrs.initialSeconds || 300,
-        taskDescription,
-        todoPosition,
-        seconds,
-        isActive,
-        isPaused,
-        isCompleted,
-        onStateUpdate: (newState) => {
-          setSeconds(newState.seconds);
-          setIsActive(newState.isActive);
-          setIsPaused(newState.isPaused);
-          setIsCompleted(newState.isCompleted);
-        },
-        onCancel: () => {
-          // Clear countdownSeconds of todo parent using cached todoPosition
-          if (editor && todoPosition !== null && todoPosition !== undefined) {
-            try {
-              const { state } = editor
-              const todoNode = state.doc.nodeAt(todoPosition)
-              if (todoNode && todoNode.type.name === 'taskItem' && todoNode.attrs.countdownSeconds !== null) {
-                const tr = state.tr
-                tr.setNodeMarkup(todoPosition, null, {
-                  ...todoNode.attrs,
-                  countdownSeconds: null,
-                })
-                editor.view.dispatch(tr)
-              }
-            } catch (error) {
-              console.warn('Error clearing todo countdownSeconds:', error)
-            }
-          }
-          // Delete countdown timer node
-          if (deleteNode) {
-            deleteNode();
-          }
-        },
-      };
-      
-      setActiveCountdown(countdownData);
+    if (isThisActive && isActive) {
+      setActiveCountdown(buildCountdownData());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seconds, isActive, isPaused, isCompleted]);
+  }, [seconds, isActive, isCompleted, activeCountdown, buildCountdownData, setActiveCountdown]);
 
-  // Minimal indicator - only display small badge
   return (
     <NodeViewWrapper>
       {/* Empty - UI displays inline in todo item instead of here */}
