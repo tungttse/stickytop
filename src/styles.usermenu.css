@@ -2,7 +2,7 @@
 .user-menu {
   position: relative;
   -webkit-app-region: no-drag;
-  z-index: 10002; /* Higher than overlay to ensure trigger is clickable */
+  z-index: 1000; /* Lower than calendar sidebar */
 }
 
 .user-menu-trigger {

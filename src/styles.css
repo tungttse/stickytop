@@ -171,6 +171,7 @@ body,
   font-size: var(--theme-font-size);
   line-height: var(--theme-line-height);
   color: var(--theme-text);
+  caret-color: var(--theme-text);
   padding: 10px 20px;
   margin: 0;
   box-sizing: border-box;
@@ -454,8 +455,9 @@ ol {
   opacity: 1 !important;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  /* Add solid background overlay to prevent transparency */
-  position: relative;
+  /* Sticky at top when scrolling */
+  position: sticky;
+  top: 0;
 }
 
 /* When completed, override animation to only blink */

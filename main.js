@@ -23,6 +23,7 @@ if (isDev) {
     REDIRECT_URL: process.env.REDIRECT_URL,
     REFRESH_TOKEN: process.env.REFRESH_TOKEN,
     ENABLE_DRAG: process.env.ENABLE_DRAG,
+    DEFAULT_TIER: process.env.DEFAULT_TIER,
     PORT_START: process.env.PORT_START,
     PORT_END: process.env.PORT_END,
   };
@@ -57,6 +58,9 @@ const REFRESH_TOKEN = config.REFRESH_TOKEN || process.env.REFRESH_TOKEN;
 
 // Load drag feature config
 const ENABLE_DRAG = (config.ENABLE_DRAG || process.env.ENABLE_DRAG) === 'true';
+
+// Load default tier config (premium or free)
+const DEFAULT_TIER = config.DEFAULT_TIER || process.env.DEFAULT_TIER || 'premium';
 
 // OAuth port range
 const PORT_START = parseInt(config.PORT_START || process.env.PORT_START || '3000', 10);
@@ -636,7 +640,8 @@ ipcMain.handle('get-app-config', async (event) => {
     return { 
       success: true, 
       config: {
-        enableDrag: ENABLE_DRAG
+        enableDrag: ENABLE_DRAG,
+        defaultTier: DEFAULT_TIER
       }
     };
   } catch (error) {

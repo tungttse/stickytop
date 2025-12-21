@@ -111,7 +111,7 @@
   background: var(--theme-bg);
   border-left: 1px solid var(--theme-border);
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
-  z-index: 10002;
+  z-index: 10005;
   animation: sidebarSlideIn 0.3s ease-out;
   display: flex;
   flex-direction: column;
