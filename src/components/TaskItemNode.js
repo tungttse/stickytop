@@ -2,12 +2,14 @@ import React, { useState, useRef } from 'react'
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 import CountdownDialog from './countdown/CountdownDialog'
 import { useCountdown } from '../contexts/CountdownContext'
+import { useEditorContext } from '../contexts/EditorContext'
 import StopwatchIcon from '../assets/icons/stopwatch.svg'
 
 export default function TaskItemNode({ node, updateAttributes, editor, getPos }) {
   const [showDialog, setShowDialog] = useState(false)
   const focusTimeoutRef = useRef(null)
   const { activeCountdown, startCountdown, cancelCountdown } = useCountdown()
+  const { isLocked } = useEditorContext()
 
   // Helper function to extract text from ProseMirror node
   // Only get text from paragraph, excluding nested taskList
@@ -203,7 +205,9 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos })
         <input
           type="checkbox"
           checked={node.attrs.checked}
+          disabled={isLocked}
           onChange={(e) => {
+            if (isLocked) return
             updateAttributes({ checked: e.target.checked })
           }}
         />
@@ -214,7 +218,7 @@ export default function TaskItemNode({ node, updateAttributes, editor, getPos })
           {/* Only display controls if there is NO nested taskList */}
           {!hasNestedTaskList && (
              <span className="countdown-inline-badge">
-             {shouldShowTimerIcon && (
+             {shouldShowTimerIcon && !isLocked && (
                <button
                  className="timer-icon-button"
                  onClick={handleTimerClick}
