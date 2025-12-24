@@ -149,13 +149,11 @@ body,
 /* ===== TOP RIGHT ACTIONS ===== */
 .top-right-actions {
   position: fixed !important;
-  top: 0 !important;
-  right: 0 !important;
-  z-index: 1000 !important;
-  padding: 8px;
+  top: 12px !important;
+  right: 12px !important;
   display: flex;
   align-items: center;
-  gap: 8px;
+  z-index: 1000;
 }
 
 /* ===== TIPTAP EDITOR STYLES ===== */
@@ -939,7 +937,6 @@ ol {
   top: 33%;
   right: 0;
   transform: translateY(-50%);
-  z-index: 1000;
 }
 
 .minimap-trigger-button {
@@ -2090,20 +2087,6 @@ ol {
   z-index: 0;
 }
 
-/* Ensure top-right-actions is not affected by app-container positioning */
-.top-right-actions {
-  position: fixed !important;
-  top: 0 !important;
-  right: 0 !important;
-  left: auto !important;
-  z-index: 1000 !important;
-  transform: none !important;
-}
-
-.app-container > *:not(.top-right-actions):not(.user-menu-overlay):not(.settings-overlay):not(.settings-panel):not(.theme-selector-overlay):not(.theme-selector-panel):not(.scroll-to-top-button) {
-  position: relative;
-  z-index: 1;
-}
 
 /* Ensure code blocks don't overlap modals */
 .tiptap-editor pre {
